@@ -1,0 +1,5 @@
+Flask==3.0.0
+flask-cors==4.0.0
+nba_api==1.4.1
+cachetools==5.3.2
+gunicorn==21.2.0
