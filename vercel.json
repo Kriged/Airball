@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://YOUR_RENDER_APP_NAME.onrender.com/api/$1"
+      "destination": "https://airball-cfv6.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
