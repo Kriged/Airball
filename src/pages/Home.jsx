@@ -85,192 +85,10 @@ async function fetchBoxScore(gameId) {
   }
 }
 
-// ============================================================
-// Mock Data (remove when API is connected)
-// ============================================================
-
-const homePlayers = {
-  Lakers: ['LeBron James', 'Anthony Davis', 'Austin Reaves', 'D\'Angelo Russell', 'Rui Hachimura'],
-  Warriors: ['Stephen Curry', 'Draymond Green', 'Jonathan Kuminga', 'Andrew Wiggins', 'Brandin Podziemski']
-};
-
-const awayPlayers = {
-  Celtics: ['Jayson Tatum', 'Jaylen Brown', 'Derrick White', 'Jrue Holiday', 'Kristaps Porziņģis'],
-  Suns: ['Kevin Durant', 'Devin Booker', 'Bradley Beal', 'Jusuf Nurkić', 'Grayson Allen']
-};
-
-function generateBoxScore(players, teamTotal) {
-  const count = players.length;
-  let remaining = teamTotal;
-  return players.map((name, i) => {
-    const isLast = i === count - 1;
-    const pts = isLast ? remaining : Math.floor(Math.random() * (remaining / (count - i) * 1.8)) + 2;
-    remaining -= pts;
-    if (remaining < 0) remaining = 0;
-    const min = `${Math.floor(Math.random() * 16) + 20}`;
-    const reb = Math.floor(Math.random() * 10) + 1;
-    const ast = Math.floor(Math.random() * 8);
-    const fga = Math.floor(Math.random() * 12) + 5;
-    const fgm = Math.min(fga, Math.floor(Math.random() * (fga + 1)));
-    return { name, min, pts, reb, ast, fgm, fga };
-  });
-}
-
-const initialGames = [
-  {
-    id: 'mock_1',
-    home: 'Lakers',
-    away: 'Celtics',
-    homeAbbr: 'LAL',
-    awayAbbr: 'BOS',
-    homeScore: 104,
-    awayScore: 102,
-    homeColor: '#fdb927',
-    awayColor: '#007a33',
-    quarter: '4th Qtr',
-    time: '02:15',
-    status: 'LIVE',
-    arena: 'Crypto.com Arena, Los Angeles',
-    stats: {
-      fgPct: { home: 47.2, away: 45.8 },
-      fg3Pct: { home: 36.4, away: 38.1 },
-      rebounds: { home: 42, away: 40 },
-      assists: { home: 24, away: 22 },
-      turnovers: { home: 11, away: 14 }
-    },
-    playByPlay: [
-      { time: '02:15', text: 'LeBron James misses 26-foot three point pullup jump shot', score: '104-102' },
-      { time: '02:30', text: 'Jayson Tatum hits 14-foot fadeaway jump shot (assist by Jaylen Brown)', score: '104-102' },
-      { time: '02:48', text: 'Anthony Davis defensive rebound', score: '104-100' },
-      { time: '02:50', text: 'Jaylen Brown misses running layup', score: '104-100' },
-      { time: '03:10', text: 'Austin Reaves makes 25-foot three point jump shot (assist by LeBron James)', score: '104-100' }
-    ],
-    boxScore: {
-      home: generateBoxScore(homePlayers.Lakers, 104),
-      away: generateBoxScore(awayPlayers.Celtics, 102),
-    }
-  },
-  {
-    id: 'mock_2',
-    home: 'Warriors',
-    away: 'Suns',
-    homeAbbr: 'GSW',
-    awayAbbr: 'PHX',
-    homeScore: 88,
-    awayScore: 85,
-    homeColor: '#1d428a',
-    awayColor: '#e56020',
-    quarter: '3rd Qtr',
-    time: '04:50',
-    status: 'LIVE',
-    arena: 'Chase Center, San Francisco',
-    stats: {
-      fgPct: { home: 48.1, away: 49.3 },
-      fg3Pct: { home: 41.2, away: 35.5 },
-      rebounds: { home: 31, away: 33 },
-      assists: { home: 27, away: 19 },
-      turnovers: { home: 9, away: 8 }
-    },
-    playByPlay: [
-      { time: '04:50', text: 'Stephen Curry makes driving layup', score: '88-85' },
-      { time: '05:08', text: 'Devin Booker hits 18-foot pullup jump shot', score: '86-85' },
-      { time: '05:25', text: 'Draymond Green steal from Kevin Durant', score: '86-83' }
-    ],
-    boxScore: {
-      home: generateBoxScore(homePlayers.Warriors, 88),
-      away: generateBoxScore(awayPlayers.Suns, 85),
-    }
-  },
-  {
-    id: 'mock_3',
-    home: 'Bucks',
-    away: 'Heat',
-    homeAbbr: 'MIL',
-    awayAbbr: 'MIA',
-    homeScore: 112,
-    awayScore: 108,
-    homeColor: '#00471b',
-    awayColor: '#98002e',
-    quarter: 'Final',
-    time: '00:00',
-    status: 'FINAL',
-    arena: 'Fiserv Forum, Milwaukee',
-    stats: {
-      fgPct: { home: 51.3, away: 46.2 },
-      fg3Pct: { home: 38.5, away: 40.0 },
-      rebounds: { home: 48, away: 41 },
-      assists: { home: 29, away: 25 },
-      turnovers: { home: 14, away: 12 }
-    },
-    playByPlay: [
-      { time: '00:00', text: 'End of 4th Quarter. Bucks win!', score: '112-108' },
-      { time: '00:04', text: 'Giannis Antetokounmpo makes free throw 2 of 2', score: '112-108' },
-      { time: '00:04', text: 'Giannis Antetokounmpo makes free throw 1 of 2', score: '111-108' },
-      { time: '00:04', text: 'Jimmy Butler loose ball foul (take foul)', score: '110-108' }
-    ],
-    boxScore: {
-      home: [
-        { name: 'Giannis Antetokounmpo', min: '38', pts: 36, reb: 14, ast: 8, fgm: 14, fga: 24 },
-        { name: 'Damian Lillard', min: '36', pts: 22, reb: 3, ast: 9, fgm: 8, fga: 18 },
-        { name: 'Khris Middleton', min: '34', pts: 18, reb: 5, ast: 4, fgm: 7, fga: 15 },
-        { name: 'Brook Lopez', min: '30', pts: 14, reb: 8, ast: 2, fgm: 6, fga: 11 },
-        { name: 'Bobby Portis', min: '22', pts: 12, reb: 9, ast: 1, fgm: 5, fga: 10 },
-      ],
-      away: [
-        { name: 'Jimmy Butler', min: '40', pts: 28, reb: 6, ast: 5, fgm: 10, fga: 22 },
-        { name: 'Bam Adebayo', min: '36', pts: 24, reb: 12, ast: 4, fgm: 10, fga: 18 },
-        { name: 'Tyler Herro', min: '34', pts: 20, reb: 3, ast: 6, fgm: 7, fga: 16 },
-        { name: 'Duncan Robinson', min: '28', pts: 15, reb: 2, ast: 2, fgm: 5, fga: 12 },
-        { name: 'Caleb Martin', min: '26', pts: 11, reb: 4, ast: 1, fgm: 4, fga: 9 },
-      ]
-    }
-  },
-  {
-    id: 'mock_4',
-    home: 'Nuggets',
-    away: 'Mavericks',
-    homeAbbr: 'DEN',
-    awayAbbr: 'DAL',
-    homeScore: 0,
-    awayScore: 0,
-    homeColor: '#0e2240',
-    awayColor: '#0053bc',
-    quarter: '7:30 PM',
-    time: 'Upcoming',
-    status: 'UPCOMING',
-    arena: 'Ball Arena, Denver',
-    stats: {
-      fgPct: { home: 0, away: 0 },
-      fg3Pct: { home: 0, away: 0 },
-      rebounds: { home: 0, away: 0 },
-      assists: { home: 0, away: 0 },
-      turnovers: { home: 0, away: 0 }
-    },
-    playByPlay: [],
-    boxScore: {
-      home: [
-        { name: 'Nikola Jokić', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Jamal Murray', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Michael Porter Jr.', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Aaron Gordon', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Kentavious Caldwell-Pope', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-      ],
-      away: [
-        { name: 'Luka Dončić', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Kyrie Irving', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'P.J. Washington', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Daniel Gafford', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-        { name: 'Dereck Lively II', min: '-', pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 },
-      ]
-    }
-  }
-];
-
 function Home() {
-  const [games, setGames] = useState(initialGames);
+  const [games, setGames] = useState([]);
   const [activeGameId, setActiveGameId] = useState('mock_1');
   const [activeTab, setActiveTab] = useState('pbp');
-  const [isPlaying, setIsPlaying] = useState(true);
 
   const activeGame = games.find((g) => g.id === activeGameId) || games[0];
 
@@ -299,9 +117,6 @@ function Home() {
     if (!activeGameId) return;
 
     const loadDetails = async () => {
-      // Don't call API if active game is client-simulated and playing
-      if (activeGameId.startsWith('mock_') && isPlaying) return;
-
       const [pbp, box] = await Promise.all([
         fetchPlayByPlay(activeGameId),
         fetchBoxScore(activeGameId)
@@ -322,11 +137,11 @@ function Home() {
     loadDetails();
 
     const activeGameObj = games.find(g => g.id === activeGameId);
-    if (activeGameObj && activeGameObj.status === 'LIVE' && !activeGameId.startsWith('mock_')) {
+    if (activeGameObj && activeGameObj.status === \'LIVE\') {
       const interval = setInterval(loadDetails, 10000);
       return () => clearInterval(interval);
     }
-  }, [activeGameId, isPlaying]);
+  }, [activeGameId]);
 
   // Client-side simulation ticker (only runs for mock games when playing)
   useEffect(() => {
@@ -740,6 +555,16 @@ function Home() {
       </table>
     </div>
   );
+
+  if (!activeGame) {
+    return (
+      <main className="home-page">
+        <section className="live-hub-section" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h2 style={{ color: 'var(--text-secondary)' }}>No Games Today</h2>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="home-page">

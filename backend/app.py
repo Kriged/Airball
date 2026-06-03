@@ -492,17 +492,7 @@ def get_games_list():
                 'arena': g.get('arena', {}).get('arenaName', 'NBA Arena')
             })
             
-        if not mapped_games:
-            mapped_games = [
-                { 'id': 'mock_1', 'date': '2025-03-15', 'home': 'Lakers', 'away': 'Celtics', 'homeScore': 112, 'awayScore': 108, 'status': 'Final', 'arena': 'Crypto.com Arena' },
-                { 'id': 'mock_2', 'date': '2025-03-15', 'home': 'Warriors', 'away': 'Nuggets', 'homeScore': 118, 'awayScore': 124, 'status': 'Final', 'arena': 'Chase Center' },
-                { 'id': 'mock_3', 'date': '2025-03-14', 'home': 'Bucks', 'away': 'Heat', 'homeScore': 120, 'awayScore': 115, 'status': 'Final', 'arena': 'Fiserv Forum' },
-                { 'id': 'mock_4', 'date': '2025-03-14', 'home': 'Suns', 'away': 'Mavericks', 'homeScore': 105, 'awayScore': 110, 'status': 'Final', 'arena': 'Footprint Center' },
-                { 'id': 'mock_5', 'date': '2025-03-13', 'home': '76ers', 'away': 'Raptors', 'homeScore': 131, 'awayScore': 98, 'status': 'Final', 'arena': 'Wells Fargo Center' },
-                { 'id': 'mock_6', 'date': '2025-03-13', 'home': 'Bulls', 'away': 'Spurs', 'homeScore': 99, 'awayScore': 102, 'status': 'Final', 'arena': 'United Center' },
-                { 'id': 'mock_7', 'date': '2025-03-16', 'home': 'Celtics', 'away': 'Nuggets', 'homeScore': 0, 'awayScore': 0, 'status': 'Upcoming', 'arena': 'TD Garden' },
-                { 'id': 'mock_8', 'date': '2025-03-16', 'home': 'Lakers', 'away': 'Warriors', 'homeScore': 0, 'awayScore': 0, 'status': 'Upcoming', 'arena': 'Crypto.com Arena' },
-            ]
+
         return jsonify(mapped_games)
     except Exception as e:
         print("ERROR games list:", e)
