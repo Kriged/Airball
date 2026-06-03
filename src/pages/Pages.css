@@ -1,0 +1,414 @@
+/* ===== GAMES PAGE ===== */
+
+.game-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.game-date {
+  padding: 12px 24px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.game-matchup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  gap: 16px;
+}
+
+.game-team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.game-team:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.game-team-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.game-score {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: -0.02em;
+}
+
+.game-score.winner {
+  color: var(--nba-red);
+}
+
+.game-vs {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.game-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.game-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.game-status.final {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.game-status.upcoming {
+  color: var(--nba-blue-accent);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.game-arena {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ===== STATS PAGE ===== */
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leader-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.leader-row:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
+.leader-rank {
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0a0a0f;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+  color: #0a0a0f;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+}
+
+.rank-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.leader-info {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.leader-name {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.leader-team {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.leader-bar-wrapper {
+  flex: 1;
+}
+
+.leader-bar-wrapper .stat-bar {
+  height: 8px;
+}
+
+.leader-value {
+  width: 60px;
+  text-align: right;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--nba-red);
+  flex-shrink: 0;
+}
+
+/* ===== SEASONS PAGE ===== */
+
+.seasons-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.season-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.season-card:hover {
+  border-color: var(--border-hover);
+  transform: translateX(4px);
+}
+
+.season-card.current {
+  border-color: var(--nba-blue-accent);
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.1);
+}
+
+.season-year-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.season-year {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse 1.5s infinite;
+}
+
+.season-details {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.season-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.season-detail-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.season-detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.season-status {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.season-status.in-progress {
+  color: #4ade80;
+}
+
+/* ===== STANDINGS PAGE ===== */
+
+.standings-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.standings-rank.playoff {
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--nba-blue-accent);
+}
+
+.standings-rank.playin {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.streak-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 0;
+}
+
+.win-streak {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.loss-streak {
+  color: var(--nba-red);
+  background: rgba(230, 57, 70, 0.1);
+}
+
+.standings-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+  padding: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+}
+
+.legend-color.playoff {
+  background: rgba(37, 99, 235, 0.4);
+}
+
+.legend-color.playin {
+  background: rgba(251, 191, 36, 0.4);
+}
+
+/* ===== PLAYERS STATUS BADGES ===== */
+
+.status-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 0;
+}
+
+.status-active {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.status-retired {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-legend {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .leader-row {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .leader-info {
+    width: auto;
+    flex: 1;
+  }
+  .leader-bar-wrapper {
+    width: 100%;
+    order: 10;
+  }
+  .leader-value {
+    width: auto;
+  }
+  .season-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .season-details {
+    gap: 16px;
+  }
+  .game-matchup {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .game-team,
+  .game-team:last-child {
+    justify-content: center;
+    text-align: center;
+  }
+}
