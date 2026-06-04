@@ -86,57 +86,57 @@ def get_position(name):
     pos_options = ['PG', 'SG', 'SF', 'PF', 'C']
     return pos_options[hash_val % len(pos_options)]
 
+
+import requests
+import datetime
+
+
+import requests
+import datetime
+
 @app.route('/api/games/today')
 def get_today_games():
     cache_key = 'today_games'
     cached = cache.get(cache_key)
     if cached is not None:
         return jsonify(cached)
-    
+        
     try:
-        sb = scoreboard.ScoreBoard()
-        data = sb.get_dict().get('scoreboard', {})
-        games = data.get('games', [])
+        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        d = requests.get(url, timeout=10).json()
         
         mapped_games = []
-        for g in games:
-            status_num = g.get('gameStatus', 1)
+        for ev in d.get('events', []):
+            comp = ev['competitions'][0]
+            home_team = next(c for c in comp['competitors'] if c['homeAway'] == 'home')
+            away_team = next(c for c in comp['competitors'] if c['homeAway'] == 'away')
+            
             status = 'UPCOMING'
-            if status_num == 2:
+            if ev['status']['type']['state'] == 'in':
                 status = 'LIVE'
-            elif status_num == 3:
+            elif ev['status']['type']['completed']:
                 status = 'FINAL'
                 
-            quarter = g.get('gameStatusText', '')
-            game_clock = g.get('gameClock', '')
-            time_val = 'Upcoming'
-            if status == 'LIVE':
-                time_val = game_clock if game_clock else '00:00'
-            elif status == 'FINAL':
-                time_val = '00:00'
-                
-            home_team = g.get('homeTeam', {})
-            away_team = g.get('awayTeam', {})
+            quarter = ev['status']['type']['detail']
+            time_val = ev['status']['displayClock'] if status == 'LIVE' else ('00:00' if status == 'FINAL' else 'Upcoming')
             
-            home_name = home_team.get('teamName', '')
-            away_name = away_team.get('teamName', '')
-            home_abbr = home_team.get('teamTricode', '')
-            away_abbr = away_team.get('teamTricode', '')
+            home_abbr = home_team['team']['abbreviation']
+            away_abbr = away_team['team']['abbreviation']
             
             mapped_game = {
-                'id': g.get('gameId', ''),
-                'home': home_name,
-                'away': away_name,
+                'id': ev['id'],
+                'home': home_team['team']['name'],
+                'away': away_team['team']['name'],
                 'homeAbbr': home_abbr,
                 'awayAbbr': away_abbr,
-                'homeScore': home_team.get('score', 0),
-                'awayScore': away_team.get('score', 0),
+                'homeScore': int(home_team['score']) if home_team['score'] else 0,
+                'awayScore': int(away_team['score']) if away_team['score'] else 0,
                 'homeColor': TEAM_COLORS.get(home_abbr, '#f58426'),
                 'awayColor': TEAM_COLORS.get(away_abbr, '#1d428a'),
                 'quarter': quarter,
                 'time': time_val,
                 'status': status,
-                'arena': g.get('arena', {}).get('arenaName', 'NBA Arena'),
+                'arena': comp.get('venue', {}).get('fullName', 'NBA Arena'),
                 'stats': {
                     'fgPct': {'home': 45.0, 'away': 45.0},
                     'fg3Pct': {'home': 35.0, 'away': 35.0},
@@ -149,7 +149,7 @@ def get_today_games():
             }
             mapped_games.append(mapped_game)
             
-        cache.set(cache_key, mapped_games, ttl=5)
+        cache.set(cache_key, mapped_games, ttl=30)
         return jsonify(mapped_games)
     except Exception as e:
         print("ERROR get today games:", e)
@@ -162,45 +162,26 @@ def get_playbyplay(game_id):
     if cached is not None:
         return jsonify(cached)
         
-    if game_id.startswith('mock_'):
-        return jsonify([
-            {'time': '00:00', 'text': 'End of 4th Quarter. Game Over.', 'score': '104-102'},
-            {'time': '00:15', 'text': 'LeBron James hits a clutch step-back jumper!', 'score': '104-102'},
-            {'time': '01:05', 'text': 'Jayson Tatum defensive rebound.', 'score': '102-102'},
-            {'time': '01:45', 'text': 'Stephen Curry scores a layup.', 'score': '88-85'}
-        ])
-        
     try:
-        pbp = playbyplay.PlayByPlay(game_id=game_id)
-        data = pbp.get_dict().get('game', {})
-        actions = data.get('actions', [])
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={game_id}"
+        d = requests.get(url, timeout=10).json()
+        plays = d.get('plays', [])
         
         mapped_actions = []
-        for act in reversed(actions):
-            clock = act.get('clock', '')
-            time_str = clock.replace('PT', '').replace('M', ':').replace('S', '')
-            if ':' in time_str:
-                parts = time_str.split(':')
-                if len(parts[0]) == 1:
-                    parts[0] = '0' + parts[0]
-                if len(parts[1]) == 1:
-                    parts[1] = '0' + parts[1]
-                time_str = ':'.join(parts)
-            else:
-                time_str = '00:00'
-                
-            text = act.get('description', '')
-            score = f"{act.get('scoreAway', 0)}-{act.get('scoreHome', 0)}"
+        for play in plays[::-1]:
+            score_val = f"{play.get('awayScore', 0)}-{play.get('homeScore', 0)}"
+            time_val = play.get('clock', {}).get('displayValue', '00:00')
+            text = play.get('text', '')
             
             mapped_actions.append({
-                'time': time_str,
+                'time': time_val,
                 'text': text,
-                'score': score
+                'score': score_val
             })
             if len(mapped_actions) >= 30:
                 break
                 
-        cache.set(cache_key, mapped_actions, ttl=5)
+        cache.set(cache_key, mapped_actions, ttl=10)
         return jsonify(mapped_actions)
     except Exception as e:
         print("ERROR playbyplay:", e)
@@ -213,57 +194,56 @@ def get_boxscore(game_id):
     if cached is not None:
         return jsonify(cached)
         
-    if game_id.startswith('mock_'):
-        return jsonify({
-            'home': [
-                {'name': 'LeBron James', 'min': '34', 'pts': 28, 'reb': 8, 'ast': 9, 'fgm': 10, 'fga': 18},
-                {'name': 'Anthony Davis', 'min': '32', 'pts': 24, 'reb': 12, 'ast': 4, 'fgm': 9, 'fga': 15},
-                {'name': 'Austin Reaves', 'min': '30', 'pts': 15, 'reb': 3, 'ast': 5, 'fgm': 5, 'fga': 10}
-            ],
-            'away': [
-                {'name': 'Jayson Tatum', 'min': '35', 'pts': 26, 'reb': 9, 'ast': 5, 'fgm': 9, 'fga': 19},
-                {'name': 'Jaylen Brown', 'min': '33', 'pts': 22, 'reb': 6, 'ast': 3, 'fgm': 8, 'fga': 16},
-                {'name': 'Derrick White', 'min': '31', 'pts': 12, 'reb': 2, 'ast': 4, 'fgm': 4, 'fga': 8}
-            ]
-        })
-        
     try:
-        box = boxscore.BoxScore(game_id=game_id)
-        data = box.get_dict().get('game', {})
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={game_id}"
+        d = requests.get(url, timeout=10).json()
         
-        def map_team_players(team_data):
-            players_list = team_data.get('players', [])
+        # Get team ID to homeAway mapping
+        team_side_map = {}
+        comps = d.get('header', {}).get('competitions', [{}])[0].get('competitors', [])
+        for c in comps:
+            team_side_map[c.get('team', {}).get('id')] = c.get('homeAway')
+            
+        boxscore_data = d.get('boxscore', {}).get('players', [])
+        result = {'home': [], 'away': []}
+        
+        for team_box in boxscore_data:
+            t_id = team_box.get('team', {}).get('id')
+            team_side = team_side_map.get(t_id, 'home')
+            
+            stats_keys = team_box['statistics'][0]['names']
+            athletes = team_box['statistics'][0]['athletes']
+            
+            min_idx = stats_keys.index('MIN') if 'MIN' in stats_keys else -1
+            pts_idx = stats_keys.index('PTS') if 'PTS' in stats_keys else -1
+            reb_idx = stats_keys.index('REB') if 'REB' in stats_keys else -1
+            ast_idx = stats_keys.index('AST') if 'AST' in stats_keys else -1
+            fg_idx = stats_keys.index('FG') if 'FG' in stats_keys else -1
+            
             mapped = []
-            for p in players_list:
-                stats = p.get('statistics', {})
-                if stats.get('minutes', '00:00') == '00:00' or not stats.get('fieldGoalsAttempted'):
+            for ath in athletes:
+                if ath.get('didNotPlay'):
+                    continue
+                stats_arr = ath.get('stats', [])
+                if not stats_arr:
                     continue
                     
-                min_str = stats.get('minutes', '00:00')
-                if 'PT' in min_str:
-                    min_str = min_str.replace('PT', '').split('M')[0]
-                elif ':' in min_str:
-                    min_str = min_str.split(':')[0]
-                else:
-                    min_str = '0'
-                    
-                name = f"{p.get('firstName', '')} {p.get('familyName', '')}"
+                fg_val = stats_arr[fg_idx] if fg_idx != -1 else '0-0'
+                fgm = fg_val.split('-')[0] if '-' in fg_val else 0
+                fga = fg_val.split('-')[1] if '-' in fg_val else 0
+                
                 mapped.append({
-                    'name': name,
-                    'min': min_str,
-                    'pts': stats.get('points', 0),
-                    'reb': stats.get('reboundsTotal', 0),
-                    'ast': stats.get('assists', 0),
-                    'fgm': stats.get('fieldGoalsMade', 0),
-                    'fga': stats.get('fieldGoalsAttempted', 0)
+                    'name': ath['athlete']['displayName'],
+                    'min': stats_arr[min_idx] if min_idx != -1 else '0',
+                    'pts': int(stats_arr[pts_idx]) if pts_idx != -1 else 0,
+                    'reb': int(stats_arr[reb_idx]) if reb_idx != -1 else 0,
+                    'ast': int(stats_arr[ast_idx]) if ast_idx != -1 else 0,
+                    'fgm': int(fgm),
+                    'fga': int(fga)
                 })
-            return mapped
+            result[team_side] = mapped
             
-        result = {
-            'home': map_team_players(data.get('homeTeam', {})),
-            'away': map_team_players(data.get('awayTeam', {}))
-        }
-        cache.set(cache_key, result, ttl=10)
+        cache.set(cache_key, result, ttl=15)
         return jsonify(result)
     except Exception as e:
         print("ERROR boxscore:", e)
@@ -277,117 +257,42 @@ def get_standings():
         return jsonify(cached)
         
     try:
-        standings = leaguestandings.LeagueStandings(season='2025-26')
-        data = standings.get_dict()
-        result_set = data.get('resultSets', [])[0]
-        headers = result_set.get('headers', [])
-        rows = result_set.get('rowSet', [])
+        d = requests.get('https://site.api.espn.com/apis/v2/sports/basketball/nba/standings', timeout=10).json()
+        standings = {'Eastern': [], 'Western': []}
         
-        teams_data = [dict(zip(headers, row)) for row in rows]
-        
-        eastern = []
-        western = []
-        
-        for t in teams_data:
-            team_name = t.get('TeamName', '')
-            # Match 3-letter code
-            abbr = team_name[:3].upper()
-            for key, val in TEAM_COLORS.items():
-                if key in team_name or team_name in key:
-                    abbr = key
-                    break
-            
-            # Fallback map for abbreviations
-            abbr_overrides = {
-                'Cavaliers': 'CLE', 'Celtics': 'BOS', 'Bucks': 'MIL', '76ers': 'PHI',
-                'Heat': 'MIA', 'Knicks': 'NYK', 'Pacers': 'IND', 'Magic': 'ORL',
-                'Nuggets': 'DEN', 'Thunder': 'OKC', 'Timberwolves': 'MIN', 'Mavericks': 'DAL',
-                'Lakers': 'LAL', 'Clippers': 'LAC', 'Suns': 'PHX', 'Pelicans': 'NOP'
-            }
-            if team_name in abbr_overrides:
-                abbr = abbr_overrides[team_name]
-
-            record = {
-                'rank': t.get('PlayoffRank', 1),
-                'team': f"{t.get('TeamCity', '')} {team_name}",
-                'abbr': abbr,
-                'wins': t.get('WINS', 0),
-                'losses': t.get('LOSSES', 0),
-                'pct': f".{str(int(t.get('WinPCT', 0.0) * 1000)).zfill(3)}" if t.get('WinPCT') is not None else '.000',
-                'gb': str(t.get('GamesBack', '-')) if t.get('GamesBack', 0) != 0 else '-',
-                'streak': t.get('Streak', 'W1'),
-                'last10': t.get('L10', '5-5')
-            }
+        for conf in d.get('children', []):
+            c_name = 'Eastern' if 'Eastern' in conf['name'] else 'Western'
+            for tm in conf['standings']['entries']:
+                stats = {s['name']: s['displayValue'] for s in tm['stats']}
                 
-            conf = t.get('Conference', 'East')
-            if conf.lower() == 'east':
-                eastern.append(record)
-            else:
-                western.append(record)
+                rank = 0
+                for s in tm['stats']:
+                    if s.get('type') == 'playoffseed':
+                        rank = int(s.get('value', 0))
+                        break
+                        
+                l10 = next((s['displayValue'] for s in tm['stats'] if s.get('id') == '901'), '0-0')
                 
-        eastern.sort(key=lambda x: x['rank'])
-        western.sort(key=lambda x: x['rank'])
+                standings[c_name].append({
+                    'rank': rank,
+                    'team': tm['team']['displayName'],
+                    'abbr': tm['team']['abbreviation'],
+                    'wins': int(stats.get('wins', 0)),
+                    'losses': int(stats.get('losses', 0)),
+                    'pct': stats.get('winPercent', '.000'),
+                    'gb': stats.get('gamesBehind', '-'),
+                    'streak': stats.get('streak', '-'),
+                    'last10': l10
+                })
         
-        result = {
-            'Eastern': eastern,
-            'Western': western
-        }
-        cache.set(cache_key, result, ttl=300)
-        return jsonify(result)
+        standings['Eastern'].sort(key=lambda x: x['rank'])
+        standings['Western'].sort(key=lambda x: x['rank'])
+        
+        cache.set(cache_key, standings, ttl=300)
+        return jsonify(standings)
     except Exception as e:
         print("ERROR standings:", e)
         return jsonify({'Eastern': [], 'Western': []})
-
-@app.route('/api/stats/leaders')
-def get_stats_leaders():
-    cache_key = 'stats_leaders'
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return jsonify(cached)
-        
-    try:
-        # Fetch league leaders once, and we filter categories on backend
-        ll = leagueleaders.LeagueLeaders(season='2025-26', stat_category_abbreviation='PTS')
-        data = ll.get_dict()
-        result_set = data.get('resultSet', {})
-        headers = result_set.get('headers', [])
-        rows = result_set.get('rowSet', [])
-        
-        players = [dict(zip(headers, row)) for row in rows]
-        
-        # Sort and map for different categories
-        def get_top_leaders(players_list, sort_col, count=8):
-            # Sort by total value / GP descending
-            valid_players = [p for p in players_list if p.get('GP', 0) > 0 and p.get(sort_col) is not None]
-            valid_players.sort(key=lambda x: x[sort_col] / x['GP'], reverse=True)
-            
-            top_leaders = []
-            for rank_idx, p in enumerate(valid_players[:count]):
-                avg_val = round(p[sort_col] / p['GP'], 1)
-                top_leaders.append({
-                    'rank': rank_idx + 1,
-                    'name': p.get('PLAYER', ''),
-                    'team': p.get('TEAM', ''),
-                    'value': avg_val
-                })
-            return top_leaders
-            
-        result = {
-            'Points': get_top_leaders(players, 'PTS'),
-            'Rebounds': get_top_leaders(players, 'REB'),
-            'Assists': get_top_leaders(players, 'AST'),
-            'Steals': get_top_leaders(players, 'STL'),
-            'Blocks': get_top_leaders(players, 'BLK')
-        }
-        
-        cache.set(cache_key, result, ttl=300)
-        return jsonify(result)
-    except Exception as e:
-        print("ERROR stats leaders:", e)
-        return jsonify({
-            'Points': [], 'Rebounds': [], 'Assists': [], 'Steals': [], 'Blocks': []
-        })
-
 
 @app.route('/api/players')
 def get_players():
@@ -397,51 +302,91 @@ def get_players():
         return jsonify(cached)
         
     try:
-        ld = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26')
-        data = ld.get_dict()
-        result_set = data.get('resultSets', [])[0]
-        headers = result_set.get('headers', [])
-        rows = result_set.get('rowSet', [])
+        url = 'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=true&page=1&limit=100&sort=offensive.avgPoints%3Adesc'
+        d = requests.get(url, timeout=10).json()
         
-        # Mapping index mapping dynamically
-        p_id_idx = headers.index('PLAYER_ID')
-        name_idx = headers.index('PLAYER_NAME')
-        team_idx = headers.index('TEAM_ABBREVIATION')
-        gp_idx = headers.index('GP')
-        pts_idx = headers.index('PTS')
-        reb_idx = headers.index('REB')
-        ast_idx = headers.index('AST')
+        global_cats = {c['name']: c['names'] for c in d.get('categories', [])}
         
         result_players = []
-        for row in rows:
-            gp = row[gp_idx]
-            if gp == 0:
-                continue
-                
-            name = row[name_idx]
-            ppg = round(row[pts_idx] / gp, 1)
-            rpg = round(row[reb_idx] / gp, 1)
-            apg = round(row[ast_idx] / gp, 1)
+        for p in d.get('athletes', []):
+            ath = p['athlete']
             
+            stats_dict = {}
+            for cat_data in p.get('categories', []):
+                cat_name = cat_data['name']
+                names = global_cats.get(cat_name, [])
+                values = cat_data.get('values', [])
+                for i in range(min(len(names), len(values))):
+                    stats_dict[names[i]] = float(values[i])
+                            
             result_players.append({
-                'id': row[p_id_idx],
-                'name': name,
-                'team': row[team_idx],
-                'pos': get_position(name),
-                'ppg': ppg,
-                'rpg': rpg,
-                'apg': apg,
+                'id': ath['id'],
+                'name': ath['displayName'],
+                'team': ath['teamShortName'],
+                'pos': ath.get('position', {}).get('abbreviation', 'N/A'),
+                'ppg': round(stats_dict.get('avgPoints', 0), 1),
+                'rpg': round(stats_dict.get('avgRebounds', 0), 1),
+                'apg': round(stats_dict.get('avgAssists', 0), 1),
                 'status': 'Active'
             })
             
-        # Sort by ppg descending so top players are easily searchable
-        result_players.sort(key=lambda x: x['ppg'], reverse=True)
-        
-        cache.set(cache_key, result_players, ttl=300)
+        cache.set(cache_key, result_players, ttl=600)
         return jsonify(result_players)
     except Exception as e:
         print("ERROR players:", e)
         return jsonify([])
+
+@app.route('/api/stats/leaders')
+def get_stats_leaders():
+    cache_key = 'stats_leaders'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return jsonify(cached)
+        
+    try:
+        url = 'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=true&page=1&limit=100&sort=offensive.avgPoints%3Adesc'
+        d = requests.get(url, timeout=10).json()
+        
+        global_cats = {c['name']: c['names'] for c in d.get('categories', [])}
+        
+        all_players = []
+        for p in d.get('athletes', []):
+            ath = p['athlete']
+            stats_dict = {}
+            for cat_data in p.get('categories', []):
+                cat_name = cat_data['name']
+                names = global_cats.get(cat_name, [])
+                values = cat_data.get('values', [])
+                for i in range(min(len(names), len(values))):
+                    stats_dict[names[i]] = float(values[i])
+                    
+            all_players.append({
+                'name': ath['displayName'],
+                'team': ath['teamShortName'],
+                'Points': stats_dict.get('avgPoints', 0),
+                'Rebounds': stats_dict.get('avgRebounds', 0),
+                'Assists': stats_dict.get('avgAssists', 0),
+                'Steals': stats_dict.get('avgSteals', 0),
+                'Blocks': stats_dict.get('avgBlocks', 0)
+            })
+            
+        def get_top(stat_key):
+            sorted_p = sorted(all_players, key=lambda x: x[stat_key], reverse=True)[:8]
+            return [{'rank': i+1, 'name': p['name'], 'team': p['team'], 'value': round(p[stat_key], 1)} for i, p in enumerate(sorted_p)]
+            
+        result = {
+            'Points': get_top('Points'),
+            'Rebounds': get_top('Rebounds'),
+            'Assists': get_top('Assists'),
+            'Steals': get_top('Steals'),
+            'Blocks': get_top('Blocks')
+        }
+        
+        cache.set(cache_key, result, ttl=600)
+        return jsonify(result)
+    except Exception as e:
+        print("ERROR stats leaders:", e)
+        return jsonify({'Points': [], 'Rebounds': [], 'Assists': [], 'Steals': [], 'Blocks': []})
 
 @app.route('/api/seasons')
 def get_seasons():
@@ -463,38 +408,33 @@ def get_seasons():
 @app.route('/api/games')
 def get_games_list():
     try:
-        from nba_api.stats.endpoints import leaguegamefinder
-        gf = leaguegamefinder.LeagueGameFinder(season_nullable='2025-26')
-        data = gf.get_dict().get('resultSets', [])[0]
-        headers = data.get('headers', [])
-        rows = data.get('rowSet', [])
+        end_date = datetime.datetime.now()
+        start_date = end_date - datetime.timedelta(days=15)
+        dates_str = f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}"
         
-        games_dict = {}
-        for row in rows:
-            game_id = row[headers.index('GAME_ID')]
-            team_name = row[headers.index('TEAM_NAME')]
-            matchup = row[headers.index('MATCHUP')]
-            date = row[headers.index('GAME_DATE')]
-            pts = row[headers.index('PTS')]
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={dates_str}"
+        d = requests.get(url, timeout=10).json()
+        
+        games = []
+        for ev in d.get('events', []):
+            comp = ev['competitions'][0]
+            home = next((c for c in comp['competitors'] if c['homeAway'] == 'home'), None)
+            away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
+            if not home or not away: continue
             
-            if game_id not in games_dict:
-                games_dict[game_id] = {
-                    'id': game_id,
-                    'date': date,
-                    'status': 'Final',
-                    'arena': 'NBA Arena'
-                }
+            games.append({
+                'id': ev['id'],
+                'date': ev['date'].split('T')[0],
+                'home': home['team']['name'],
+                'away': away['team']['name'],
+                'homeScore': int(home['score']) if home['score'] else 0,
+                'awayScore': int(away['score']) if away['score'] else 0,
+                'status': 'Final' if ev['status']['type']['completed'] else 'Upcoming',
+                'arena': comp.get('venue', {}).get('fullName', 'NBA Arena')
+            })
             
-            if '@' in matchup:
-                games_dict[game_id]['away'] = team_name
-                games_dict[game_id]['awayScore'] = pts if pts is not None else 0
-            else:
-                games_dict[game_id]['home'] = team_name
-                games_dict[game_id]['homeScore'] = pts if pts is not None else 0
-                
-        mapped_games = list(games_dict.values())
-        mapped_games.sort(key=lambda x: x['date'], reverse=True)
-        return jsonify(mapped_games[:100])
+        games.sort(key=lambda x: x['date'], reverse=True)
+        return jsonify(games)
     except Exception as e:
         print("ERROR games list:", e)
         return jsonify([])
