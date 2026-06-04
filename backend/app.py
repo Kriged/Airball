@@ -463,37 +463,38 @@ def get_seasons():
 @app.route('/api/games')
 def get_games_list():
     try:
-        sb = scoreboard.ScoreBoard()
-        data = sb.get_dict().get('scoreboard', {})
-        games = data.get('games', [])
+        from nba_api.stats.endpoints import leaguegamefinder
+        gf = leaguegamefinder.LeagueGameFinder(season_nullable='2025-26')
+        data = gf.get_dict().get('resultSets', [])[0]
+        headers = data.get('headers', [])
+        rows = data.get('rowSet', [])
         
-        mapped_games = []
-        for i, g in enumerate(games):
-            status_num = g.get('gameStatus', 1)
-            status = 'Upcoming'
-            if status_num == 2:
-                status = 'Live'
-            elif status_num == 3:
-                status = 'Final'
+        games_dict = {}
+        for row in rows:
+            game_id = row[headers.index('GAME_ID')]
+            team_name = row[headers.index('TEAM_NAME')]
+            matchup = row[headers.index('MATCHUP')]
+            date = row[headers.index('GAME_DATE')]
+            pts = row[headers.index('PTS')]
+            
+            if game_id not in games_dict:
+                games_dict[game_id] = {
+                    'id': game_id,
+                    'date': date,
+                    'status': 'Final',
+                    'arena': 'NBA Arena'
+                }
+            
+            if '@' in matchup:
+                games_dict[game_id]['away'] = team_name
+                games_dict[game_id]['awayScore'] = pts if pts is not None else 0
+            else:
+                games_dict[game_id]['home'] = team_name
+                games_dict[game_id]['homeScore'] = pts if pts is not None else 0
                 
-            home_team = g.get('homeTeam', {})
-            away_team = g.get('awayTeam', {})
-            
-            date_str = g.get('gameEt', '2026-06-03').split('T')[0]
-            
-            mapped_games.append({
-                'id': g.get('gameId', str(i)),
-                'date': date_str,
-                'home': home_team.get('teamName', ''),
-                'away': away_team.get('teamName', ''),
-                'homeScore': home_team.get('score', 0),
-                'awayScore': away_team.get('score', 0),
-                'status': status,
-                'arena': g.get('arena', {}).get('arenaName', 'NBA Arena')
-            })
-            
-
-        return jsonify(mapped_games)
+        mapped_games = list(games_dict.values())
+        mapped_games.sort(key=lambda x: x['date'], reverse=True)
+        return jsonify(mapped_games[:100])
     except Exception as e:
         print("ERROR games list:", e)
         return jsonify([])
