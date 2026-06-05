@@ -439,5 +439,166 @@ def get_games_list():
         print("ERROR games list:", e)
         return jsonify([])
 
+
+
+
+# ESPN team ID lookup
+TEAM_IDS = {
+    'ATL': '1', 'BOS': '2', 'BKN': '17', 'CHA': '30', 'CHI': '4',
+    'CLE': '5', 'DAL': '6', 'DEN': '7', 'DET': '8', 'GSW': '9',
+    'HOU': '10', 'IND': '11', 'LAC': '12', 'LAL': '13', 'MEM': '29',
+    'MIA': '14', 'MIL': '15', 'MIN': '16', 'NOP': '3', 'NYK': '18',
+    'OKC': '25', 'ORL': '19', 'PHI': '20', 'PHX': '21', 'POR': '22',
+    'SAC': '23', 'SAS': '24', 'TOR': '28', 'UTA': '26', 'WAS': '27',
+}
+
+TEAM_FULL_NAMES = {
+    'ATL': 'Atlanta Hawks', 'BOS': 'Boston Celtics', 'BKN': 'Brooklyn Nets',
+    'CHA': 'Charlotte Hornets', 'CHI': 'Chicago Bulls', 'CLE': 'Cleveland Cavaliers',
+    'DAL': 'Dallas Mavericks', 'DEN': 'Denver Nuggets', 'DET': 'Detroit Pistons',
+    'GSW': 'Golden State Warriors', 'HOU': 'Houston Rockets', 'IND': 'Indiana Pacers',
+    'LAC': 'LA Clippers', 'LAL': 'Los Angeles Lakers', 'MEM': 'Memphis Grizzlies',
+    'MIA': 'Miami Heat', 'MIL': 'Milwaukee Bucks', 'MIN': 'Minnesota Timberwolves',
+    'NOP': 'New Orleans Pelicans', 'NYK': 'New York Knicks', 'OKC': 'Oklahoma City Thunder',
+    'ORL': 'Orlando Magic', 'PHI': 'Philadelphia 76ers', 'PHX': 'Phoenix Suns',
+    'POR': 'Portland Trail Blazers', 'SAC': 'Sacramento Kings', 'SAS': 'San Antonio Spurs',
+    'TOR': 'Toronto Raptors', 'UTA': 'Utah Jazz', 'WAS': 'Washington Wizards',
+}
+
+
+@app.route('/api/team/<abbr>/info')
+def get_team_info(abbr):
+    abbr = abbr.upper()
+    team_id = TEAM_IDS.get(abbr)
+    if not team_id:
+        return jsonify({'error': 'Team not found'}), 404
+    cache_key = f'team_info_{abbr}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return jsonify(cached)
+    try:
+        ESPN_ABBR_MAP = {
+            'NYK': 'NY', 'WAS': 'WSH', 'SAS': 'SA', 
+            'GSW': 'GS', 'UTA': 'UTAH', 'NOP': 'NO'
+        }
+        espn_abbr = ESPN_ABBR_MAP.get(abbr, abbr)
+        d = requests.get('https://site.api.espn.com/apis/v2/sports/basketball/nba/standings', timeout=10).json()
+        team_record = {}
+        for conf in d.get('children', []):
+            conf_name = 'Eastern' if 'Eastern' in conf['name'] else 'Western'
+            for tm in conf['standings']['entries']:
+                if tm['team']['abbreviation'] == espn_abbr:
+                    stats = {s['name']: s['displayValue'] for s in tm['stats']}
+                    rank = 0
+                    for s in tm['stats']:
+                        if s.get('type') == 'playoffseed':
+                            rank = int(s.get('value', 0))
+                            break
+                    l10 = next((s['displayValue'] for s in tm['stats'] if s.get('id') == '901'), '0-0')
+                    team_record = {
+                        'conference': conf_name,
+                        'rank': rank,
+                        'wins': int(stats.get('wins', 0)),
+                        'losses': int(stats.get('losses', 0)),
+                        'pct': stats.get('winPercent', '.000'),
+                        'streak': stats.get('streak', '-'),
+                        'last10': l10,
+                        'gb': stats.get('gamesBehind', '-'),
+                    }
+                    break
+        result = {'abbr': abbr, 'name': TEAM_FULL_NAMES.get(abbr, abbr), 'color': TEAM_COLORS.get(abbr, '#1d3557'), **team_record}
+        cache.set(cache_key, result, ttl=300)
+        return jsonify(result)
+    except Exception as e:
+        print(f'ERROR team info {abbr}:', e)
+        return jsonify({'abbr': abbr, 'name': TEAM_FULL_NAMES.get(abbr, abbr), 'color': TEAM_COLORS.get(abbr, '#1d3557')})
+
+
+@app.route('/api/team/<abbr>/schedule')
+def get_team_schedule(abbr):
+    abbr = abbr.upper()
+    team_id = TEAM_IDS.get(abbr)
+    if not team_id:
+        return jsonify({'error': 'Team not found'}), 404
+    cache_key = f'team_sched_{abbr}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return jsonify(cached)
+    try:
+        url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/schedule'
+        d = requests.get(url, timeout=15).json()
+        games = []
+        for ev in d.get('events', []):
+            comp = ev.get('competitions', [{}])[0]
+            competitors = comp.get('competitors', [])
+            if len(competitors) < 2:
+                continue
+            home = next((c for c in competitors if c.get('homeAway') == 'home'), competitors[0])
+            away = next((c for c in competitors if c.get('homeAway') == 'away'), competitors[1])
+            is_done = comp.get('status', {}).get('type', {}).get('completed', False)
+            hs = 0
+            asc = 0
+            if is_done:
+                sv_h = home.get('score')
+                sv_a = away.get('score')
+                hs = int(sv_h.get('value', 0)) if isinstance(sv_h, dict) else int(sv_h or 0)
+                asc = int(sv_a.get('value', 0)) if isinstance(sv_a, dict) else int(sv_a or 0)
+            h_ab = home.get('team', {}).get('abbreviation', '')
+            a_ab = away.get('team', {}).get('abbreviation', '')
+            result = None
+            if is_done:
+                is_home = h_ab == abbr
+                result = 'W' if (hs > asc if is_home else asc > hs) else 'L'
+            games.append({
+                'id': ev.get('id'), 'date': ev.get('date', '').split('T')[0],
+                'home': home.get('team', {}).get('shortDisplayName', ''),
+                'away': away.get('team', {}).get('shortDisplayName', ''),
+                'homeAbbr': h_ab, 'awayAbbr': a_ab, 'homeScore': hs, 'awayScore': asc,
+                'status': 'Final' if is_done else 'Upcoming',
+                'arena': comp.get('venue', {}).get('fullName', 'NBA Arena'), 'result': result,
+            })
+        games.sort(key=lambda x: x['date'], reverse=True)
+        cache.set(cache_key, games, ttl=120)
+        return jsonify(games)
+    except Exception as e:
+        print(f'ERROR team schedule {abbr}:', e)
+        return jsonify([])
+
+
+@app.route('/api/team/<abbr>/roster')
+def get_team_roster(abbr):
+    abbr = abbr.upper()
+    team_id = TEAM_IDS.get(abbr)
+    if not team_id:
+        return jsonify({'error': 'Team not found'}), 404
+    cache_key = f'team_roster_{abbr}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return jsonify(cached)
+    try:
+        url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/roster'
+        d = requests.get(url, timeout=15).json()
+        players = []
+        for ath in d.get('athletes', []):
+            # Each athlete is a direct object in the array
+            pos = ath.get('position', {})
+            pos_abbr = pos.get('abbreviation', 'N/A') if isinstance(pos, dict) else 'N/A'
+            exp = ath.get('experience', {})
+            exp_years = exp.get('years', 0) if isinstance(exp, dict) else 0
+            players.append({
+                'id': ath.get('id'), 'name': ath.get('displayName', ''),
+                'number': ath.get('jersey', ''),
+                'pos': pos_abbr,
+                'height': ath.get('displayHeight', ''),
+                'weight': ath.get('displayWeight', ''),
+                'age': ath.get('age', ''),
+                'experience': exp_years,
+            })
+        cache.set(cache_key, players, ttl=600)
+        return jsonify(players)
+    except Exception as e:
+        print(f'ERROR team roster {abbr}:', e)
+        return jsonify([])
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

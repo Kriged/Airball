@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
 
 function Standings() {
@@ -75,7 +76,9 @@ function Standings() {
                     {team.rank}
                   </span>
                 </td>
-                <td className="team-name">{team.team}</td>
+                <td className="team-name">
+                  <Link to={`/teams/${team.abbr}`} className="td-team-link">{team.team}</Link>
+                </td>
                 <td className="highlight">{team.wins}</td>
                 <td>{team.losses}</td>
                 <td>{team.pct}</td>

@@ -19,8 +19,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px;
-  gap: 16px;
+  padding: 20px;
+  gap: 8px;
+  overflow: hidden;
 }
 
 .game-team {
@@ -36,16 +37,21 @@
 }
 
 .game-team-name {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .game-score {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--text-muted);
   letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .game-score.winner {
@@ -320,6 +326,21 @@
 .loss-streak {
   color: var(--nba-red);
   background: rgba(230, 57, 70, 0.1);
+}
+
+/* Team clickable link in standings */
+.td-team-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.td-team-link:hover {
+  color: var(--nba-red);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .standings-legend {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
 
 const statusFilters = ['All', 'Final', 'Upcoming'];
@@ -71,7 +72,7 @@ function Games() {
       ) : filtered.length > 0 ? (
         <div className="data-cards" id="games-list">
           {filtered.map((game) => (
-            <div className="data-card game-card" key={game.id} id={`game-${game.id}`}>
+            <Link to={`/games/${game.id}`} className="data-card game-card game-card-link" key={game.id} id={`game-${game.id}`}>
             <div className="game-date">{game.date}</div>
             <div className="game-matchup">
               <div className="game-team">
@@ -96,7 +97,7 @@ function Games() {
               <span className={`game-status ${game.status.toLowerCase()}`}>{game.status}</span>
               <span className="game-arena">{game.arena}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
       ) : (
