@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Dev patch scripts
+fix.py
+patch_boxscore.py
+patch_boxscore2.py
+rewrite.py

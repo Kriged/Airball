@@ -8,7 +8,10 @@ function Seasons() {
 
   useEffect(() => {
     fetch('/api/seasons')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setSeasons(data || []);
         setLoading(false);

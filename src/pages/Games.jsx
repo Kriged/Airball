@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
 
-const statusFilters = ['All', 'Final', 'Upcoming'];
+// BUG-007: Added 'Live' filter option
+const statusFilters = ['All', 'FINAL', 'LIVE', 'UPCOMING'];
+const statusLabels = { 'All': 'All Games', 'FINAL': 'Final', 'LIVE': 'Live', 'UPCOMING': 'Upcoming' };
 
 function Games() {
   const [games, setGames] = useState([]);
@@ -11,8 +13,12 @@ function Games() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    // BUG-012: Added res.ok check
     fetch('/api/games')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setGames(data || []);
         setLoading(false);
@@ -59,7 +65,7 @@ function Games() {
             onClick={() => setActiveStatus(s)}
             id={`filter-game-${s.toLowerCase()}`}
           >
-            {s === 'All' ? 'All Games' : s}
+            {statusLabels[s]}
           </button>
         ))}
       </div>
@@ -77,7 +83,8 @@ function Games() {
             <div className="game-matchup">
               <div className="game-team">
                 <span className="game-team-name">{game.away}</span>
-                {game.status === 'Final' && (
+                {/* BUG-007: Show scores for both Final and Live games */}
+                {(game.status === 'FINAL' || game.status === 'LIVE') && (
                   <span className={`game-score ${game.awayScore > game.homeScore ? 'winner' : ''}`}>
                     {game.awayScore}
                   </span>
@@ -86,7 +93,7 @@ function Games() {
               <span className="game-vs">@</span>
               <div className="game-team">
                 <span className="game-team-name">{game.home}</span>
-                {game.status === 'Final' && (
+                {(game.status === 'FINAL' || game.status === 'LIVE') && (
                   <span className={`game-score ${game.homeScore > game.awayScore ? 'winner' : ''}`}>
                     {game.homeScore}
                   </span>

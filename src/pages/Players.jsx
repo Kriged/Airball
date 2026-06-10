@@ -12,7 +12,10 @@ function Players() {
 
   useEffect(() => {
     fetch('/api/players')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setPlayers(data || []);
         setLoading(false);

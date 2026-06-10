@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './Home.css';
 
 // ============================================================
@@ -46,7 +46,10 @@ async function fetchGames() {
   try {
     const res = await fetch('/api/games/today');
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    // BUG-013: Handle error object response from backend
+    if (data.error) return null;
+    return data;
   } catch (e) {
     console.error("fetchGames failed:", e);
     return null;
@@ -87,7 +90,8 @@ async function fetchBoxScore(gameId) {
 
 function Home() {
   const [games, setGames] = useState([]);
-  const [activeGameId, setActiveGameId] = useState('mock_1');
+  // BUG-026: Use null instead of stale 'mock_1' as initial activeGameId
+  const [activeGameId, setActiveGameId] = useState(null);
   const [activeTab, setActiveTab] = useState('pbp');
 
   const activeGame = games.find((g) => g.id === activeGameId) || games[0];
@@ -100,7 +104,7 @@ function Home() {
         setGames(apiGames);
         // If activeGameId is not in the fetched list, set it to the first game
         setActiveGameId(prevId => {
-          if (!apiGames.some(g => g.id === prevId)) {
+          if (!prevId || !apiGames.some(g => g.id === prevId)) {
             return apiGames[0].id;
           }
           return prevId;
@@ -112,40 +116,49 @@ function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // BUG-003: Memoize loadDetails and include games in effect deps
+  const loadDetails = useCallback(async () => {
+    if (!activeGameId) return;
+    const [pbp, box] = await Promise.all([
+      fetchPlayByPlay(activeGameId),
+      fetchBoxScore(activeGameId)
+    ]);
+
+    setGames(prevGames => prevGames.map(g => {
+      if (g.id === activeGameId) {
+        return {
+          ...g,
+          playByPlay: pbp || g.playByPlay,
+          boxScore: box || g.boxScore
+        };
+      }
+      return g;
+    }));
+  }, [activeGameId]);
+
   // Fetch Play-by-Play & Box Score for the Active Game
+  // BUG-003: Added games to dependency array to fix stale closure
   useEffect(() => {
     if (!activeGameId) return;
 
-    const loadDetails = async () => {
-      const [pbp, box] = await Promise.all([
-        fetchPlayByPlay(activeGameId),
-        fetchBoxScore(activeGameId)
-      ]);
-
-      setGames(prevGames => prevGames.map(g => {
-        if (g.id === activeGameId) {
-          return {
-            ...g,
-            playByPlay: pbp || g.playByPlay,
-            boxScore: box || g.boxScore
-          };
-        }
-        return g;
-      }));
+    // Use microtask to avoid synchronous setState in effect body
+    const fetchDetails = async () => {
+      await loadDetails();
     };
-
-    loadDetails();
+    fetchDetails();
 
     const activeGameObj = games.find(g => g.id === activeGameId);
     if (activeGameObj && activeGameObj.status === 'LIVE') {
       const interval = setInterval(loadDetails, 10000);
       return () => clearInterval(interval);
     }
-  }, [activeGameId]);
+  }, [activeGameId, games, loadDetails]);
 
+  // BUG-030: Handle tie scores correctly in win probability
   const getWinProbability = (game) => {
     if (game.status === 'UPCOMING') return 50;
     if (game.status === 'FINAL') {
+      if (game.homeScore === game.awayScore) return 50;
       return game.homeScore > game.awayScore ? 100 : 0;
     }
     const diff = game.homeScore - game.awayScore;
@@ -172,8 +185,9 @@ function Home() {
           </tr>
         </thead>
         <tbody>
+          {/* BUG-040: Use player name + index for unique keys */}
           {players.map((p, i) => (
-            <tr key={i}>
+            <tr key={`${p.name}-${i}`}>
               <td className="box-col-player">{p.name}</td>
               <td>{p.min}</td>
               <td className="box-pts">{p.pts}</td>
@@ -342,19 +356,27 @@ function Home() {
                     <div className="terminal-pbp">
                       {activeGame.playByPlay && activeGame.playByPlay.length > 0 ? (
                         <div className="pbp-scroll">
+                          {/* BUG-040: Use time + index for unique keys */}
                           {activeGame.playByPlay.map((play, index) => (
-                            <div key={index} className="pbp-row">
+                            <div key={`${play.time}-${play.score}-${index}`} className="pbp-row">
                               <span className="pbp-time">{play.time}</span>
                               <span className="pbp-text">{play.text}</span>
                               <span className="pbp-score-tag">{play.score}</span>
                             </div>
                           ))}
+                          {/* BUG-010: Truncation notice */}
+                          {activeGame.playByPlay.length >= 30 && (
+                            <div className="pbp-row" style={{ opacity: 0.5, justifyContent: 'center', fontStyle: 'italic' }}>
+                              <span className="pbp-text">Showing most recent 30 plays</span>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="pbp-empty">
                           <span>No game data available yet.</span>
+                          {/* BUG-027: Show actual scheduled time instead of hardcoded time */}
                           {activeGame.status === 'UPCOMING' && (
-                            <span>Game starts at 7:30 PM.</span>
+                            <span>Tip-off: {activeGame.quarter}</span>
                           )}
                         </div>
                       )}
@@ -373,8 +395,8 @@ function Home() {
                               <span>{activeGame.stats.fgPct.home.toFixed(1)}%</span>
                             </div>
                             <div className="comparison-progress-bar">
-                              <div className="progress-left" style={{ width: `${(activeGame.stats.fgPct.away / (activeGame.stats.fgPct.away + activeGame.stats.fgPct.home)) * 100}%` }} />
-                              <div className="progress-right" style={{ width: `${(activeGame.stats.fgPct.home / (activeGame.stats.fgPct.away + activeGame.stats.fgPct.home)) * 100}%` }} />
+                              <div className="progress-left" style={{ width: `${(activeGame.stats.fgPct.away / (activeGame.stats.fgPct.away + activeGame.stats.fgPct.home || 1)) * 100}%` }} />
+                              <div className="progress-right" style={{ width: `${(activeGame.stats.fgPct.home / (activeGame.stats.fgPct.away + activeGame.stats.fgPct.home || 1)) * 100}%` }} />
                             </div>
                           </div>
                           <div className="comparison-row">
@@ -384,8 +406,8 @@ function Home() {
                               <span>{activeGame.stats.fg3Pct.home.toFixed(1)}%</span>
                             </div>
                             <div className="comparison-progress-bar">
-                              <div className="progress-left" style={{ width: `${(activeGame.stats.fg3Pct.away / (activeGame.stats.fg3Pct.away + activeGame.stats.fg3Pct.home)) * 100}%` }} />
-                              <div className="progress-right" style={{ width: `${(activeGame.stats.fg3Pct.home / (activeGame.stats.fg3Pct.away + activeGame.stats.fg3Pct.home)) * 100}%` }} />
+                              <div className="progress-left" style={{ width: `${(activeGame.stats.fg3Pct.away / (activeGame.stats.fg3Pct.away + activeGame.stats.fg3Pct.home || 1)) * 100}%` }} />
+                              <div className="progress-right" style={{ width: `${(activeGame.stats.fg3Pct.home / (activeGame.stats.fg3Pct.away + activeGame.stats.fg3Pct.home || 1)) * 100}%` }} />
                             </div>
                           </div>
                           <div className="comparison-row">
@@ -395,8 +417,8 @@ function Home() {
                               <span>{activeGame.stats.rebounds.home}</span>
                             </div>
                             <div className="comparison-progress-bar">
-                              <div className="progress-left" style={{ width: `${(activeGame.stats.rebounds.away / (activeGame.stats.rebounds.away + activeGame.stats.rebounds.home)) * 100}%` }} />
-                              <div className="progress-right" style={{ width: `${(activeGame.stats.rebounds.home / (activeGame.stats.rebounds.away + activeGame.stats.rebounds.home)) * 100}%` }} />
+                              <div className="progress-left" style={{ width: `${(activeGame.stats.rebounds.away / (activeGame.stats.rebounds.away + activeGame.stats.rebounds.home || 1)) * 100}%` }} />
+                              <div className="progress-right" style={{ width: `${(activeGame.stats.rebounds.home / (activeGame.stats.rebounds.away + activeGame.stats.rebounds.home || 1)) * 100}%` }} />
                             </div>
                           </div>
                           <div className="comparison-row">
@@ -406,8 +428,8 @@ function Home() {
                               <span>{activeGame.stats.assists.home}</span>
                             </div>
                             <div className="comparison-progress-bar">
-                              <div className="progress-left" style={{ width: `${(activeGame.stats.assists.away / (activeGame.stats.assists.away + activeGame.stats.assists.home)) * 100}%` }} />
-                              <div className="progress-right" style={{ width: `${(activeGame.stats.assists.home / (activeGame.stats.assists.away + activeGame.stats.assists.home)) * 100}%` }} />
+                              <div className="progress-left" style={{ width: `${(activeGame.stats.assists.away / (activeGame.stats.assists.away + activeGame.stats.assists.home || 1)) * 100}%` }} />
+                              <div className="progress-right" style={{ width: `${(activeGame.stats.assists.home / (activeGame.stats.assists.away + activeGame.stats.assists.home || 1)) * 100}%` }} />
                             </div>
                           </div>
                           <div className="comparison-row">
@@ -417,8 +439,8 @@ function Home() {
                               <span>{activeGame.stats.turnovers.home}</span>
                             </div>
                             <div className="comparison-progress-bar">
-                              <div className="progress-left" style={{ width: `${(activeGame.stats.turnovers.away / (activeGame.stats.turnovers.away + activeGame.stats.turnovers.home)) * 100}%` }} />
-                              <div className="progress-right" style={{ width: `${(activeGame.stats.turnovers.home / (activeGame.stats.turnovers.away + activeGame.stats.turnovers.home)) * 100}%` }} />
+                              <div className="progress-left" style={{ width: `${(activeGame.stats.turnovers.away / (activeGame.stats.turnovers.away + activeGame.stats.turnovers.home || 1)) * 100}%` }} />
+                              <div className="progress-right" style={{ width: `${(activeGame.stats.turnovers.home / (activeGame.stats.turnovers.away + activeGame.stats.turnovers.home || 1)) * 100}%` }} />
                             </div>
                           </div>
                         </div>

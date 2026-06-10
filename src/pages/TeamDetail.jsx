@@ -9,28 +9,76 @@ function TeamDetail() {
   const [roster, setRoster] = useState([]);
   const [activeTab, setActiveTab] = useState('schedule');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [schedFilter, setSchedFilter] = useState('all');
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     const abbr = teamAbbr.toUpperCase();
 
+    // BUG-008 + BUG-012: Check res.ok and handle 404
     Promise.all([
-      fetch(`/api/team/${abbr}/info`).then((r) => r.json()),
-      fetch(`/api/team/${abbr}/schedule`).then((r) => r.json()),
-      fetch(`/api/team/${abbr}/roster`).then((r) => r.json()),
+      fetch(`/api/team/${abbr}/info`).then((r) => {
+        if (!r.ok) {
+          if (r.status === 404) throw new Error('Team not found');
+          throw new Error(`HTTP error ${r.status}`);
+        }
+        return r.json();
+      }),
+      fetch(`/api/team/${abbr}/schedule`).then((r) => {
+        if (!r.ok) throw new Error(`HTTP error ${r.status}`);
+        return r.json();
+      }),
+      fetch(`/api/team/${abbr}/roster`).then((r) => {
+        if (!r.ok) throw new Error(`HTTP error ${r.status}`);
+        return r.json();
+      }),
     ])
       .then(([info, sched, rost]) => {
+        if (cancelled) return;
+        // BUG-008: Check if the response is an error object
+        if (info && info.error) {
+          setError(info.error);
+          setLoading(false);
+          return;
+        }
         setTeamInfo(info);
         setSchedule(sched || []);
         setRoster(rost || []);
+        setError(null);
         setLoading(false);
       })
       .catch((err) => {
+        if (cancelled) return;
         console.error('Failed to load team data:', err);
+        setError(err.message || 'Failed to load team data');
         setLoading(false);
       });
+
+    return () => { cancelled = true; };
   }, [teamAbbr]);
+
+  // BUG-008: Show error state for missing teams
+  if (error) {
+    return (
+      <main className="page-layout">
+        <div className="page-content" style={{ paddingTop: 'calc(var(--nav-height) + 60px)' }}>
+          <div className="container">
+            <div className="empty-state">
+              <div className="empty-state-icon">❌</div>
+              <p className="empty-state-text">{error}</p>
+              <Link to="/standings" className="back-link" style={{ marginTop: 24, display: 'inline-flex' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Back to Standings</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (loading || !teamInfo) {
     return (
@@ -53,11 +101,10 @@ function TeamDetail() {
   const totalGames = wins + losses;
   const winPct = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0.0';
 
-  // Schedule filtering
-  const completedGames = schedule.filter((g) => g.status === 'Final');
-  const upcomingGames = schedule.filter((g) => g.status !== 'Final');
-  const winsCount = completedGames.filter((g) => g.result === 'W').length;
-  const lossesCount = completedGames.filter((g) => g.result === 'L').length;
+  // Schedule filtering — BUG-017: Use uppercase status strings
+  const completedGames = schedule.filter((g) => g.status === 'FINAL');
+  const upcomingGames = schedule.filter((g) => g.status !== 'FINAL');
+  // BUG-031: Removed unused winsCount and lossesCount variables
 
   const filteredSchedule =
     schedFilter === 'completed' ? completedGames :
@@ -226,7 +273,7 @@ function TeamDetail() {
                           <span className="td-opp-abbr">{oppAbbr}</span>
                           <span className="td-opp-name">{opponent}</span>
                         </div>
-                        {game.status === 'Final' ? (
+                        {game.status === 'FINAL' ? (
                           <>
                             <div className="td-game-score">
                               <span className={game.result === 'W' ? 'td-win' : 'td-loss'}>{teamScore}</span>

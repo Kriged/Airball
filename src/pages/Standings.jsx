@@ -9,7 +9,10 @@ function Standings() {
 
   useEffect(() => {
     fetch('/api/standings')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setStandingsData(data || { Eastern: [], Western: [] });
         setLoading(false);
@@ -84,7 +87,7 @@ function Standings() {
                 <td>{team.pct}</td>
                 <td>{team.gb}</td>
                 <td>
-                  <span className={`streak-badge ${team.streak.startsWith('W') ? 'win-streak' : 'loss-streak'}`}>
+                  <span className={`streak-badge ${team.streak?.startsWith('W') ? 'win-streak' : 'loss-streak'}`}>
                     {team.streak}
                   </span>
                 </td>

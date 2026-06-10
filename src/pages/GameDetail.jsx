@@ -12,37 +12,52 @@ function GameDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // BUG-011: Improved loading orchestration using Promise.all
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    let cancelled = false;
 
-    // Fetch game info from the games list
-    fetch('/api/games')
-      .then((res) => res.json())
-      .then((games) => {
-        const found = games.find((g) => String(g.id) === String(gameId));
-        if (found) {
-          setGame(found);
-        } else {
-          setError('Game not found');
-        }
-      })
-      .catch(() => setError('Failed to load game info'));
-
-    // Fetch box score
-    fetch(`/api/games/${gameId}/boxscore`)
-      .then((res) => res.json())
-      .then((data) => setBoxScore(data || { home: [], away: [] }))
-      .catch(() => {});
-
-    // Fetch play by play
-    fetch(`/api/games/${gameId}/playbyplay`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPlayByPlay(data || []);
+    // Fetch all data in parallel
+    Promise.all([
+      // BUG-012: Add res.ok checks to all fetch calls
+      fetch('/api/games')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          return res.json();
+        })
+        .then((games) => {
+          const found = games.find((g) => String(g.id) === String(gameId));
+          if (!found) throw new Error('Game not found');
+          return found;
+        }),
+      fetch(`/api/games/${gameId}/boxscore`)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          return res.json();
+        })
+        .catch(() => ({ home: [], away: [] })),
+      fetch(`/api/games/${gameId}/playbyplay`)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          return res.json();
+        })
+        .catch(() => []),
+    ])
+      .then(([foundGame, boxData, pbpData]) => {
+        if (cancelled) return;
+        setGame(foundGame);
+        setBoxScore(boxData || { home: [], away: [] });
+        setPlayByPlay(pbpData || []);
+        setError(null);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Failed to load game details:', err);
+        setError(err.message || 'Failed to load game info');
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [gameId]);
 
   if (error) {
@@ -78,13 +93,15 @@ function GameDetail() {
     );
   }
 
-  const isFinished = game.status === 'Final';
-  const homeWon = game.homeScore > game.awayScore;
-  const awayWon = game.awayScore > game.homeScore;
+  // BUG-017: Use uppercase status strings; BUG-007: Show scores for LIVE games too
+  const isFinished = game.status === 'FINAL';
+  const isLive = game.status === 'LIVE';
+  const showScores = isFinished || isLive;
+  const homeWon = isFinished && game.homeScore > game.awayScore;
+  const awayWon = isFinished && game.awayScore > game.homeScore;
 
   const currentRoster = activeTeam === 'home' ? boxScore.home : boxScore.away;
-  const currentTeamName = activeTeam === 'home' ? game.home : game.away;
-  const otherTeamName = activeTeam === 'home' ? game.away : game.home;
+  // BUG-042: Removed unused currentTeamName and otherTeamName
 
   // Find top performer per team
   const getTopScorer = (roster) => {
@@ -132,9 +149,9 @@ function GameDetail() {
             <div className={`gd-team-side ${isFinished && awayWon ? 'winner' : ''}`}>
               <div className="gd-team-name">{game.away}</div>
               <div className={`gd-team-score ${isFinished && awayWon ? 'winning' : ''}`}>
-                {isFinished ? game.awayScore : '—'}
+                {showScores ? game.awayScore : '—'}
               </div>
-              {awayTop && isFinished && (
+              {awayTop && showScores && (
                 <div className="gd-top-performer">
                   <span className="gd-performer-name">{awayTop.name}</span>
                   <span className="gd-performer-stat">{awayTop.pts} PTS</span>
@@ -150,9 +167,9 @@ function GameDetail() {
             <div className={`gd-team-side ${isFinished && homeWon ? 'winner' : ''}`}>
               <div className="gd-team-name">{game.home}</div>
               <div className={`gd-team-score ${isFinished && homeWon ? 'winning' : ''}`}>
-                {isFinished ? game.homeScore : '—'}
+                {showScores ? game.homeScore : '—'}
               </div>
-              {homeTop && isFinished && (
+              {homeTop && showScores && (
                 <div className="gd-top-performer">
                   <span className="gd-performer-name">{homeTop.name}</span>
                   <span className="gd-performer-stat">{homeTop.pts} PTS</span>
@@ -161,8 +178,8 @@ function GameDetail() {
             </div>
           </div>
 
-          {/* Team Comparison Bars (only for final games) */}
-          {isFinished && (homeTotals.fga > 0 || awayTotals.fga > 0) && (
+          {/* Team Comparison Bars (for final and live games) */}
+          {showScores && (homeTotals.fga > 0 || awayTotals.fga > 0) && (
             <div className="gd-comparison">
               <div className="gd-comp-row">
                 <span className="gd-comp-val">{awayTotals.pts}</span>
@@ -280,14 +297,14 @@ function GameDetail() {
                   onClick={() => setActiveTeam('away')}
                 >
                   {game.away}
-                  {isFinished && <span className="gd-team-btn-score">{game.awayScore}</span>}
+                  {showScores && <span className="gd-team-btn-score">{game.awayScore}</span>}
                 </button>
                 <button
                   className={`gd-team-btn ${activeTeam === 'home' ? 'active' : ''}`}
                   onClick={() => setActiveTeam('home')}
                 >
                   {game.home}
-                  {isFinished && <span className="gd-team-btn-score">{game.homeScore}</span>}
+                  {showScores && <span className="gd-team-btn-score">{game.homeScore}</span>}
                 </button>
               </div>
 
@@ -307,11 +324,12 @@ function GameDetail() {
                       </tr>
                     </thead>
                     <tbody>
+                      {/* BUG-040: Use player name for more stable keys */}
                       {currentRoster.map((player, idx) => {
                         const fgPct = player.fga > 0 ? ((player.fgm / player.fga) * 100).toFixed(1) : '0.0';
                         const isTopScorer = player.name === getTopScorer(currentRoster)?.name;
                         return (
-                          <tr key={idx} className={isTopScorer ? 'gd-top-row' : ''}>
+                          <tr key={`${player.name}-${idx}`} className={isTopScorer ? 'gd-top-row' : ''}>
                             <td className="gd-td-player">
                               <span className="gd-player-name">{player.name}</span>
                               {isTopScorer && <span className="gd-star-badge">★</span>}
@@ -358,7 +376,7 @@ function GameDetail() {
                 <div className="empty-state">
                   <div className="empty-state-icon">📊</div>
                   <p className="empty-state-text">
-                    {game.status === 'Upcoming'
+                    {game.status === 'UPCOMING'
                       ? 'Box score will be available once the game starts'
                       : 'No box score data available for this game'}
                   </p>
@@ -372,10 +390,11 @@ function GameDetail() {
             <div className="gd-pbp animate-fade-in" id="playbyplay-panel">
               {playByPlay.length > 0 ? (
                 <div className="gd-pbp-feed">
+                  {/* BUG-040: Use time + score + index for unique keys */}
                   {playByPlay.map((play, idx) => (
                     <div
                       className="gd-pbp-item"
-                      key={idx}
+                      key={`${play.time}-${play.score}-${idx}`}
                       style={{ animationDelay: `${Math.min(idx * 0.03, 0.6)}s` }}
                     >
                       <div className="gd-pbp-time">
@@ -391,12 +410,20 @@ function GameDetail() {
                       </div>
                     </div>
                   ))}
+                  {/* BUG-010: Truncation notice */}
+                  {playByPlay.length >= 30 && (
+                    <div className="gd-pbp-item" style={{ opacity: 0.5, fontStyle: 'italic' }}>
+                      <div className="gd-pbp-content">
+                        <p className="gd-pbp-text">Showing most recent 30 plays</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="empty-state">
                   <div className="empty-state-icon">📋</div>
                   <p className="empty-state-text">
-                    {game.status === 'Upcoming'
+                    {game.status === 'UPCOMING'
                       ? 'Play-by-play data will be available once the game starts'
                       : 'No play-by-play data available for this game'}
                   </p>
