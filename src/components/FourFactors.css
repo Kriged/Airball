@@ -1,0 +1,113 @@
+/* ===== FOUR FACTORS & ADVANCED METRICS CSS ===== */
+
+.four-factors-wrapper {
+  border-radius: var(--radius-xl);
+  padding: 22px;
+  border: 1px solid var(--court-border);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.four-factors-header h3 {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+}
+
+.four-factors-header p {
+  font-size: 0.75rem;
+  color: var(--court-text-muted);
+  margin-top: 2px;
+}
+
+.factors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.factor-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.factor-labels-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-family: var(--font-primary);
+}
+
+.factor-title {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.factor-bar-track {
+  height: 9px;
+  width: 100%;
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: 9999px;
+  overflow: hidden;
+  display: flex;
+}
+
+.factor-fill-away {
+  background: var(--court-cyan);
+  height: 100%;
+  transition: width 0.4s ease-out;
+}
+
+.factor-fill-home {
+  background: var(--court-accent);
+  height: 100%;
+  margin-left: auto;
+  transition: width 0.4s ease-out;
+}
+
+.advanced-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--court-border);
+}
+
+.adv-metric-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+}
+
+.adv-metric-lbl {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--court-text-muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.adv-metric-val {
+  font-size: 1.15rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  display: block;
+}
+
+.adv-metric-sub {
+  font-size: 0.65rem;
+  color: var(--court-text-muted);
+  display: block;
+  margin-top: 2px;
+}

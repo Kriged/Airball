@@ -1,0 +1,92 @@
+/* ===== TOP PERFORMERS CSS ===== */
+
+.top-performers-card {
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  border: 1px solid var(--court-border);
+}
+
+.top-performers-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--court-border);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.top-performers-header h3 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.top-performers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.performer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.performer-row:hover {
+  border-color: var(--court-accent);
+  background: var(--court-hover);
+  transform: translateY(-1px);
+}
+
+.performer-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #141D2E;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.performer-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.performer-meta {
+  font-size: 0.7rem;
+  color: var(--court-text-muted);
+}
+
+.performer-stats {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+.performer-pts {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.performer-sub {
+  font-size: 0.65rem;
+  color: var(--court-text-muted);
+}

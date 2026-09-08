@@ -1,0 +1,89 @@
+/* ===== LINEUPS & ON-COURT CSS ===== */
+
+.lineups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.lineups-panel {
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  border: 1px solid var(--court-border);
+}
+
+.lineups-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--court-border);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.lineups-header h3 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.lineups-status-badge {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 230, 118, 0.15);
+  color: var(--court-green);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.lineups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oncourt-player-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.oncourt-player-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateX(2px);
+}
+
+.oncourt-jersey-box {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-size: 0.8rem;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.oncourt-player-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.oncourt-player-meta {
+  font-size: 0.65rem;
+  color: var(--court-text-muted);
+  display: block;
+}

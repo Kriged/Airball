@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import './GameDetail.css';
 import { getCached } from '../utils/cache';
+import ScorebugHero from '../components/ScorebugHero';
+import ShotChart from '../components/ShotChart';
+import Lineups from '../components/Lineups';
+import FourFactors from '../components/FourFactors';
+import PlayerModal from '../components/PlayerModal';
+import './GameDetail.css';
 
 function GameDetail() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
   const [boxScore, setBoxScore] = useState({ home: [], away: [] });
   const [playByPlay, setPlayByPlay] = useState([]);
-  const [activeTab, setActiveTab] = useState('boxscore');
-  const [activeTeam, setActiveTeam] = useState('away');
+  const [activeTab, setActiveTab] = useState('tabBoxScore');
+  const [boxScoreTeam, setBoxScoreTeam] = useState('away');
+  const [pbpFilter, setPbpFilter] = useState('ALL');
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [playerModalTeam, setPlayerModalTeam] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // BUG-011: Improved loading orchestration using Promise.all with targeted game endpoint
   useEffect(() => {
     let cancelled = false;
 
@@ -41,20 +48,13 @@ function GameDetail() {
       return found;
     };
 
-    // Fetch all data in parallel
     Promise.all([
       fetchGamePromise(),
       fetch(`/api/games/${gameId}/boxscore`)
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-          return res.json();
-        })
+        .then((res) => (res.ok ? res.json() : { home: [], away: [] }))
         .catch(() => ({ home: [], away: [] })),
       fetch(`/api/games/${gameId}/playbyplay`)
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-          return res.json();
-        })
+        .then((res) => (res.ok ? res.json() : []))
         .catch(() => []),
     ])
       .then(([foundGame, boxData, pbpData]) => {
@@ -72,21 +72,21 @@ function GameDetail() {
         setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [gameId]);
 
   if (error) {
     return (
-      <main className="page-layout">
-        <div className="page-content" style={{ paddingTop: 'calc(var(--nav-height) + 60px)' }}>
-          <div className="container">
-            <div className="empty-state">
-              <div className="empty-state-icon">❌</div>
-              <p className="empty-state-text">{error}</p>
-              <Link to="/games" className="gd-back-btn" style={{ marginTop: 24, display: 'inline-flex' }}>
-                ← Back to Games
-              </Link>
-            </div>
+      <main className="gd-page">
+        <div className="container">
+          <div className="empty-state">
+            <div className="empty-state-icon">❌</div>
+            <p className="empty-state-text">{error}</p>
+            <Link to="/games" className="gd-back-nav" style={{ marginTop: 24, display: 'inline-flex' }}>
+              ← Back to Games
+            </Link>
           </div>
         </div>
       </main>
@@ -95,359 +95,300 @@ function GameDetail() {
 
   if (loading || !game) {
     return (
-      <main className="page-layout">
-        <div className="page-content" style={{ paddingTop: 'calc(var(--nav-height) + 60px)' }}>
-          <div className="container">
-            <div className="empty-state">
-              <div className="empty-state-icon spinner" style={{ animation: 'spin 2s linear infinite' }}>🏀</div>
-              <p className="empty-state-text">Loading game details...</p>
-            </div>
+      <main className="gd-page">
+        <div className="container">
+          <div className="empty-state">
+            <div className="empty-state-icon spinner" style={{ animation: 'spin 2s linear infinite' }}>🏀</div>
+            <p className="empty-state-text">Loading game details &amp; match center...</p>
           </div>
         </div>
       </main>
     );
   }
 
-  // BUG-017: Use uppercase status strings; BUG-007: Show scores for LIVE games too
-  const isFinished = game.status === 'FINAL';
-  const isLive = game.status === 'LIVE';
-  const showScores = isFinished || isLive;
-  const homeWon = isFinished && game.homeScore > game.awayScore;
-  const awayWon = isFinished && game.awayScore > game.homeScore;
+  const latestPlay = playByPlay[0];
+  const currentRoster = boxScoreTeam === 'home' ? boxScore.home : boxScore.away;
+  const currentTeamName = boxScoreTeam === 'home' ? game.home : game.away;
 
-  const currentRoster = activeTeam === 'home' ? boxScore.home : boxScore.away;
-  // BUG-042: Removed unused currentTeamName and otherTeamName
-
-  // Find top performer per team
-  const getTopScorer = (roster) => {
-    if (!roster || roster.length === 0) return null;
-    return roster.reduce((top, p) => (p.pts > (top?.pts || 0) ? p : top), roster[0]);
+  const handlePlayerClick = (p, team) => {
+    setSelectedPlayer(p);
+    setPlayerModalTeam(team || currentTeamName);
   };
-
-  const homeTop = getTopScorer(boxScore.home);
-  const awayTop = getTopScorer(boxScore.away);
-
-  // Calculate team totals
-  const getTeamTotals = (roster) => {
-    if (!roster || roster.length === 0) return { pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 };
-    return roster.reduce(
-      (acc, p) => ({
-        pts: acc.pts + (p.pts || 0),
-        reb: acc.reb + (p.reb || 0),
-        ast: acc.ast + (p.ast || 0),
-        fgm: acc.fgm + (p.fgm || 0),
-        fga: acc.fga + (p.fga || 0),
-      }),
-      { pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 }
-    );
-  };
-
-  const homeTotals = getTeamTotals(boxScore.home);
-  const awayTotals = getTeamTotals(boxScore.away);
 
   return (
-    <main className="page-layout">
-      {/* Scoreboard Header */}
-      <section className="gd-header">
-        <div className="gd-header-bg" />
-        <div className="container gd-header-content">
-          <Link to="/games" className="back-link" id="back-to-games">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <main className="gd-page">
+      <div className="container gd-container">
+        {/* Back navigation */}
+        <Link to="/games" className="gd-back-nav" id="back-to-games">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span>Back to Games</span>
+        </Link>
+
+        {/* Hero Scorebug Broadcast Header */}
+        <ScorebugHero game={game} latestPlay={latestPlay} />
+
+        {/* Match Center Tabs */}
+        <div className="gd-tabs-nav" id="game-detail-tabs">
+          <button
+            className={`gd-tab-btn ${activeTab === 'tabBoxScore' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabBoxScore')}
+            id="tab-boxscore"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="9" y1="21" x2="9" y2="9" />
             </svg>
-            <span>Back to Games</span>
-          </Link>
+            <span>Box Score (+/-)</span>
+          </button>
 
-          <div className="gd-date">{game.date} • {game.arena}</div>
+          <button
+            className={`gd-tab-btn ${activeTab === 'tabShotChart' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabShotChart')}
+            id="tab-shot-chart"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 3v18M3 12h18" />
+            </svg>
+            <span>Shot Chart &amp; Heatmap</span>
+          </button>
 
-          <div className="gd-scoreboard">
-            <div className={`gd-team-side ${isFinished && awayWon ? 'winner' : ''}`}>
-              <div className="gd-team-name">{game.away}</div>
-              <div className={`gd-team-score ${isFinished && awayWon ? 'winning' : ''}`}>
-                {showScores ? game.awayScore : '—'}
-              </div>
-              {awayTop && showScores && (
-                <div className="gd-top-performer">
-                  <span className="gd-performer-name">{awayTop.name}</span>
-                  <span className="gd-performer-stat">{awayTop.pts} PTS</span>
-                </div>
-              )}
-            </div>
+          <button
+            className={`gd-tab-btn ${activeTab === 'tabPBP' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabPBP')}
+            id="tab-playbyplay"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Play-by-Play</span>
+          </button>
 
-            <div className="gd-vs-divider">
-              <span className={`gd-status-badge ${game.status.toLowerCase()}`}>{game.status}</span>
-              <span className="gd-vs-text">VS</span>
-            </div>
+          <button
+            className={`gd-tab-btn ${activeTab === 'tabLineups' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabLineups')}
+            id="tab-lineups"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Lineups &amp; On-Court</span>
+          </button>
 
-            <div className={`gd-team-side ${isFinished && homeWon ? 'winner' : ''}`}>
-              <div className="gd-team-name">{game.home}</div>
-              <div className={`gd-team-score ${isFinished && homeWon ? 'winning' : ''}`}>
-                {showScores ? game.homeScore : '—'}
-              </div>
-              {homeTop && showScores && (
-                <div className="gd-top-performer">
-                  <span className="gd-performer-name">{homeTop.name}</span>
-                  <span className="gd-performer-stat">{homeTop.pts} PTS</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Team Comparison Bars (for final and live games) */}
-          {showScores && (homeTotals.fga > 0 || awayTotals.fga > 0) && (
-            <div className="gd-comparison">
-              <div className="gd-comp-row">
-                <span className="gd-comp-val">{awayTotals.pts}</span>
-                <div className="gd-comp-bar-wrapper">
-                  <div className="gd-comp-label">Points</div>
-                  <div className="gd-comp-bars">
-                    <div
-                      className="gd-comp-bar away"
-                      style={{ width: `${Math.min(100, (awayTotals.pts / Math.max(awayTotals.pts, homeTotals.pts, 1)) * 100)}%` }}
-                    />
-                    <div
-                      className="gd-comp-bar home"
-                      style={{ width: `${Math.min(100, (homeTotals.pts / Math.max(awayTotals.pts, homeTotals.pts, 1)) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="gd-comp-val">{homeTotals.pts}</span>
-              </div>
-              <div className="gd-comp-row">
-                <span className="gd-comp-val">{awayTotals.reb}</span>
-                <div className="gd-comp-bar-wrapper">
-                  <div className="gd-comp-label">Rebounds</div>
-                  <div className="gd-comp-bars">
-                    <div
-                      className="gd-comp-bar away"
-                      style={{ width: `${Math.min(100, (awayTotals.reb / Math.max(awayTotals.reb, homeTotals.reb, 1)) * 100)}%` }}
-                    />
-                    <div
-                      className="gd-comp-bar home"
-                      style={{ width: `${Math.min(100, (homeTotals.reb / Math.max(awayTotals.reb, homeTotals.reb, 1)) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="gd-comp-val">{homeTotals.reb}</span>
-              </div>
-              <div className="gd-comp-row">
-                <span className="gd-comp-val">{awayTotals.ast}</span>
-                <div className="gd-comp-bar-wrapper">
-                  <div className="gd-comp-label">Assists</div>
-                  <div className="gd-comp-bars">
-                    <div
-                      className="gd-comp-bar away"
-                      style={{ width: `${Math.min(100, (awayTotals.ast / Math.max(awayTotals.ast, homeTotals.ast, 1)) * 100)}%` }}
-                    />
-                    <div
-                      className="gd-comp-bar home"
-                      style={{ width: `${Math.min(100, (homeTotals.ast / Math.max(awayTotals.ast, homeTotals.ast, 1)) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="gd-comp-val">{homeTotals.ast}</span>
-              </div>
-              <div className="gd-comp-row">
-                <span className="gd-comp-val">
-                  {awayTotals.fga > 0 ? ((awayTotals.fgm / awayTotals.fga) * 100).toFixed(1) : '0.0'}%
-                </span>
-                <div className="gd-comp-bar-wrapper">
-                  <div className="gd-comp-label">FG%</div>
-                  <div className="gd-comp-bars">
-                    <div
-                      className="gd-comp-bar away"
-                      style={{ width: `${awayTotals.fga > 0 ? (awayTotals.fgm / awayTotals.fga) * 100 : 0}%` }}
-                    />
-                    <div
-                      className="gd-comp-bar home"
-                      style={{ width: `${homeTotals.fga > 0 ? (homeTotals.fgm / homeTotals.fga) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="gd-comp-val">
-                  {homeTotals.fga > 0 ? ((homeTotals.fgm / homeTotals.fga) * 100).toFixed(1) : '0.0'}%
-                </span>
-              </div>
-            </div>
-          )}
+          <button
+            className={`gd-tab-btn ${activeTab === 'tabAdvanced' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabAdvanced')}
+            id="tab-advanced"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            </svg>
+            <span>Four Factors &amp; Metrics</span>
+          </button>
         </div>
-      </section>
 
-      {/* Tab Navigation */}
-      <section className="page-content">
-        <div className="container">
-          <div className="gd-tabs" id="game-detail-tabs">
-            <button
-              className={`gd-tab ${activeTab === 'boxscore' ? 'active' : ''}`}
-              onClick={() => setActiveTab('boxscore')}
-              id="tab-boxscore"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <rect x="1" y="1" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                <line x1="1" y1="6" x2="17" y2="6" stroke="currentColor" strokeWidth="1.5"/>
-                <line x1="6" y1="1" x2="6" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-                <line x1="12" y1="1" x2="12" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-              </svg>
-              Box Score
-            </button>
-            <button
-              className={`gd-tab ${activeTab === 'playbyplay' ? 'active' : ''}`}
-              onClick={() => setActiveTab('playbyplay')}
-              id="tab-playbyplay"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M9 1v16M1 9h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5"/>
-              </svg>
-              Play-by-Play
-            </button>
-          </div>
-
-          {/* Box Score Tab */}
-          {activeTab === 'boxscore' && (
-            <div className="gd-boxscore animate-fade-in" id="boxscore-panel">
-              <div className="gd-team-switcher">
+        {/* Tab 1: Box Score */}
+        {activeTab === 'tabBoxScore' && (
+          <div className="gd-content-wrapper animate-fade-in" id="boxscore-panel">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+              <div className="boxscore-team-toggle">
                 <button
-                  className={`gd-team-btn ${activeTeam === 'away' ? 'active' : ''}`}
-                  onClick={() => setActiveTeam('away')}
+                  className={`boxscore-team-btn ${boxScoreTeam === 'away' ? 'active' : ''}`}
+                  onClick={() => setBoxScoreTeam('away')}
                 >
-                  {game.away}
-                  {showScores && <span className="gd-team-btn-score">{game.awayScore}</span>}
+                  {game.away} Box Score
                 </button>
                 <button
-                  className={`gd-team-btn ${activeTeam === 'home' ? 'active' : ''}`}
-                  onClick={() => setActiveTeam('home')}
+                  className={`boxscore-team-btn ${boxScoreTeam === 'home' ? 'active' : ''}`}
+                  onClick={() => setBoxScoreTeam('home')}
                 >
-                  {game.home}
-                  {showScores && <span className="gd-team-btn-score">{game.homeScore}</span>}
+                  {game.home} Box Score
                 </button>
               </div>
-
-              {currentRoster.length > 0 ? (
-                <div className="gd-table-wrapper">
-                  <table className="gd-table" id="boxscore-table">
-                    <thead>
-                      <tr>
-                        <th className="gd-th-player">Player</th>
-                        <th>MIN</th>
-                        <th>PTS</th>
-                        <th>REB</th>
-                        <th>AST</th>
-                        <th>FGM</th>
-                        <th>FGA</th>
-                        <th>FG%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* BUG-040: Use player name for more stable keys */}
-                      {currentRoster.map((player, idx) => {
-                        const fgPct = player.fga > 0 ? ((player.fgm / player.fga) * 100).toFixed(1) : '0.0';
-                        const isTopScorer = player.name === getTopScorer(currentRoster)?.name;
-                        return (
-                          <tr key={`${player.name}-${idx}`} className={isTopScorer ? 'gd-top-row' : ''}>
-                            <td className="gd-td-player">
-                              <span className="gd-player-name">{player.name}</span>
-                              {isTopScorer && <span className="gd-star-badge">★</span>}
-                            </td>
-                            <td>{player.min}</td>
-                            <td className="gd-pts-cell">{player.pts}</td>
-                            <td>{player.reb}</td>
-                            <td>{player.ast}</td>
-                            <td>{player.fgm}</td>
-                            <td>{player.fga}</td>
-                            <td>
-                              <span className={`gd-fg-pct ${parseFloat(fgPct) >= 50 ? 'hot' : parseFloat(fgPct) < 30 ? 'cold' : ''}`}>
-                                {fgPct}%
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                    <tfoot>
-                      <tr className="gd-totals-row">
-                        <td className="gd-td-player"><strong>Team Totals</strong></td>
-                        <td>—</td>
-                        <td className="gd-pts-cell">
-                          <strong>{activeTeam === 'home' ? homeTotals.pts : awayTotals.pts}</strong>
-                        </td>
-                        <td><strong>{activeTeam === 'home' ? homeTotals.reb : awayTotals.reb}</strong></td>
-                        <td><strong>{activeTeam === 'home' ? homeTotals.ast : awayTotals.ast}</strong></td>
-                        <td><strong>{activeTeam === 'home' ? homeTotals.fgm : awayTotals.fgm}</strong></td>
-                        <td><strong>{activeTeam === 'home' ? homeTotals.fga : awayTotals.fga}</strong></td>
-                        <td>
-                          <strong>
-                            {(() => {
-                              const t = activeTeam === 'home' ? homeTotals : awayTotals;
-                              return t.fga > 0 ? ((t.fgm / t.fga) * 100).toFixed(1) + '%' : '0.0%';
-                            })()}
-                          </strong>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <div className="empty-state-icon">📊</div>
-                  <p className="empty-state-text">
-                    {game.status === 'UPCOMING'
-                      ? 'Box score will be available once the game starts'
-                      : 'No box score data available for this game'}
-                  </p>
-                </div>
-              )}
+              <span style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', fontFamily: 'var(--font-mono)' }}>
+                Impact Rating Model Active
+              </span>
             </div>
-          )}
 
-          {/* Play-by-Play Tab */}
-          {activeTab === 'playbyplay' && (
-            <div className="gd-pbp animate-fade-in" id="playbyplay-panel">
-              {playByPlay.length > 0 ? (
-                <div className="gd-pbp-feed">
-                  {/* BUG-040: Use time + score + index for unique keys */}
-                  {playByPlay.map((play, idx) => (
-                    <div
-                      className="gd-pbp-item"
-                      key={`${play.time}-${play.score}-${idx}`}
-                      style={{ animationDelay: `${Math.min(idx * 0.03, 0.6)}s` }}
-                    >
-                      <div className="gd-pbp-time">
-                        <span className="gd-pbp-clock">{play.time}</span>
-                      </div>
-                      <div className="gd-pbp-connector">
-                        <div className="gd-pbp-dot" />
-                        <div className="gd-pbp-line" />
-                      </div>
-                      <div className="gd-pbp-content">
-                        <p className="gd-pbp-text">{play.text}</p>
-                        <span className="gd-pbp-score">{play.score}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {/* BUG-010: Truncation notice */}
-                  {playByPlay.length >= 30 && (
-                    <div className="gd-pbp-item" style={{ opacity: 0.5, fontStyle: 'italic' }}>
-                      <div className="gd-pbp-content">
-                        <p className="gd-pbp-text">Showing most recent 30 plays</p>
-                      </div>
-                    </div>
-                  )}
+            {currentRoster.length > 0 ? (
+              <div className="glass-panel boxscore-table-card">
+                <table className="boxscore-table" id="boxscore-table">
+                  <thead>
+                    <tr>
+                      <th className="boxscore-player-cell">Player</th>
+                      <th>Rating</th>
+                      <th>MIN</th>
+                      <th style={{ color: '#FFFFFF' }}>PTS</th>
+                      <th>REB</th>
+                      <th>AST</th>
+                      <th>FGM</th>
+                      <th>FGA</th>
+                      <th>FG%</th>
+                      <th style={{ color: '#FFFFFF', paddingRight: 12 }}>+/-</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRoster.map((player, idx) => {
+                      const rating = typeof player.rating === 'number' ? player.rating : null;
+                      let ratingClass = 'rating-mid';
+                      if (rating !== null) {
+                        if (rating >= 8.0) ratingClass = 'rating-high';
+                        else if (rating < 6.8) ratingClass = 'rating-low';
+                      }
+
+                      const pm = typeof player.pm === 'number' ? player.pm : null;
+                      const fgPct = player.fga > 0 ? ((player.fgm / player.fga) * 100).toFixed(1) : '0.0';
+
+                      return (
+                        <tr
+                          key={`${player.name}-${idx}`}
+                          onClick={() => handlePlayerClick(player, currentTeamName)}
+                        >
+                          <td className="boxscore-player-cell">
+                            <span className="boxscore-player-name">{player.name}</span>
+                            <span className="boxscore-player-pos">#{player.num || idx + 1}</span>
+                          </td>
+                          <td>
+                            {rating !== null ? (
+                              <span className={`rating-badge ${ratingClass}`}>{rating.toFixed(1)}</span>
+                            ) : (
+                              <span style={{ color: 'var(--court-text-muted)' }}>—</span>
+                            )}
+                          </td>
+                          <td>{player.min || '0:00'}</td>
+                          <td style={{ fontWeight: 800, color: '#FFFFFF' }}>{player.pts ?? 0}</td>
+                          <td>{player.reb ?? 0}</td>
+                          <td>{player.ast ?? 0}</td>
+                          <td>{player.fgm ?? 0}</td>
+                          <td>{player.fga ?? 0}</td>
+                          <td>
+                            <span style={{ color: parseFloat(fgPct) >= 50 ? '#00E676' : parseFloat(fgPct) < 30 ? '#FF3B30' : 'inherit' }}>
+                              {fgPct}%
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 800, paddingRight: 12, color: pm !== null ? (pm >= 0 ? '#00E676' : '#FF3B30') : 'var(--court-text-muted)' }}>
+                            {pm !== null ? (pm >= 0 ? `+${pm}` : pm) : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-state-icon">📊</div>
+                <p className="empty-state-text">
+                  {game.status === 'UPCOMING'
+                    ? 'Box score will be available once the game starts'
+                    : 'No box score data available for this game'}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 2: Shot Chart */}
+        {activeTab === 'tabShotChart' && (
+          <div className="gd-content-wrapper animate-fade-in">
+            <ShotChart
+              homeName={game.home}
+              awayName={game.away}
+              homeAbbr={game.homeAbbr}
+              awayAbbr={game.awayAbbr}
+            />
+          </div>
+        )}
+
+        {/* Tab 3: Play-by-Play */}
+        {activeTab === 'tabPBP' && (
+          <div className="gd-content-wrapper animate-fade-in" id="playbyplay-panel">
+            {playByPlay.length > 0 ? (
+              <div className="pbp-view-wrapper">
+                <div className="glass-panel pbp-filters-bar">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ color: 'var(--court-text-muted)', fontWeight: 600 }}>Period:</span>
+                    {['ALL', '4', '3', '2', '1'].map((q) => (
+                      <button
+                        key={q}
+                        className={`pbp-q-btn ${pbpFilter === q ? 'active' : ''}`}
+                        onClick={() => setPbpFilter(q)}
+                      >
+                        {q === 'ALL' ? 'All' : `Q${q}`}
+                      </button>
+                    ))}
+                  </div>
+                  <span style={{ color: '#00E676', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                    Game Feed ({playByPlay.length} plays)
+                  </span>
                 </div>
-              ) : (
-                <div className="empty-state">
-                  <div className="empty-state-icon">📋</div>
-                  <p className="empty-state-text">
-                    {game.status === 'UPCOMING'
-                      ? 'Play-by-play data will be available once the game starts'
-                      : 'No play-by-play data available for this game'}
-                  </p>
+
+                <div className="glass-panel pbp-timeline-box">
+                  {playByPlay
+                    .filter((item) => pbpFilter === 'ALL' || (item.q && String(item.q) === pbpFilter))
+                    .map((item, idx) => (
+                      <div key={`${item.time}-${idx}`} className="pbp-event-card highlight">
+                        <div className="pbp-time-col">
+                          <span className="pbp-time-clock">{item.time}</span>
+                        </div>
+                        <span className="pbp-type-tag two">PLAY</span>
+                        <div className="pbp-desc-col">
+                          <div className="pbp-desc-header">
+                            <span className="pbp-score-label">{item.score}</span>
+                          </div>
+                          <p className="pbp-desc-text">{item.text}</p>
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-state-icon">📋</div>
+                <p className="empty-state-text">No play-by-play data logged yet.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 4: Lineups */}
+        {activeTab === 'tabLineups' && (
+          <div className="gd-content-wrapper animate-fade-in">
+            <Lineups
+              homeTeamName={game.home}
+              awayTeamName={game.away}
+              homeRoster={boxScore.home}
+              awayRoster={boxScore.away}
+              homeColor={game.homeColor}
+              awayColor={game.awayColor}
+              onSelectPlayer={handlePlayerClick}
+            />
+          </div>
+        )}
+
+        {/* Tab 5: Four Factors */}
+        {activeTab === 'tabAdvanced' && (
+          <div className="gd-content-wrapper animate-fade-in">
+            <FourFactors
+              awayName={game.away}
+              homeName={game.home}
+              stats={game.stats}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Player Profile Modal */}
+      {selectedPlayer && (
+        <PlayerModal
+          player={selectedPlayer}
+          teamName={playerModalTeam}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </main>
   );
 }

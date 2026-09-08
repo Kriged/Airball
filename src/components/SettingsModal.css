@@ -1,0 +1,135 @@
+/* ===== SETTINGS / STREAM SYNC MODAL ===== */
+
+.settings-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(4, 7, 12, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.settings-modal-content {
+  width: 100%;
+  max-width: 460px;
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: shotPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--court-border);
+  padding-bottom: 14px;
+}
+
+.settings-modal-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.settings-delay-val {
+  font-family: var(--font-mono);
+  color: var(--court-gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.settings-desc {
+  font-size: 0.75rem;
+  color: var(--court-text-muted);
+  line-height: 1.45;
+}
+
+.settings-slider {
+  width: 100%;
+  accent-color: var(--court-accent);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.settings-triggers-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--court-border);
+  padding-top: 14px;
+}
+
+.settings-trigger-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings-trigger-item:hover {
+  background: var(--court-hover);
+  color: #FFFFFF;
+  border-color: var(--court-subtle);
+}
+
+.settings-checkbox {
+  accent-color: var(--court-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.settings-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
+
+.settings-save-btn {
+  background: var(--court-accent);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px var(--court-accent-glow);
+}
+
+.settings-save-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}

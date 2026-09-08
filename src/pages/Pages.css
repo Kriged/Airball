@@ -1,33 +1,35 @@
-/* ===== GAMES PAGE ===== */
+/* ===== COURTSYNC PAGES STYLING (GAMES, STANDINGS, PLAYERS, STATS, SEASONS) ===== */
 
+/* --- GAMES PAGE --- */
 .game-card {
   padding: 0 !important;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+  display: block;
 }
 
 .game-date {
-  padding: 12px 24px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  letter-spacing: 0.05em;
+  padding: 10px 18px;
+  font-size: 0.75rem;
+  color: var(--court-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--court-border);
 }
 
 .game-matchup {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  gap: 8px;
-  overflow: hidden;
+  padding: 16px 18px;
+  gap: 12px;
 }
 
 .game-team {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
 }
 
@@ -37,33 +39,29 @@
 }
 
 .game-team-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
 .game-score {
-  font-size: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-muted);
-  letter-spacing: -0.02em;
+  color: var(--court-text-muted);
   flex-shrink: 0;
 }
 
 .game-score.winner {
-  color: var(--nba-red);
+  color: var(--court-gold);
 }
 
 .game-vs {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 0;
+  font-size: 0.75rem;
+  color: var(--court-text-muted);
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -71,365 +69,300 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  border-top: 1px solid var(--border-color);
+  padding: 10px 18px;
+  border-top: 1px solid var(--court-border);
   background: rgba(255, 255, 255, 0.01);
+  font-size: 0.75rem;
 }
 
 .game-status {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
 }
 
 .game-status.final {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
+  color: var(--court-green);
+  background: rgba(0, 230, 118, 0.12);
+}
+
+.game-status.live {
+  color: #FF6B6B;
+  background: rgba(255, 59, 48, 0.16);
+  border: 1px solid rgba(255, 59, 48, 0.3);
 }
 
 .game-status.upcoming {
-  color: var(--nba-blue-accent);
-  background: rgba(37, 99, 235, 0.1);
+  color: var(--court-gold);
+  background: rgba(255, 184, 0, 0.12);
 }
 
 .game-arena {
-  font-size: 0.82rem;
-  color: var(--text-muted);
+  color: var(--court-text-muted);
 }
 
-/* ===== STATS PAGE ===== */
-
-.leaderboard {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.leader-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 18px 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-}
-
-.leader-row:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
-}
-
-.leader-rank {
-  width: 40px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 0;
-  font-size: 0.85rem;
-  font-weight: 800;
-}
-
-.rank-1 {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #0a0a0f;
-}
-
-.rank-2 {
-  background: linear-gradient(135deg, #94a3b8, #cbd5e1);
-  color: #0a0a0f;
-}
-
-.rank-3 {
-  background: linear-gradient(135deg, #d97706, #b45309);
-  color: #fff;
-}
-
-.rank-number {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.leader-info {
-  width: 220px;
-  flex-shrink: 0;
-}
-
-.leader-name {
-  display: block;
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.leader-team {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.leader-bar-wrapper {
-  flex: 1;
-}
-
-.leader-bar-wrapper .stat-bar {
-  height: 8px;
-}
-
-.leader-value {
-  width: 60px;
-  text-align: right;
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--nba-red);
-  flex-shrink: 0;
-}
-
-/* ===== SEASONS PAGE ===== */
-
-.seasons-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.season-card {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-base);
-}
-
-.season-card:hover {
-  border-color: var(--border-hover);
-  transform: translateX(4px);
-}
-
-.season-card.current {
-  border-color: var(--nba-blue-accent);
-  box-shadow: 0 0 30px rgba(37, 99, 235, 0.1);
-}
-
-.season-year-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.season-year {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4ade80;
-  animation: pulse 1.5s infinite;
-}
-
-.season-details {
-  display: flex;
-  gap: 32px;
-  flex: 1;
-  flex-wrap: wrap;
-}
-
-.season-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.season-detail-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-}
-
-.season-detail-value {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.season-status {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.season-status.in-progress {
-  color: #4ade80;
-}
-
-/* ===== STANDINGS PAGE ===== */
-
+/* --- STANDINGS PAGE --- */
 .standings-rank {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 0;
-  font-size: 0.82rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--court-text-muted);
 }
 
 .standings-rank.playoff {
-  background: rgba(37, 99, 235, 0.15);
-  color: var(--nba-blue-accent);
+  background: rgba(0, 230, 118, 0.15);
+  color: var(--court-green);
+  border: 1px solid rgba(0, 230, 118, 0.3);
 }
 
 .standings-rank.playin {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
+  background: rgba(255, 184, 0, 0.15);
+  color: var(--court-gold);
+  border: 1px solid rgba(255, 184, 0, 0.3);
 }
 
 .streak-badge {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
-.win-streak {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
+.streak-badge.win-streak {
+  background: rgba(0, 230, 118, 0.15);
+  color: var(--court-green);
 }
 
-.loss-streak {
-  color: var(--nba-red);
-  background: rgba(230, 57, 70, 0.1);
-}
-
-/* Team clickable link in standings */
-.td-team-link {
-  color: var(--text-primary);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color var(--transition-fast);
-  cursor: pointer;
-}
-
-.td-team-link:hover {
-  color: var(--nba-red);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.streak-badge.loss-streak {
+  background: rgba(255, 59, 48, 0.15);
+  color: var(--court-red);
 }
 
 .standings-legend {
   display: flex;
-  gap: 24px;
-  margin-top: 20px;
-  padding: 16px;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+  font-size: 0.78rem;
+  color: var(--court-text-muted);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
-  color: var(--text-muted);
 }
 
 .legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
 }
 
 .legend-color.playoff {
-  background: rgba(37, 99, 235, 0.4);
+  background: var(--court-green);
 }
 
 .legend-color.playin {
-  background: rgba(251, 191, 36, 0.4);
+  background: var(--court-gold);
 }
 
-/* ===== PLAYERS STATUS BADGES ===== */
-
+/* --- PLAYERS PAGE --- */
 .status-badge {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
-.status-active {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
+.status-badge.status-active {
+  background: rgba(0, 230, 118, 0.15);
+  color: var(--court-green);
 }
 
-.status-retired {
-  color: var(--text-muted);
+/* --- STATS LEADERBOARDS --- */
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leader-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  transition: all var(--transition-fast);
+}
+
+.leader-row:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateX(4px);
+}
+
+.leader-rank {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  min-width: 28px;
+}
+
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #FFFFFF;
+}
+
+.rank-badge.rank-1 {
+  background: linear-gradient(135deg, #FFB800 0%, #D97706 100%);
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.4);
+}
+
+.rank-badge.rank-2 {
+  background: linear-gradient(135deg, #CBD5E1 0%, #64748B 100%);
+}
+
+.rank-badge.rank-3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #92400E 100%);
+}
+
+.leader-info {
+  min-width: 180px;
+}
+
+.leader-name {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.leader-team {
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+}
+
+.leader-bar-wrapper {
+  flex: 1;
+}
+
+.stat-bar {
+  height: 8px;
   background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  overflow: hidden;
 }
 
-.status-legend {
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.1);
+.stat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--court-accent) 0%, var(--court-gold) 100%);
+  border-radius: 9999px;
+  transition: width 0.6s ease-out;
 }
 
-/* ===== RESPONSIVE ===== */
+.leader-value {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  min-width: 50px;
+  text-align: right;
+}
 
-@media (max-width: 768px) {
-  .leader-row {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 16px;
-  }
-  .leader-info {
-    width: auto;
-    flex: 1;
-  }
-  .leader-bar-wrapper {
-    width: 100%;
-    order: 10;
-  }
-  .leader-value {
-    width: auto;
-  }
-  .season-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  .season-details {
-    gap: 16px;
-  }
-  .game-matchup {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .game-team,
-  .game-team:last-child {
-    justify-content: center;
-    text-align: center;
-  }
+/* --- SEASONS PAGE --- */
+.seasons-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.season-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: all var(--transition-base);
+}
+
+.season-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateY(-2px);
+}
+
+.season-card.current {
+  border-color: var(--court-accent);
+  box-shadow: 0 4px 20px var(--court-accent-glow);
+}
+
+.season-year-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.season-year {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #FFFFFF;
+}
+
+.season-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.season-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.season-detail-label {
+  color: var(--court-text-muted);
+}
+
+.season-detail-value {
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.season-status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--court-text-muted);
+}
+
+.season-status.in-progress {
+  color: var(--court-green);
+  background: rgba(0, 230, 118, 0.15);
 }

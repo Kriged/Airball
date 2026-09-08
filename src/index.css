@@ -1,60 +1,68 @@
-/* ===== NBA BASKETBALL DATABASE — GLOBAL STYLES ===== */
+/* ===== COURTSYNC NBA — GLOBAL STYLES & ATHLETIC DESIGN SYSTEM ===== */
 
 /* --- CSS Custom Properties --- */
 :root {
-  /* NBA Color Palette */
-  --nba-red: #e63946;
-  --nba-red-dark: #c5283d;
-  --nba-blue: #1d3557;
-  --nba-blue-light: #457b9d;
-  --nba-blue-accent: #2563eb;
-  --nba-white: #f1faee;
-  --nba-black: #0a0a0f;
-  --nba-black-light: #14141f;
-  --nba-black-card: #1a1a2e;
+  /* CourtSync Athletic Color Palette */
+  --court-bg: #080B11;
+  --court-card: #0F1523;
+  --court-hover: #172033;
+  --court-border: #1F293D;
+  --court-subtle: #2A364F;
+  --court-accent: #FF5722; /* Vibrant NBA basketball orange */
+  --court-accent-glow: rgba(255, 87, 34, 0.25);
+  --court-gold: #FFB800;
+  --court-green: #00E676;
+  --court-red: #FF3B30;
+  --court-cyan: #00D2FF;
+  --court-text-muted: #8E9BAE;
 
-  /* Semantic Colors */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #14141f;
-  --bg-card: #1a1a2e;
-  --bg-card-hover: #222240;
-  --bg-glass: rgba(26, 26, 46, 0.65);
+  /* Aliased Semantic Colors for backward compatibility */
+  --bg-primary: #080B11;
+  --bg-secondary: #0D131F;
+  --bg-card: #0F1523;
+  --bg-card-hover: #172033;
+  --bg-glass: rgba(15, 21, 35, 0.85);
 
-  --text-primary: #f1faee;
-  --text-secondary: #a8a8b3;
-  --text-muted: #6b6b80;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #8E9BAE;
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-color: #1F293D;
+  --border-hover: #2E3D5C;
 
-  --gradient-red-blue: linear-gradient(135deg, var(--nba-red), var(--nba-blue));
-  --gradient-dark: linear-gradient(180deg, #14141f 0%, #0a0a0f 100%);
-  --gradient-card: linear-gradient(145deg, rgba(26, 26, 46, 0.8), rgba(10, 10, 15, 0.9));
+  --nba-red: #FF5722;
+  --nba-red-dark: #D84315;
+  --nba-blue: #141D2D;
+  --nba-blue-light: #2A364F;
+  --nba-blue-accent: #00D2FF;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-red: 0 0 30px rgba(230, 57, 70, 0.2);
-  --shadow-blue: 0 0 30px rgba(29, 53, 87, 0.3);
-  --shadow-glow-red: 0 0 60px rgba(230, 57, 70, 0.15);
-  --shadow-glow-blue: 0 0 60px rgba(37, 99, 235, 0.15);
+  --gradient-red-blue: linear-gradient(135deg, #FF5722 0%, #FFB800 50%, #00D2FF 100%);
+  --gradient-dark: linear-gradient(180deg, #0D131F 0%, #080B11 100%);
+  --gradient-card: linear-gradient(145deg, rgba(15, 21, 35, 0.95), rgba(8, 11, 17, 0.98));
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.65);
+  --shadow-accent: 0 0 30px rgba(255, 87, 34, 0.2);
+  --shadow-glow-accent: 0 0 60px rgba(255, 87, 34, 0.15);
 
   /* Typography */
-  --font-primary: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Spacing */
-  --nav-height: 72px;
+  --nav-height: 68px;
 
   /* Transitions */
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Border Radius */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  /* Modern Athletic Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 }
 
 /* --- Reset & Base --- */
@@ -72,9 +80,9 @@ html {
 
 body {
   font-family: var(--font-primary);
-  background: var(--bg-primary);
+  background: var(--court-bg);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -111,61 +119,126 @@ ul, ol {
 /* --- Utility Classes --- */
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 .section-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 800;
   letter-spacing: -0.02em;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  color: #FFFFFF;
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  font-weight: 300;
-  margin-bottom: 48px;
+  font-size: 1rem;
+  color: var(--court-text-muted);
+  font-weight: 400;
+  margin-bottom: 36px;
 }
 
 .gradient-text {
-  background: var(--gradient-red-blue);
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #FF8A65 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* --- Scrollbar --- */
+/* --- Glassmorphic Scorebug & Card Systems --- */
+.glass-panel {
+  background: rgba(15, 21, 35, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-highlight {
+  background: linear-gradient(135deg, rgba(255, 87, 34, 0.12) 0%, rgba(15, 21, 35, 0.5) 100%);
+  border: 1px solid rgba(255, 87, 34, 0.35);
+}
+
+/* --- Basketball Court Graphics --- */
+.court-line {
+  stroke: #364461;
+  stroke-width: 2;
+  fill: none;
+}
+.court-floor {
+  fill: #0c121e;
+}
+.court-paint {
+  fill: #141c2c;
+}
+.court-restricted {
+  fill: #19243a;
+}
+
+/* Tabular numbers for clocks, ratings, and stats */
+.num-tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+/* Athletic rating badges */
+.rating-badge {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+.rating-high { background-color: #059669; color: #ffffff; }
+.rating-mid  { background-color: #D97706; color: #ffffff; }
+.rating-low  { background-color: #DC2626; color: #ffffff; }
+
+/* Custom sports scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: var(--court-bg);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--nba-blue);
-  border-radius: 0;
+  background: var(--court-border);
+  border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--nba-blue-light);
+  background: var(--court-accent);
 }
 
-/* --- Selection --- */
+/* Selection */
 ::selection {
-  background: var(--nba-red);
-  color: var(--text-primary);
+  background: var(--court-accent);
+  color: #FFFFFF;
 }
 
 /* --- Animations --- */
+@keyframes scoreFlash {
+  0% { transform: scale(1.25); color: var(--court-gold); }
+  100% { transform: scale(1); color: inherit; }
+}
+
+@keyframes shotPop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.08); }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -178,44 +251,25 @@ ul, ol {
   to { opacity: 1; }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.animate-score-flash {
+  animation: scoreFlash 0.8s ease-out;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.animate-shot-pop {
+  animation: shotPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.45s ease-out forwards;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.35s ease-out forwards;
 }
 
 /* Staggered delays */
-.delay-1 { animation-delay: 0.1s; opacity: 0; }
-.delay-2 { animation-delay: 0.2s; opacity: 0; }
-.delay-3 { animation-delay: 0.3s; opacity: 0; }
-.delay-4 { animation-delay: 0.4s; opacity: 0; }
-.delay-5 { animation-delay: 0.5s; opacity: 0; }
-.delay-6 { animation-delay: 0.6s; opacity: 0; }
+.delay-1 { animation-delay: 0.08s; opacity: 0; }
+.delay-2 { animation-delay: 0.16s; opacity: 0; }
+.delay-3 { animation-delay: 0.24s; opacity: 0; }
+.delay-4 { animation-delay: 0.32s; opacity: 0; }
+.delay-5 { animation-delay: 0.40s; opacity: 0; }
