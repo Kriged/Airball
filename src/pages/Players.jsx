@@ -1,29 +1,47 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../components/PageLayout';
+import { getCached, setCached } from '../utils/cache';
+
+const PLAYERS_CACHE_KEY = 'players';
 
 // Position filters list
 const positions = ['All', 'PG', 'SG', 'SF', 'PF', 'C'];
 
 function Players() {
-  const [players, setPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [players, setPlayers] = useState(() => {
+    const cached = getCached(PLAYERS_CACHE_KEY, 300000);
+    return cached ? cached.data : [];
+  });
+  const [loading, setLoading] = useState(() => !getCached(PLAYERS_CACHE_KEY, 300000));
   const [search, setSearch] = useState('');
   const [activePos, setActivePos] = useState('All');
 
   useEffect(() => {
+    const cached = getCached(PLAYERS_CACHE_KEY, 300000);
+    if (cached && !cached.isStale) {
+      return;
+    }
+
+    let isMounted = true;
     fetch('/api/players')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        setPlayers(data || []);
+        if (!isMounted) return;
+        const validPlayers = data || [];
+        setPlayers(validPlayers);
+        setCached(PLAYERS_CACHE_KEY, validPlayers);
         setLoading(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.error('Failed to fetch players:', err);
         setLoading(false);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   const filtered = players.filter((p) => {

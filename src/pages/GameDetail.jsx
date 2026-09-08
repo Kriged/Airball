@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './GameDetail.css';
+import { getCached } from '../utils/cache';
 
 function GameDetail() {
   const { gameId } = useParams();
@@ -12,23 +13,37 @@ function GameDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // BUG-011: Improved loading orchestration using Promise.all
+  // BUG-011: Improved loading orchestration using Promise.all with targeted game endpoint
   useEffect(() => {
     let cancelled = false;
 
+    const fetchGamePromise = async () => {
+      const cachedGames = getCached('games_list');
+      const foundInList = cachedGames?.data?.find((g) => String(g.id) === String(gameId));
+      if (foundInList) return foundInList;
+
+      const cachedToday = getCached('today_games');
+      const foundInToday = cachedToday?.data?.find((g) => String(g.id) === String(gameId));
+      if (foundInToday) return foundInToday;
+
+      try {
+        const res = await fetch(`/api/games/${gameId}`);
+        if (res.ok) return await res.json();
+      } catch (err) {
+        console.warn('Targeted game fetch failed, falling back:', err);
+      }
+
+      const listRes = await fetch('/api/games');
+      if (!listRes.ok) throw new Error(`HTTP error ${listRes.status}`);
+      const games = await listRes.json();
+      const found = games.find((g) => String(g.id) === String(gameId));
+      if (!found) throw new Error('Game not found');
+      return found;
+    };
+
     // Fetch all data in parallel
     Promise.all([
-      // BUG-012: Add res.ok checks to all fetch calls
-      fetch('/api/games')
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-          return res.json();
-        })
-        .then((games) => {
-          const found = games.find((g) => String(g.id) === String(gameId));
-          if (!found) throw new Error('Game not found');
-          return found;
-        }),
+      fetchGamePromise(),
       fetch(`/api/games/${gameId}/boxscore`)
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP error ${res.status}`);

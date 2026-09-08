@@ -1,18 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
+import { getCached, setCached } from '../utils/cache';
+
+const GAMES_CACHE_KEY = 'games_list';
 
 // BUG-007: Added 'Live' filter option
 const statusFilters = ['All', 'FINAL', 'LIVE', 'UPCOMING'];
 const statusLabels = { 'All': 'All Games', 'FINAL': 'Final', 'LIVE': 'Live', 'UPCOMING': 'Upcoming' };
 
 function Games() {
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [games, setGames] = useState(() => {
+    const cached = getCached(GAMES_CACHE_KEY, 60000);
+    return cached ? cached.data : [];
+  });
+  const [loading, setLoading] = useState(() => !getCached(GAMES_CACHE_KEY, 60000));
   const [activeStatus, setActiveStatus] = useState('All');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    const cached = getCached(GAMES_CACHE_KEY, 60000);
+    if (cached && !cached.isStale) {
+      return;
+    }
+
+    let isMounted = true;
     // BUG-012: Added res.ok check
     fetch('/api/games')
       .then((res) => {
@@ -20,13 +32,19 @@ function Games() {
         return res.json();
       })
       .then((data) => {
-        setGames(data || []);
+        if (!isMounted) return;
+        const validGames = data || [];
+        setGames(validGames);
+        setCached(GAMES_CACHE_KEY, validGames);
         setLoading(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.error('Failed to fetch games list:', err);
         setLoading(false);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   const filtered = games.filter((g) => {

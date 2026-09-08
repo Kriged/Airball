@@ -1,29 +1,44 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../components/PageLayout';
+import { getCached, setCached } from '../utils/cache';
 
+const STATS_CACHE_KEY = 'stats_leaders';
 const statCategories = ['Points', 'Rebounds', 'Assists', 'Steals', 'Blocks'];
 
 function Stats() {
-  const [leaderboards, setLeaderboards] = useState({
-    Points: [], Rebounds: [], Assists: [], Steals: [], Blocks: []
+  const [leaderboards, setLeaderboards] = useState(() => {
+    const cached = getCached(STATS_CACHE_KEY, 120000);
+    return cached ? cached.data : { Points: [], Rebounds: [], Assists: [], Steals: [], Blocks: [] };
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !getCached(STATS_CACHE_KEY, 120000));
   const [activeCat, setActiveCat] = useState('Points');
 
   useEffect(() => {
+    const cached = getCached(STATS_CACHE_KEY, 120000);
+    if (cached && !cached.isStale) {
+      return;
+    }
+
+    let isMounted = true;
     fetch('/api/stats/leaders')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        setLeaderboards(data || { Points: [], Rebounds: [], Assists: [], Steals: [], Blocks: [] });
+        if (!isMounted) return;
+        const validData = data || { Points: [], Rebounds: [], Assists: [], Steals: [], Blocks: [] };
+        setLeaderboards(validData);
+        setCached(STATS_CACHE_KEY, validData);
         setLoading(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.error('Failed to fetch stats leaders:', err);
         setLoading(false);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   const leaders = leaderboards[activeCat] || [];

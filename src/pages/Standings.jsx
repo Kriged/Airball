@@ -1,26 +1,44 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
+import { getCached, setCached } from '../utils/cache';
+
+const STANDINGS_CACHE_KEY = 'standings';
 
 function Standings() {
-  const [standingsData, setStandingsData] = useState({ Eastern: [], Western: [] });
-  const [loading, setLoading] = useState(true);
+  const [standingsData, setStandingsData] = useState(() => {
+    const cached = getCached(STANDINGS_CACHE_KEY, 120000);
+    return cached ? cached.data : { Eastern: [], Western: [] };
+  });
+  const [loading, setLoading] = useState(() => !getCached(STANDINGS_CACHE_KEY, 120000));
   const [activeConf, setActiveConf] = useState('Eastern');
 
   useEffect(() => {
+    const cached = getCached(STANDINGS_CACHE_KEY, 120000);
+    if (cached && !cached.isStale) {
+      return;
+    }
+
+    let isMounted = true;
     fetch('/api/standings')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        setStandingsData(data || { Eastern: [], Western: [] });
+        if (!isMounted) return;
+        const validData = data || { Eastern: [], Western: [] };
+        setStandingsData(validData);
+        setCached(STANDINGS_CACHE_KEY, validData);
         setLoading(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.error('Failed to fetch standings:', err);
         setLoading(false);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   const standings = standingsData[activeConf] || [];

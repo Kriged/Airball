@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import './Home.css';
+import { getCached, setCached } from '../utils/cache';
+
+const TODAY_GAMES_CACHE = 'today_games';
 
 // ============================================================
 // API Integration Layer
@@ -89,12 +92,16 @@ async function fetchBoxScore(gameId) {
 }
 
 function Home() {
-  const [games, setGames] = useState([]);
+  const cached = getCached(TODAY_GAMES_CACHE, 30000);
+  const [games, setGames] = useState(cached ? cached.data : []);
   // BUG-026: Use null instead of stale 'mock_1' as initial activeGameId
-  const [activeGameId, setActiveGameId] = useState(null);
+  const [activeGameId, setActiveGameId] = useState(
+    cached && cached.data.length > 0 ? cached.data[0].id : null
+  );
   const [activeTab, setActiveTab] = useState('pbp');
 
   const activeGame = games.find((g) => g.id === activeGameId) || games[0];
+  const activeGameStatus = activeGame?.status;
 
   // Fetch games scoreboard periodically
   useEffect(() => {
@@ -102,6 +109,7 @@ function Home() {
       const apiGames = await fetchGames();
       if (apiGames && apiGames.length > 0) {
         setGames(apiGames);
+        setCached(TODAY_GAMES_CACHE, apiGames);
         // If activeGameId is not in the fetched list, set it to the first game
         setActiveGameId(prevId => {
           if (!prevId || !apiGames.some(g => g.id === prevId)) {
@@ -116,16 +124,16 @@ function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // BUG-003: Memoize loadDetails and include games in effect deps
-  const loadDetails = useCallback(async () => {
-    if (!activeGameId) return;
+  // Stable loadDetails function taking targetGameId
+  const loadDetails = useCallback(async (targetGameId) => {
+    if (!targetGameId) return;
     const [pbp, box] = await Promise.all([
-      fetchPlayByPlay(activeGameId),
-      fetchBoxScore(activeGameId)
+      fetchPlayByPlay(targetGameId),
+      fetchBoxScore(targetGameId)
     ]);
 
     setGames(prevGames => prevGames.map(g => {
-      if (g.id === activeGameId) {
+      if (g.id === targetGameId) {
         return {
           ...g,
           playByPlay: pbp || g.playByPlay,
@@ -134,25 +142,36 @@ function Home() {
       }
       return g;
     }));
-  }, [activeGameId]);
+  }, []);
 
-  // Fetch Play-by-Play & Box Score for the Active Game
-  // BUG-003: Added games to dependency array to fix stale closure
+  // Fetch Play-by-Play & Box Score for the Active Game without infinite loop
   useEffect(() => {
     if (!activeGameId) return;
 
-    // Use microtask to avoid synchronous setState in effect body
+    let cancelled = false;
     const fetchDetails = async () => {
-      await loadDetails();
+      if (!cancelled) {
+        await loadDetails(activeGameId);
+      }
     };
     fetchDetails();
 
-    const activeGameObj = games.find(g => g.id === activeGameId);
-    if (activeGameObj && activeGameObj.status === 'LIVE') {
-      const interval = setInterval(loadDetails, 10000);
-      return () => clearInterval(interval);
+    if (activeGameStatus === 'LIVE') {
+      const interval = setInterval(() => {
+        if (!cancelled) {
+          loadDetails(activeGameId);
+        }
+      }, 10000);
+      return () => {
+        cancelled = true;
+        clearInterval(interval);
+      };
     }
-  }, [activeGameId, games, loadDetails]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeGameId, activeGameStatus, loadDetails]);
 
   // BUG-030: Handle tie scores correctly in win probability
   const getWinProbability = (game) => {
