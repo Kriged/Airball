@@ -1,0 +1,204 @@
+/* ===== NFL PAGES STYLING ===== */
+
+/* --- NFL Score Grid (Quarter-by-Quarter) --- */
+.nfl-line-score {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+}
+
+.nfl-line-score th,
+.nfl-line-score td {
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--court-border);
+  font-size: 0.85rem;
+}
+
+.nfl-line-score th {
+  color: var(--court-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nfl-line-score .team-name-cell {
+  text-align: left;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.nfl-line-score .total-cell {
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--court-gold);
+}
+
+/* --- Scoring Drives Timeline --- */
+.nfl-scoring-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoring-play {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.scoring-play:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+}
+
+.scoring-play-quarter {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(1, 51, 105, 0.2);
+  color: #4A9EE8;
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: center;
+}
+
+.scoring-play-info {
+  flex: 1;
+}
+
+.scoring-play-team {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--court-gold);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.scoring-play-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.scoring-play-score {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  white-space: nowrap;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+}
+
+/* --- NFL Standings Division Groups --- */
+.nfl-division-group {
+  margin-bottom: 28px;
+}
+
+.nfl-division-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--court-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 184, 0, 0.2);
+}
+
+/* --- NFL Game Cards with Score Emphasis --- */
+.nfl-game-card .game-score {
+  font-size: 1.5rem;
+}
+
+/* --- NFL Stats: Category-specific bar colors --- */
+.nfl-stat-bar-passing .stat-bar-fill {
+  background: linear-gradient(90deg, #013369 0%, #4A9EE8 100%);
+}
+
+.nfl-stat-bar-rushing .stat-bar-fill {
+  background: linear-gradient(90deg, #2D6A4F 0%, #52B788 100%);
+}
+
+.nfl-stat-bar-receiving .stat-bar-fill {
+  background: linear-gradient(90deg, #D50A0A 0%, #FF6B6B 100%);
+}
+
+.nfl-stat-bar-defense .stat-bar-fill {
+  background: linear-gradient(90deg, #7B2CBF 0%, #C77DFF 100%);
+}
+
+/* --- NFL Home Score Cards --- */
+.nfl-score-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.nfl-score-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateY(-2px);
+}
+
+.nfl-score-card-teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.nfl-score-card-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.nfl-score-card-abbr {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #FFFFFF;
+}
+
+.nfl-score-card-score {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.nfl-score-card-score.winner {
+  color: var(--court-gold);
+}
+
+.nfl-score-card-vs {
+  font-size: 0.7rem;
+  color: var(--court-text-muted);
+  font-weight: 700;
+}
+
+.nfl-score-card-status {
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--court-border);
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import PageLayout from '../components/PageLayout';
-import { getCached, setCached } from '../utils/cache';
+import PageLayout from '../../components/PageLayout';
+import { getCached, setCached } from '../../utils/cache';
 
 const PLAYERS_CACHE_KEY = 'players';
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import PageLayout from '../components/PageLayout';
+import PageLayout from '../../components/PageLayout';
 
 function Seasons() {
   const [seasons, setSeasons] = useState([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PageLayout from '../components/PageLayout';
-import { getCached, setCached } from '../utils/cache';
+import PageLayout from '../../components/PageLayout';
+import { getCached, setCached } from '../../utils/cache';
 
 const GAMES_CACHE_KEY = 'games_list';
 

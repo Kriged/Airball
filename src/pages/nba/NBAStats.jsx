@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import PageLayout from '../components/PageLayout';
-import { getCached, setCached } from '../utils/cache';
+import PageLayout from '../../components/PageLayout';
+import { getCached, setCached } from '../../utils/cache';
 
 const STATS_CACHE_KEY = 'stats_leaders';
 const statCategories = ['Points', 'Rebounds', 'Assists', 'Steals', 'Blocks'];

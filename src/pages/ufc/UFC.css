@@ -1,0 +1,278 @@
+/* ===== UFC PAGES STYLING ===== */
+
+/* --- Fight Card Layout --- */
+.ufc-fight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ufc-bout-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.ufc-bout-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+}
+
+.ufc-bout-card.main-event {
+  border-color: rgba(210, 10, 10, 0.4);
+  box-shadow: 0 4px 20px rgba(210, 10, 10, 0.15);
+}
+
+.ufc-bout-fighters {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.ufc-fighter-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  min-width: 120px;
+}
+
+.ufc-fighter-name.winner {
+  color: var(--court-gold);
+}
+
+.ufc-fighter-name.loser {
+  color: var(--court-text-muted);
+}
+
+.ufc-fighter-record {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--court-text-muted);
+}
+
+.ufc-bout-vs {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #D20A0A;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(210, 10, 10, 0.12);
+}
+
+.ufc-bout-result {
+  text-align: right;
+  min-width: 140px;
+}
+
+.ufc-bout-method {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.ufc-bout-detail {
+  font-size: 0.7rem;
+  color: var(--court-text-muted);
+  font-family: var(--font-mono);
+}
+
+.ufc-bout-weight-class {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--court-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* --- UFC Event Card --- */
+.ufc-event-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  display: block;
+}
+
+.ufc-event-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateY(-2px);
+}
+
+.ufc-event-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--court-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ufc-event-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.ufc-event-date {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+}
+
+.ufc-event-main-bout {
+  padding: 16px 20px;
+}
+
+.ufc-event-footer {
+  padding: 10px 20px;
+  border-top: 1px solid var(--court-border);
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- UFC Rankings --- */
+.ufc-rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.ufc-division-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.ufc-division-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--court-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid rgba(196, 167, 71, 0.2);
+}
+
+.ufc-ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.ufc-ranking-row:last-child {
+  border-bottom: none;
+}
+
+.ufc-ranking-num {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-width: 24px;
+  color: var(--court-text-muted);
+}
+
+.ufc-ranking-num.champion {
+  color: var(--court-gold);
+}
+
+.ufc-ranking-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  flex: 1;
+}
+
+.ufc-ranking-record {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+}
+
+/* --- UFC Status Badges --- */
+.ufc-status-completed {
+  color: var(--court-green);
+  background: rgba(0, 230, 118, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ufc-status-upcoming {
+  color: var(--court-gold);
+  background: rgba(255, 184, 0, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ufc-status-live {
+  color: #FF6B6B;
+  background: rgba(255, 59, 48, 0.16);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- UFC Fighter Grid --- */
+.ufc-fighters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.ufc-fighter-card {
+  background: var(--court-card);
+  border: 1px solid var(--court-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all var(--transition-fast);
+}
+
+.ufc-fighter-card:hover {
+  background: var(--court-hover);
+  border-color: var(--court-subtle);
+  transform: translateY(-2px);
+}
+
+.ufc-fighter-card-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+}
+
+.ufc-fighter-card-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: var(--court-text-muted);
+}
+
+.ufc-fighter-card-record {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--court-gold);
+}

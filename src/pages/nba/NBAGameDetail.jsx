@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getCached } from '../utils/cache';
-import ScorebugHero from '../components/ScorebugHero';
-import ShotChart from '../components/ShotChart';
-import Lineups from '../components/Lineups';
-import FourFactors from '../components/FourFactors';
-import PlayerModal from '../components/PlayerModal';
+import { getCached } from '../../utils/cache';
+import ScorebugHero from '../../components/ScorebugHero';
+import ShotChart from '../../components/ShotChart';
+import Lineups from '../../components/Lineups';
+import FourFactors from '../../components/FourFactors';
+import PlayerModal from '../../components/PlayerModal';
 import './GameDetail.css';
 
 function GameDetail() {

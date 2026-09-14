@@ -16,6 +16,20 @@
   --court-cyan: #00D2FF;
   --court-text-muted: #8E9BAE;
 
+  /* Sport-Level Accent Color Tokens */
+  --sport-nba-accent: #FF5722;
+  --sport-nba-glow: rgba(255, 87, 34, 0.25);
+  --sport-nba-secondary: #FFB800;
+
+  --sport-nfl-accent: #013369;
+  --sport-nfl-glow: rgba(1, 51, 105, 0.3);
+  --sport-nfl-secondary: #D50A0A;
+
+  --sport-ufc-accent: #D20A0A;
+  --sport-ufc-glow: rgba(210, 10, 10, 0.25);
+  --sport-ufc-gold: #C4A747;
+
+
   /* Aliased Semantic Colors for backward compatibility */
   --bg-primary: #080B11;
   --bg-secondary: #0D131F;
