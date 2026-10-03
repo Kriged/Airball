@@ -58,14 +58,38 @@ function UFCEventDetail() {
                 <div className={`ufc-bout-card ${i === 0 ? 'main-event' : ''}`} key={i}>
                   {bout.weightClass && <div className="ufc-bout-weight-class">{bout.weightClass}</div>}
                   <div className="ufc-bout-fighters" style={{ flex: 1 }}>
-                    <div style={{ flex: 1 }}>
+                    {/* Fighter 1 */}
+                    <div className="ufc-bout-fighter-col">
+                      {bout.fighter1.photoUrl ? (
+                        <img
+                          src={bout.fighter1.photoUrl}
+                          alt={bout.fighter1.name}
+                          className="ufc-fighter-headshot"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="ufc-fighter-headshot-placeholder">🥊</div>
+                      )}
                       <div className={`ufc-fighter-name ${bout.fighter1.winner ? 'winner' : bout.fighter2.winner ? 'loser' : ''}`}>
                         {bout.fighter1.name}
                       </div>
                       {bout.fighter1.record && <div className="ufc-fighter-record">{bout.fighter1.record}</div>}
                     </div>
+
                     <span className="ufc-bout-vs">VS</span>
-                    <div style={{ flex: 1, textAlign: 'right' }}>
+
+                    {/* Fighter 2 */}
+                    <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
+                      {bout.fighter2.photoUrl ? (
+                        <img
+                          src={bout.fighter2.photoUrl}
+                          alt={bout.fighter2.name}
+                          className="ufc-fighter-headshot"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="ufc-fighter-headshot-placeholder">🥊</div>
+                      )}
                       <div className={`ufc-fighter-name ${bout.fighter2.winner ? 'winner' : bout.fighter1.winner ? 'loser' : ''}`}>
                         {bout.fighter2.name}
                       </div>

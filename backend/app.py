@@ -9,6 +9,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from backend.core.cache import cache
 from backend.sports.registry import register_all_sports
+from backend.adapters.thesportsdb import register_routes as register_tsdb
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +27,9 @@ def health_check():
 
 # Register all sport adapters (NBA, NFL, UFC)
 register_all_sports(app, cache)
+
+# Register TheSportsDB logo/photo routes
+_prewarm_tsdb = register_tsdb(app, cache)
 
 
 def prewarm_cache():
@@ -63,6 +67,12 @@ def prewarm_cache():
                 cache.set(key, val, ttl=ttl, swr_ttl=swr_ttl)
         except Exception as e:
             print(f"[PREWARM] Notice: could not pre-warm {key}: {e}")
+
+    # Prewarm TheSportsDB logos after ESPN data is ready (logos are slow — 30+ calls)
+    try:
+        _prewarm_tsdb()
+    except Exception as e:
+        print(f"[PREWARM] Notice: TSDB logo prewarm failed: {e}")
 
 
 threading.Thread(target=prewarm_cache, daemon=True).start()

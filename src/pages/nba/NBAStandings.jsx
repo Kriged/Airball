@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
 import { getCached, setCached } from '../../utils/cache';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 
 const STANDINGS_CACHE_KEY = 'standings';
 
@@ -12,6 +13,8 @@ function Standings() {
   });
   const [loading, setLoading] = useState(() => !getCached(STANDINGS_CACHE_KEY, 120000));
   const [activeConf, setActiveConf] = useState('Eastern');
+  
+  const teamLogos = useTeamLogos('nba');
 
   useEffect(() => {
     const cached = getCached(STANDINGS_CACHE_KEY, 120000);
@@ -98,7 +101,10 @@ function Standings() {
                   </span>
                 </td>
                 <td className="team-name">
-                  <Link to={`/teams/${team.abbr}`} className="td-team-link">{team.team}</Link>
+                  <Link to={`/teams/${team.abbr}`} className="td-team-link">
+                    {teamLogos[team.abbr] ? <img src={teamLogos[team.abbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                    {team.team}
+                  </Link>
                 </td>
                 <td className="highlight">{team.wins}</td>
                 <td>{team.losses}</td>

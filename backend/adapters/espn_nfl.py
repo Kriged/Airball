@@ -77,6 +77,8 @@ def compute_nfl_today_games():
             'awayScore': int(away_team['score']) if away_team.get('score') else 0,
             'homeColor': NFL_TEAM_COLORS.get(home_abbr, '#013369'),
             'awayColor': NFL_TEAM_COLORS.get(away_abbr, '#D50A0A'),
+            'homeLogo': home_team['team'].get('logo', ''),
+            'awayLogo': away_team['team'].get('logo', ''),
             'quarter': quarter,
             'time': time_val,
             'status': status,

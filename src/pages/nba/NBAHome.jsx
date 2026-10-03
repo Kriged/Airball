@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCached, setCached } from '../../utils/cache';
 import { courtAudio } from '../../utils/audio';
+import { useSportPolling } from '../../utils/polling';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 import ScorebugHero from '../../components/ScorebugHero';
 import ShotChart from '../../components/ShotChart';
 import Lineups from '../../components/Lineups';
@@ -30,36 +32,28 @@ function Home() {
   // Play-by-play state - populated from live API only
   const [pbpList, setPbpList] = useState([]);
 
+  // Team logos from TheSportsDB (fetched once per session)
+  const teamLogos = useTeamLogos('nba');
+
   const activeGame = games.find((g) => g.id === activeGameId) || games[0] || null;
+  const hasLiveGame = games.some((g) => g.status === 'LIVE');
 
-  // Fetch games from backend API
-  useEffect(() => {
-    let cancelled = false;
-    const fetchApiGames = async () => {
-      try {
-        const res = await fetch('/api/games/today');
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled) return;
-        if (Array.isArray(data)) {
-          setGames(data);
-          setCached(TODAY_GAMES_CACHE, data);
-          if (data.length > 0) {
-            setActiveGameId((prev) => (prev && data.some((g) => g.id === prev) ? prev : data[0].id));
-          }
+  // Fetch games using sport-aware polling hook (15s live / 60s idle)
+  useSportPolling(
+    () => fetch('/api/games/today').then((r) => (r.ok ? r.json() : Promise.reject())),
+    {
+      sport: 'nba',
+      isLive: hasLiveGame,
+      onData: (data) => {
+        if (!Array.isArray(data)) return;
+        setGames(data);
+        setCached(TODAY_GAMES_CACHE, data);
+        if (data.length > 0) {
+          setActiveGameId((prev) => (prev && data.some((g) => g.id === prev) ? prev : data[0].id));
         }
-      } catch {
-        // No games available or network failure
-      }
-    };
-
-    fetchApiGames();
-    const interval = setInterval(fetchApiGames, 15000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
+      },
+    }
+  );
 
   // Fetch Standings
   useEffect(() => {
@@ -262,8 +256,17 @@ function Home() {
                     {/* Away Team */}
                     <div className="match-card-row">
                       <div className="match-card-team">
-                        <span className="match-card-abbr">{g.awayAbbr}</span>
-                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>
+                        {(g.awayLogo || teamLogos[g.awayAbbr]) ? (
+                          <img
+                            src={g.awayLogo || teamLogos[g.awayAbbr]}
+                            alt={g.awayAbbr}
+                            className="match-card-logo"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <span className="match-card-abbr">{g.awayAbbr}</span>
+                        )}
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 90 }}>
                           {g.away}
                         </span>
                       </div>
@@ -275,8 +278,17 @@ function Home() {
                     {/* Home Team */}
                     <div className="match-card-row">
                       <div className="match-card-team">
-                        <span className="match-card-abbr">{g.homeAbbr}</span>
-                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>
+                        {(g.homeLogo || teamLogos[g.homeAbbr]) ? (
+                          <img
+                            src={g.homeLogo || teamLogos[g.homeAbbr]}
+                            alt={g.homeAbbr}
+                            className="match-card-logo"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <span className="match-card-abbr">{g.homeAbbr}</span>
+                        )}
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 90 }}>
                           {g.home}
                         </span>
                       </div>
@@ -307,6 +319,8 @@ function Home() {
                 game={activeGame}
                 latestPlay={latestPlay}
                 scoreFlashing={scoreFlashing}
+                awayLogo={activeGame.awayLogo || teamLogos[activeGame.awayAbbr]}
+                homeLogo={activeGame.homeLogo || teamLogos[activeGame.homeAbbr]}
               />
             ) : (
               <div className="glass-panel" style={{ padding: '48px 24px', textAlign: 'center', marginBottom: 20 }}>
@@ -657,7 +671,7 @@ function Home() {
             <TopPerformers performers={topPerformers} onSelectPlayer={handlePlayerClick} />
 
             {/* Conference Standings Mini Widget */}
-            <MiniStandings liveStandings={liveStandings} />
+            <MiniStandings liveStandings={liveStandings} teamLogos={teamLogos} />
 
             {/* Stream Sync / Anti-Spoiler Delay Banner */}
             <div className="glass-highlight anti-spoiler-quick-card">

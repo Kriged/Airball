@@ -1,9 +1,37 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
 import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useFighterPhoto } from '../../utils/useFighterPhoto';
 import './UFC.css';
 
 const CACHE_KEY = getSportCacheKey('ufc', 'fighters');
+
+/** Inner card component — isolates useFighterPhoto per fighter */
+function FighterCard({ fighter }) {
+  const photoUrl = useFighterPhoto(fighter.name);
+  return (
+    <div className="ufc-fighter-card" id={`ufc-fighter-${(fighter.id || fighter.name).toString().replace(/\s+/g, '-').toLowerCase()}`}>
+      <div className="ufc-fighter-card-photo-row">
+        {photoUrl ? (
+          <img
+            src={photoUrl}
+            alt={fighter.name}
+            className="ufc-fighter-card-photo"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : (
+          <div className="ufc-fighter-card-photo-placeholder">🥊</div>
+        )}
+      </div>
+      <div className="ufc-fighter-card-name">{fighter.name}</div>
+      <div className="ufc-fighter-card-meta">
+        {fighter.record && <span className="ufc-fighter-card-record">{fighter.record}</span>}
+        <span>{fighter.weightClass}</span>
+        {fighter.country && <span>{fighter.country}</span>}
+      </div>
+    </div>
+  );
+}
 
 function UFCFighters() {
   const [fighters, setFighters] = useState(() => { const c = getCached(CACHE_KEY, 300000); return c ? c.data : []; });
@@ -31,14 +59,7 @@ function UFCFighters() {
       ) : filtered.length > 0 ? (
         <div className="ufc-fighters-grid" id="ufc-fighters-list">
           {filtered.map(fighter => (
-            <div className="ufc-fighter-card" key={fighter.id || fighter.name}>
-              <div className="ufc-fighter-card-name">{fighter.name}</div>
-              <div className="ufc-fighter-card-meta">
-                {fighter.record && <span className="ufc-fighter-card-record">{fighter.record}</span>}
-                <span>{fighter.weightClass}</span>
-                {fighter.country && <span>{fighter.country}</span>}
-              </div>
-            </div>
+            <FighterCard key={fighter.id || fighter.name} fighter={fighter} />
           ))}
         </div>
       ) : (
@@ -49,3 +70,4 @@ function UFCFighters() {
 }
 
 export default UFCFighters;
+

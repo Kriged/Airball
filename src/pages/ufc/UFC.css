@@ -35,6 +35,34 @@
   flex: 1;
 }
 
+.ufc-bout-fighter-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.ufc-fighter-headshot {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--court-hover);
+  border: 1px solid var(--court-border);
+}
+
+.ufc-fighter-headshot-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--court-hover);
+  border: 1px solid var(--court-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
 .ufc-fighter-name {
   font-size: 0.92rem;
   font-weight: 800;
@@ -255,6 +283,35 @@
   background: var(--court-hover);
   border-color: var(--court-subtle);
   transform: translateY(-2px);
+}
+
+.ufc-fighter-card-photo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.ufc-fighter-card-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--court-hover);
+  border: 1px solid var(--court-border);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.ufc-fighter-card-photo-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--court-hover);
+  border: 1px solid var(--court-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .ufc-fighter-card-name {

@@ -1,6 +1,6 @@
 import './ScorebugHero.css';
 
-function ScorebugHero({ game, latestPlay, scoreFlashing }) {
+function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
   if (!game) return null;
 
   const isLive = game.status === 'LIVE';
@@ -93,7 +93,11 @@ function ScorebugHero({ game, latestPlay, scoreFlashing }) {
               color: game.awayColor || '#FF5722'
             }}
           >
-            {game.awayAbbr || 'AWAY'}
+            {awayLogo ? (
+              <img src={awayLogo} alt={game.awayAbbr} className="scorebug-badge-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            ) : (
+              game.awayAbbr || 'AWAY'
+            )}
           </div>
 
           <div>
@@ -169,7 +173,11 @@ function ScorebugHero({ game, latestPlay, scoreFlashing }) {
               color: game.homeColor || '#FF5722'
             }}
           >
-            {game.homeAbbr || 'HOME'}
+            {homeLogo ? (
+              <img src={homeLogo} alt={game.homeAbbr} className="scorebug-badge-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            ) : (
+              game.homeAbbr || 'HOME'
+            )}
           </div>
         </div>
       </div>
@@ -191,7 +199,10 @@ function ScorebugHero({ game, latestPlay, scoreFlashing }) {
             </thead>
             <tbody>
               <tr>
-                <td className="team-cell">{game.awayAbbr || ''} {game.away}</td>
+                <td className="team-cell">
+                  {awayLogo ? <img src={awayLogo} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                  {game.awayAbbr || ''} {game.away}
+                </td>
                 <td>{awayQ[0]}</td>
                 <td>{awayQ[1]}</td>
                 <td>{awayQ[2]}</td>
@@ -200,7 +211,10 @@ function ScorebugHero({ game, latestPlay, scoreFlashing }) {
                 <td className="total-cell">{awayScore}</td>
               </tr>
               <tr>
-                <td className="team-cell">{game.homeAbbr || ''} {game.home}</td>
+                <td className="team-cell">
+                  {homeLogo ? <img src={homeLogo} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                  {game.homeAbbr || ''} {game.home}
+                </td>
                 <td>{homeQ[0]}</td>
                 <td>{homeQ[1]}</td>
                 <td>{homeQ[2]}</td>

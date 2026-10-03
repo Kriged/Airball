@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 import './TeamDetail.css';
 
 function TeamDetail() {
@@ -11,6 +12,8 @@ function TeamDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [schedFilter, setSchedFilter] = useState('all');
+  
+  const teamLogos = useTeamLogos('nba');
 
   useEffect(() => {
     let cancelled = false;
@@ -130,7 +133,10 @@ function TeamDetail() {
           <div className="td-team-identity">
             <div className="td-team-abbr" style={{ color: accentColor }}>{teamInfo.abbr}</div>
             <div className="td-team-info-block">
-              <h1 className="td-team-name">{teamInfo.name}</h1>
+              <h1 className="td-team-name">
+                {teamLogos[teamInfo.abbr] && <img src={teamLogos[teamInfo.abbr]} alt="" style={{ height: '40px', verticalAlign: 'middle', marginRight: '12px' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                {teamInfo.name}
+              </h1>
               <div className="td-team-meta">
                 {teamInfo.conference && (
                   <span className="td-conf-badge">{teamInfo.conference} Conference</span>
@@ -271,7 +277,10 @@ function TeamDetail() {
                         <div className="td-game-location">{isHome ? 'vs' : '@'}</div>
                         <div className="td-game-opponent">
                           <span className="td-opp-abbr">{oppAbbr}</span>
-                          <span className="td-opp-name">{opponent}</span>
+                          <span className="td-opp-name">
+                            {teamLogos[oppAbbr] && <img src={teamLogos[oppAbbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                            {opponent}
+                          </span>
                         </div>
                         {game.status === 'FINAL' ? (
                           <>

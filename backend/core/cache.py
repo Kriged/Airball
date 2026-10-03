@@ -56,11 +56,37 @@ class Cache:
                         threading.Thread(target=bg_refresh, daemon=True).start()
                     return entry['value']
 
-        # Cache miss or hard expiry: compute synchronously
-        val = compute_fn()
-        if val is not None:
-            self.set(key, val, ttl=ttl, swr_ttl=swr_ttl)
-        return val
+            # Cache miss or hard expiry
+            if getattr(self, 'inflight', None) is None:
+                self.inflight = {}
+            if key in self.inflight:
+                wait_event = self.inflight[key]
+                wait = True
+            else:
+                wait_event = threading.Event()
+                self.inflight[key] = wait_event
+                wait = False
+
+        if wait:
+            wait_event.wait()
+            with self.lock:
+                entry = self.store.get(key)
+                if entry and time.time() < entry['hard_expiry']:
+                    return entry['value']
+            # Fallthrough if the other thread failed
+
+        # Compute synchronously
+        try:
+            val = compute_fn()
+            if val is not None:
+                self.set(key, val, ttl=ttl, swr_ttl=swr_ttl)
+            return val
+        finally:
+            if not wait:
+                with self.lock:
+                    if key in self.inflight:
+                        del self.inflight[key]
+                wait_event.set()
 
 
 # Singleton cache instance shared across all adapters

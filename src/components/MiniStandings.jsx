@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './MiniStandings.css';
 
-function MiniStandings({ liveStandings }) {
+function MiniStandings({ liveStandings, teamLogos }) {
   const [activeConf, setActiveConf] = useState('WEST');
 
   const rawList = liveStandings
@@ -56,6 +56,9 @@ function MiniStandings({ liveStandings }) {
                 <td>
                   <Link to={`/teams/${item.abbr}`} className="mini-standings-team-cell">
                     <span className="mini-standings-rank">{item.rank}</span>
+                    {teamLogos && teamLogos[item.abbr] ? (
+                      <img src={teamLogos[item.abbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                    ) : null}
                     <span>{item.team}</span>
                   </Link>
                 </td>

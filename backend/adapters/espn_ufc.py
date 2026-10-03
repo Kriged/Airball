@@ -24,11 +24,16 @@ def compute_ufc_events():
     events = []
     for ev in d.get('events', []):
         comp = ev.get('competitions', [{}])[0]
+        status_name = ev.get('status', {}).get('type', {}).get('name', '')
         status = 'UPCOMING'
-        if ev.get('status', {}).get('type', {}).get('state') == 'in':
-            status = 'LIVE'
-        elif ev.get('status', {}).get('type', {}).get('completed', False):
+        if status_name == 'STATUS_FINAL' or ev.get('status', {}).get('type', {}).get('completed'):
             status = 'COMPLETED'
+        elif status_name == 'STATUS_CANCELED':
+            status = 'CANCELED'
+        elif status_name == 'STATUS_POSTPONED':
+            status = 'POSTPONED'
+        elif ev.get('status', {}).get('type', {}).get('state') == 'in' or status_name == 'STATUS_IN_PROGRESS':
+            status = 'LIVE'
 
         # Extract fighters/bouts from competitors
         bouts = []
@@ -42,20 +47,33 @@ def compute_ufc_events():
                     if c.get('winner', False):
                         winner_id = c.get('id')
 
+            bout_status = comp.get('status', {}).get('type', {})
+            bout_status_name = bout_status.get('name', '')
+            if bout_status_name == 'STATUS_CANCELED':
+                result = 'Canceled'
+            elif bout_status_name == 'STATUS_POSTPONED':
+                result = 'Postponed'
+            elif (bout_status_name == 'STATUS_FINAL' or bout_status.get('completed')) and not fighter1.get('winner') and not fighter2.get('winner'):
+                result = 'Draw / No Contest'
+            else:
+                result = bout_status.get('detail', '')
+
             bouts.append({
                 'fighter1': {
                     'name': fighter1.get('athlete', {}).get('displayName', fighter1.get('team', {}).get('name', 'TBD')),
                     'id': fighter1.get('id', ''),
                     'winner': fighter1.get('winner', False),
                     'record': fighter1.get('record', ''),
+                    'photoUrl': fighter1.get('athlete', {}).get('headshot', {}).get('href', ''),
                 },
                 'fighter2': {
                     'name': fighter2.get('athlete', {}).get('displayName', fighter2.get('team', {}).get('name', 'TBD')),
                     'id': fighter2.get('id', ''),
                     'winner': fighter2.get('winner', False),
                     'record': fighter2.get('record', ''),
+                    'photoUrl': fighter2.get('athlete', {}).get('headshot', {}).get('href', ''),
                 },
-                'result': comp.get('status', {}).get('type', {}).get('detail', ''),
+                'result': result,
             })
 
         events.append({
@@ -81,10 +99,15 @@ def compute_ufc_event_detail(event_id):
     header = d.get('header', {})
     comps = header.get('competitions', [{}])[0]
     status_type = comps.get('status', {}).get('type', {})
+    status_name = status_type.get('name', '')
     status = 'UPCOMING'
-    if status_type.get('completed'):
+    if status_name == 'STATUS_FINAL' or status_type.get('completed'):
         status = 'COMPLETED'
-    elif status_type.get('state') == 'in':
+    elif status_name == 'STATUS_CANCELED':
+        status = 'CANCELED'
+    elif status_name == 'STATUS_POSTPONED':
+        status = 'POSTPONED'
+    elif status_type.get('state') == 'in' or status_name == 'STATUS_IN_PROGRESS':
         status = 'LIVE'
 
     # Build fight card from competitions in the event
@@ -96,19 +119,32 @@ def compute_ufc_event_detail(event_id):
             continue
         f1 = fighters[0]
         f2 = fighters[1]
+        bout_status = bout_comp.get('status', {}).get('type', {})
+        bout_status_name = bout_status.get('name', '')
+        if bout_status_name == 'STATUS_CANCELED':
+            result = 'Canceled'
+        elif bout_status_name == 'STATUS_POSTPONED':
+            result = 'Postponed'
+        elif (bout_status_name == 'STATUS_FINAL' or bout_status.get('completed')) and not f1.get('winner') and not f2.get('winner'):
+            result = 'Draw / No Contest'
+        else:
+            result = bout_status.get('detail', '')
+
         fight_card.append({
             'fighter1': {
                 'name': f1.get('athlete', {}).get('displayName', f1.get('team', {}).get('name', 'TBD')),
                 'record': f1.get('record', ''),
                 'winner': f1.get('winner', False),
+                'photoUrl': f1.get('athlete', {}).get('headshot', {}).get('href', ''),
             },
             'fighter2': {
                 'name': f2.get('athlete', {}).get('displayName', f2.get('team', {}).get('name', 'TBD')),
                 'record': f2.get('record', ''),
                 'winner': f2.get('winner', False),
+                'photoUrl': f2.get('athlete', {}).get('headshot', {}).get('href', ''),
             },
             'weightClass': bout_comp.get('type', {}).get('text', ''),
-            'result': bout_comp.get('status', {}).get('type', {}).get('detail', ''),
+            'result': result,
             'method': bout_comp.get('status', {}).get('result', {}).get('name', ''),
             'round': bout_comp.get('status', {}).get('period', 0),
             'time': bout_comp.get('status', {}).get('displayClock', ''),

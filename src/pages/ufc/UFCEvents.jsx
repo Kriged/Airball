@@ -51,10 +51,36 @@ function UFCEvents() {
               </div>
               {event.bouts && event.bouts.length > 0 && (
                 <div className="ufc-event-main-bout">
-                  <div className="ufc-bout-fighters">
-                    <span className={`ufc-fighter-name ${event.bouts[0].fighter1.winner ? 'winner' : ''}`}>{event.bouts[0].fighter1.name}</span>
+                  <div className="ufc-bout-fighters" style={{ flex: 1 }}>
+                    <div className="ufc-bout-fighter-col">
+                      {event.bouts[0].fighter1.photoUrl ? (
+                        <img
+                          src={event.bouts[0].fighter1.photoUrl}
+                          alt={event.bouts[0].fighter1.name}
+                          className="ufc-fighter-headshot"
+                          style={{ width: 50, height: 50 }}
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="ufc-fighter-headshot-placeholder" style={{ width: 50, height: 50, fontSize: '1.2rem' }}>🥊</div>
+                      )}
+                      <span className={`ufc-fighter-name ${event.bouts[0].fighter1.winner ? 'winner' : ''}`}>{event.bouts[0].fighter1.name}</span>
+                    </div>
                     <span className="ufc-bout-vs">VS</span>
-                    <span className={`ufc-fighter-name ${event.bouts[0].fighter2.winner ? 'winner' : ''}`}>{event.bouts[0].fighter2.name}</span>
+                    <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
+                      {event.bouts[0].fighter2.photoUrl ? (
+                        <img
+                          src={event.bouts[0].fighter2.photoUrl}
+                          alt={event.bouts[0].fighter2.name}
+                          className="ufc-fighter-headshot"
+                          style={{ width: 50, height: 50 }}
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="ufc-fighter-headshot-placeholder" style={{ width: 50, height: 50, fontSize: '1.2rem' }}>🥊</div>
+                      )}
+                      <span className={`ufc-fighter-name ${event.bouts[0].fighter2.winner ? 'winner' : ''}`}>{event.bouts[0].fighter2.name}</span>
+                    </div>
                   </div>
                 </div>
               )}

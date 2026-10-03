@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 
 function NFLTeamDetail() {
   const { teamAbbr } = useParams();
@@ -8,6 +9,8 @@ function NFLTeamDetail() {
   const [roster, setRoster] = useState([]);
   const [activeTab, setActiveTab] = useState('schedule');
   const [loading, setLoading] = useState(true);
+
+  const teamLogos = useTeamLogos('nfl');
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +54,10 @@ function NFLTeamDetail() {
       <section style={{ background: `linear-gradient(135deg, ${teamColor} 0%, #0a1628 100%)`, padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
         <div className="container">
           <Link to="/nfl/standings" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>← Back to NFL Standings</Link>
-          <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>{team.name}</h1>
+          <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+            {teamLogos[teamAbbr.toUpperCase()] && <img src={teamLogos[teamAbbr.toUpperCase()]} alt="" style={{ height: '40px', verticalAlign: 'middle', marginRight: '12px' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+            {team.name}
+          </h1>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             {team.conference && <span>{team.conference} Conference</span>}
             {team.rank > 0 && <span>#{team.rank} Seed</span>}
@@ -79,8 +85,14 @@ function NFLTeamDetail() {
                     {schedule.map(g => (
                       <tr key={g.id}>
                         <td>{g.date}</td>
-                        <td style={{ fontWeight: g.awayAbbr === teamAbbr.toUpperCase() ? 800 : 400 }}>{g.away}</td>
-                        <td style={{ fontWeight: g.homeAbbr === teamAbbr.toUpperCase() ? 800 : 400 }}>{g.home}</td>
+                        <td style={{ fontWeight: g.awayAbbr === teamAbbr.toUpperCase() ? 800 : 400 }}>
+                          {teamLogos[g.awayAbbr] && <img src={teamLogos[g.awayAbbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                          {g.away}
+                        </td>
+                        <td style={{ fontWeight: g.homeAbbr === teamAbbr.toUpperCase() ? 800 : 400 }}>
+                          {teamLogos[g.homeAbbr] && <img src={teamLogos[g.homeAbbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                          {g.home}
+                        </td>
                         <td className="highlight" style={{ fontFamily: 'var(--font-mono)' }}>
                           {g.status === 'FINAL' ? `${g.awayScore}-${g.homeScore}` : '-'}
                         </td>

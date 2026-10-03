@@ -1,0 +1,10 @@
+{
+  "teams": [
+    {
+      "idTeam": "12345",
+      "strTeam": "Unknown Team",
+      "strTeamShort": "UNK",
+      "strTeamBadge": null
+    }
+  ]
+}

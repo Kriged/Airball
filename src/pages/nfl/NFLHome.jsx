@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useSportPolling } from '../../utils/polling';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 import './NFL.css';
 
 const SPORT = 'nfl';
@@ -11,24 +13,22 @@ function NFLHome() {
   const [games, setGames] = useState(cached && Array.isArray(cached.data) ? cached.data : []);
   const [standings, setStandings] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchGames = async () => {
-      try {
-        const res = await fetch('/api/nfl/games/today');
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled) return;
-        if (Array.isArray(data)) {
-          setGames(data);
-          setCached(cacheKey, data);
-        }
-      } catch { /* network error */ }
-    };
-    fetchGames();
-    const interval = setInterval(fetchGames, 30000);
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [cacheKey]);
+  const teamLogos = useTeamLogos('nfl');
+  const hasLiveGame = games.some((g) => g.status === 'LIVE');
+
+  // Sport-aware polling: 20s when live, 120s idle
+  useSportPolling(
+    () => fetch('/api/nfl/games/today').then((r) => (r.ok ? r.json() : Promise.reject())),
+    {
+      sport: 'nfl',
+      isLive: hasLiveGame,
+      onData: (data) => {
+        if (!Array.isArray(data)) return;
+        setGames(data);
+        setCached(cacheKey, data);
+      },
+    }
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +74,16 @@ function NFLHome() {
                 <Link to={`/nfl/games/${game.id}`} key={game.id} className="nfl-score-card" id={`nfl-game-${game.id}`}>
                   <div className="nfl-score-card-teams">
                     <div className="nfl-score-card-team">
-                      <span className="nfl-score-card-abbr">{game.awayAbbr}</span>
+                      {(game.awayLogo || teamLogos[game.awayAbbr]) ? (
+                        <img
+                          src={game.awayLogo || teamLogos[game.awayAbbr]}
+                          alt={game.awayAbbr}
+                          className="nfl-team-logo"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <span className="nfl-score-card-abbr">{game.awayAbbr}</span>
+                      )}
                       {(game.status === 'FINAL' || game.status === 'LIVE') && (
                         <span className={`nfl-score-card-score ${game.awayScore > game.homeScore ? 'winner' : ''}`}>
                           {game.awayScore}
@@ -83,7 +92,16 @@ function NFLHome() {
                     </div>
                     <span className="nfl-score-card-vs">@</span>
                     <div className="nfl-score-card-team">
-                      <span className="nfl-score-card-abbr">{game.homeAbbr}</span>
+                      {(game.homeLogo || teamLogos[game.homeAbbr]) ? (
+                        <img
+                          src={game.homeLogo || teamLogos[game.homeAbbr]}
+                          alt={game.homeAbbr}
+                          className="nfl-team-logo"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <span className="nfl-score-card-abbr">{game.homeAbbr}</span>
+                      )}
                       {(game.status === 'FINAL' || game.status === 'LIVE') && (
                         <span className={`nfl-score-card-score ${game.homeScore > game.awayScore ? 'winner' : ''}`}>
                           {game.homeScore}
@@ -117,8 +135,11 @@ function NFLHome() {
                     {(standings[conf] || []).slice(0, 5).map(team => (
                       <Link to={`/nfl/teams/${team.abbr}`} key={team.abbr}
                         style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--court-border)', fontSize: '0.82rem', color: '#FFFFFF', textDecoration: 'none' }}>
-                        <span style={{ fontWeight: 700 }}>{team.team}</span>
-                        <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--court-text-muted)' }}>{team.wins}-{team.losses}{team.ties > 0 ? `-${team.ties}` : ''}</span>
+                        <span style={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                          {teamLogos[team.abbr] ? <img src={teamLogos[team.abbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                          {team.team}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--court-text-muted)', display: 'flex', alignItems: 'center' }}>{team.wins}-{team.losses}{team.ties > 0 ? `-${team.ties}` : ''}</span>
                       </Link>
                     ))}
                   </div>

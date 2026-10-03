@@ -1,0 +1,628 @@
+{
+  "leagues": [
+    {
+      "id": "46",
+      "uid": "s:40~l:46",
+      "name": "National Basketball Association",
+      "abbreviation": "NBA",
+      "slug": "nba",
+      "season": {
+        "year": 2027,
+        "startDate": "2026-09-30T07:00Z",
+        "endDate": "2027-06-26T06:59Z",
+        "displayName": "2026-27",
+        "type": {
+          "id": "1",
+          "type": 1,
+          "name": "Preseason",
+          "abbreviation": "pre"
+        }
+      },
+      "logos": [
+        {
+          "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nba.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+            "full",
+            "default"
+          ],
+          "lastUpdated": "2018-06-05T12:07Z"
+        },
+        {
+          "href": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500-dark/nba.png&w=500&h=500&transparent=true",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+            "full",
+            "dark"
+          ],
+          "lastUpdated": "2026-10-02T07:02Z"
+        }
+      ],
+      "calendarType": "day",
+      "calendarIsWhitelist": true,
+      "calendarStartDate": "2026-09-30T07:00Z",
+      "calendarEndDate": "2027-06-26T06:59Z",
+      "calendar": [
+        "2026-10-03T07:00Z",
+        "2026-10-04T07:00Z",
+        "2026-10-05T07:00Z",
+        "2026-10-06T07:00Z",
+        "2026-10-07T07:00Z",
+        "2026-10-08T07:00Z",
+        "2026-10-09T07:00Z",
+        "2026-10-10T07:00Z",
+        "2026-10-11T07:00Z",
+        "2026-10-12T07:00Z",
+        "2026-10-13T07:00Z",
+        "2026-10-14T07:00Z",
+        "2026-10-15T07:00Z",
+        "2026-10-16T07:00Z",
+        "2026-10-20T07:00Z",
+        "2026-10-21T07:00Z",
+        "2026-10-22T07:00Z",
+        "2026-10-23T07:00Z",
+        "2026-10-24T07:00Z",
+        "2026-10-25T07:00Z",
+        "2026-10-26T07:00Z",
+        "2026-10-27T07:00Z",
+        "2026-10-28T07:00Z",
+        "2026-10-29T07:00Z",
+        "2026-10-30T07:00Z",
+        "2026-10-31T07:00Z",
+        "2026-11-01T07:00Z",
+        "2026-11-02T08:00Z",
+        "2026-11-04T08:00Z",
+        "2026-11-05T08:00Z",
+        "2026-11-06T08:00Z",
+        "2026-11-07T08:00Z",
+        "2026-11-08T08:00Z",
+        "2026-11-09T08:00Z",
+        "2026-11-10T08:00Z",
+        "2026-11-11T08:00Z",
+        "2026-11-12T08:00Z",
+        "2026-11-13T08:00Z",
+        "2026-11-14T08:00Z",
+        "2026-11-15T08:00Z",
+        "2026-11-16T08:00Z",
+        "2026-11-17T08:00Z",
+        "2026-11-18T08:00Z",
+        "2026-11-19T08:00Z",
+        "2026-11-20T08:00Z",
+        "2026-11-21T08:00Z",
+        "2026-11-22T08:00Z",
+        "2026-11-23T08:00Z",
+        "2026-11-24T08:00Z",
+        "2026-11-25T08:00Z",
+        "2026-11-27T08:00Z",
+        "2026-11-28T08:00Z",
+        "2026-11-29T08:00Z",
+        "2026-11-30T08:00Z",
+        "2026-12-01T08:00Z",
+        "2026-12-02T08:00Z",
+        "2026-12-03T08:00Z",
+        "2026-12-04T08:00Z",
+        "2026-12-05T08:00Z",
+        "2026-12-08T08:00Z",
+        "2026-12-11T08:00Z",
+        "2026-12-12T08:00Z",
+        "2026-12-13T08:00Z",
+        "2026-12-14T08:00Z",
+        "2026-12-15T08:00Z",
+        "2026-12-16T08:00Z",
+        "2026-12-17T08:00Z",
+        "2026-12-18T08:00Z",
+        "2026-12-19T08:00Z",
+        "2026-12-20T08:00Z",
+        "2026-12-21T08:00Z",
+        "2026-12-22T08:00Z",
+        "2026-12-23T08:00Z",
+        "2026-12-25T08:00Z",
+        "2026-12-26T08:00Z",
+        "2026-12-27T08:00Z",
+        "2026-12-28T08:00Z",
+        "2026-12-29T08:00Z",
+        "2026-12-30T08:00Z",
+        "2026-12-31T08:00Z",
+        "2027-01-01T08:00Z",
+        "2027-01-02T08:00Z",
+        "2027-01-03T08:00Z",
+        "2027-01-04T08:00Z",
+        "2027-01-05T08:00Z",
+        "2027-01-06T08:00Z",
+        "2027-01-07T08:00Z",
+        "2027-01-08T08:00Z",
+        "2027-01-09T08:00Z",
+        "2027-01-10T08:00Z",
+        "2027-01-11T08:00Z",
+        "2027-01-12T08:00Z",
+        "2027-01-13T08:00Z",
+        "2027-01-14T08:00Z",
+        "2027-01-15T08:00Z",
+        "2027-01-16T08:00Z",
+        "2027-01-17T08:00Z",
+        "2027-01-18T08:00Z",
+        "2027-01-19T08:00Z",
+        "2027-01-20T08:00Z",
+        "2027-01-21T08:00Z",
+        "2027-01-22T08:00Z",
+        "2027-01-23T08:00Z",
+        "2027-01-24T08:00Z",
+        "2027-01-25T08:00Z",
+        "2027-01-26T08:00Z",
+        "2027-01-27T08:00Z",
+        "2027-01-28T08:00Z",
+        "2027-01-29T08:00Z",
+        "2027-01-30T08:00Z",
+        "2027-01-31T08:00Z",
+        "2027-02-01T08:00Z",
+        "2027-02-02T08:00Z",
+        "2027-02-03T08:00Z",
+        "2027-02-04T08:00Z",
+        "2027-02-05T08:00Z",
+        "2027-02-06T08:00Z",
+        "2027-02-07T08:00Z",
+        "2027-02-08T08:00Z",
+        "2027-02-09T08:00Z",
+        "2027-02-10T08:00Z",
+        "2027-02-11T08:00Z",
+        "2027-02-12T08:00Z",
+        "2027-02-13T08:00Z",
+        "2027-02-14T08:00Z",
+        "2027-02-15T08:00Z",
+        "2027-02-16T08:00Z",
+        "2027-02-17T08:00Z",
+        "2027-02-18T08:00Z",
+        "2027-02-25T08:00Z",
+        "2027-02-26T08:00Z",
+        "2027-02-27T08:00Z",
+        "2027-02-28T08:00Z",
+        "2027-03-01T08:00Z",
+        "2027-03-02T08:00Z",
+        "2027-03-03T08:00Z",
+        "2027-03-04T08:00Z",
+        "2027-03-05T08:00Z",
+        "2027-03-06T08:00Z",
+        "2027-03-07T08:00Z",
+        "2027-03-08T08:00Z",
+        "2027-03-09T08:00Z",
+        "2027-03-10T08:00Z",
+        "2027-03-11T08:00Z",
+        "2027-03-12T08:00Z",
+        "2027-03-13T08:00Z",
+        "2027-03-14T08:00Z",
+        "2027-03-15T07:00Z",
+        "2027-03-16T07:00Z",
+        "2027-03-17T07:00Z",
+        "2027-03-18T07:00Z",
+        "2027-03-19T07:00Z",
+        "2027-03-20T07:00Z",
+        "2027-03-21T07:00Z",
+        "2027-03-22T07:00Z",
+        "2027-03-23T07:00Z",
+        "2027-03-24T07:00Z",
+        "2027-03-25T07:00Z",
+        "2027-03-26T07:00Z",
+        "2027-03-27T07:00Z",
+        "2027-03-28T07:00Z",
+        "2027-03-29T07:00Z",
+        "2027-03-30T07:00Z",
+        "2027-03-31T07:00Z",
+        "2027-04-01T07:00Z",
+        "2027-04-02T07:00Z",
+        "2027-04-03T07:00Z",
+        "2027-04-04T07:00Z",
+        "2027-04-05T07:00Z",
+        "2027-04-06T07:00Z",
+        "2027-04-07T07:00Z",
+        "2027-04-08T07:00Z",
+        "2027-04-09T07:00Z",
+        "2027-04-11T07:00Z"
+      ]
+    }
+  ],
+  "season": {
+    "type": 1,
+    "year": 2027
+  },
+  "day": {
+    "date": "2026-10-03"
+  },
+  "events": [
+    {
+      "id": "401902644",
+      "uid": "s:40~l:46~e:401902644",
+      "date": "2026-10-03T23:00Z",
+      "name": "Miami Heat at Toronto Raptors",
+      "shortName": "MIA @ TOR",
+      "season": {
+        "year": 2027,
+        "type": 1,
+        "slug": "preseason"
+      },
+      "competitions": [
+        {
+          "id": "401902644",
+          "uid": "s:40~l:46~e:401902644~c:401902644",
+          "date": "2026-10-03T23:00Z",
+          "attendance": 0,
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "timeValid": true,
+          "neutralSite": false,
+          "conferenceCompetition": false,
+          "playByPlayAvailable": false,
+          "recent": false,
+          "venue": {
+            "id": "5056",
+            "fullName": "Videotron Centre",
+            "address": {
+              "city": "Quebec City",
+              "state": "PQ"
+            },
+            "indoor": true
+          },
+          "competitors": [
+            {
+              "id": "28",
+              "uid": "s:40~l:46~t:28",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "28",
+                "uid": "s:40~l:46~t:28",
+                "location": "Toronto",
+                "name": "Raptors",
+                "abbreviation": "TOR",
+                "displayName": "Toronto Raptors",
+                "shortDisplayName": "Raptors",
+                "color": "d91244",
+                "alternateColor": "000000",
+                "isActive": true,
+                "venue": {
+                  "id": "1838"
+                },
+                "links": [
+                  {
+                    "rel": [
+                      "clubhouse",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/_/name/tor/toronto-raptors",
+                    "text": "Clubhouse",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "roster",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/roster/_/name/tor/toronto-raptors",
+                    "text": "Roster",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "roster",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:28&section=roster",
+                    "text": "Roster",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "stats",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/stats/_/name/tor/toronto-raptors",
+                    "text": "Statistics",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "stats",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:28&section=stats",
+                    "text": "Statistics",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "schedule",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/schedule/_/name/tor",
+                    "text": "Schedule",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "schedule",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:28&section=scores",
+                    "text": "Schedule",
+                    "isExternal": false,
+                    "isPremium": false
+                  }
+                ],
+                "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/tor.png"
+              },
+              "score": "0",
+              "statistics": [],
+              "records": [
+                {
+                  "name": "overall",
+                  "abbreviation": "Total",
+                  "type": "total",
+                  "summary": "0-0"
+                },
+                {
+                  "name": "Home",
+                  "type": "home",
+                  "summary": "0-0"
+                },
+                {
+                  "name": "Road",
+                  "type": "road",
+                  "summary": "0-0"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "uid": "s:40~l:46~t:14",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "14",
+                "uid": "s:40~l:46~t:14",
+                "location": "Miami",
+                "name": "Heat",
+                "abbreviation": "MIA",
+                "displayName": "Miami Heat",
+                "shortDisplayName": "Heat",
+                "color": "98002e",
+                "alternateColor": "000000",
+                "isActive": true,
+                "venue": {
+                  "id": "3438"
+                },
+                "links": [
+                  {
+                    "rel": [
+                      "clubhouse",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/_/name/mia/miami-heat",
+                    "text": "Clubhouse",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "roster",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/roster/_/name/mia/miami-heat",
+                    "text": "Roster",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "roster",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:14&section=roster",
+                    "text": "Roster",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "stats",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/stats/_/name/mia/miami-heat",
+                    "text": "Statistics",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "stats",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:14&section=stats",
+                    "text": "Statistics",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "schedule",
+                      "desktop",
+                      "team"
+                    ],
+                    "href": "https://www.espn.com/nba/team/schedule/_/name/mia",
+                    "text": "Schedule",
+                    "isExternal": false,
+                    "isPremium": false
+                  },
+                  {
+                    "rel": [
+                      "schedule",
+                      "sportscenter",
+                      "app",
+                      "team"
+                    ],
+                    "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~t:14&section=scores",
+                    "text": "Schedule",
+                    "isExternal": false,
+                    "isPremium": false
+                  }
+                ],
+                "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mia.png"
+              },
+              "score": "0",
+              "statistics": [],
+              "records": [
+                {
+                  "name": "overall",
+                  "abbreviation": "Total",
+                  "type": "total",
+                  "summary": "0-0"
+                },
+                {
+                  "name": "Home",
+                  "type": "home",
+                  "summary": "0-0"
+                },
+                {
+                  "name": "Road",
+                  "type": "road",
+                  "summary": "0-0"
+                }
+              ]
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "NBA Canada Games 2026"
+            }
+          ],
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0.0",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "Sat, October 3rd at 7:00 PM EDT",
+              "shortDetail": "10/3 - 7:00 PM EDT"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "names": [
+                "NBA TV"
+              ]
+            }
+          ],
+          "format": {
+            "regulation": {
+              "periods": 4
+            }
+          },
+          "tickets": [
+            {
+              "summary": "Tickets as low as $148",
+              "numberAvailable": 92,
+              "links": [
+                {
+                  "href": "https://www.vividseats.com/toronto-raptors-tickets-videotron-centre-10-3-2026--sports-nba-basketball/production/7358394?wsUser=717"
+                },
+                {
+                  "href": "https://www.vividseats.com/videotron-centre-tickets/venue/13755?wsUser=717"
+                }
+              ]
+            }
+          ],
+          "startDate": "2026-10-03T23:00Z",
+          "broadcast": "NBA TV",
+          "geoBroadcasts": [
+            {
+              "type": {
+                "id": "1",
+                "shortName": "TV"
+              },
+              "market": {
+                "id": "1",
+                "type": "National"
+              },
+              "media": {
+                "shortName": "NBA TV"
+              },
+              "lang": "en",
+              "region": "us"
+            }
+          ],
+          "highlights": []
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "summary",
+            "desktop",
+            "event"
+          ],
+          "href": "https://www.espn.com/nba/game/_/gameId/401902644/heat-raptors",
+          "text": "Gamecast",
+          "shortText": "Gamecast",
+          "isExternal": false,
+          "isPremium": false
+        }
+      ],
+      "status": {
+        "clock": 0.0,
+        "displayClock": "0.0",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_DELAYED",
+          "state": "in",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Delayed",
+          "shortDetail": "10/3 - 7:00 PM EDT"
+        }
+      }
+    }
+  ],
+  "provider": {
+    "id": "100",
+    "name": "Draft Kings",
+    "displayName": "Draft Kings",
+    "priority": 1
+  }
+}

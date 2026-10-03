@@ -6,6 +6,7 @@ import ShotChart from '../../components/ShotChart';
 import Lineups from '../../components/Lineups';
 import FourFactors from '../../components/FourFactors';
 import PlayerModal from '../../components/PlayerModal';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 import './GameDetail.css';
 
 function GameDetail() {
@@ -20,6 +21,8 @@ function GameDetail() {
   const [playerModalTeam, setPlayerModalTeam] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const teamLogos = useTeamLogos('nba');
 
   useEffect(() => {
     let cancelled = false;
@@ -127,7 +130,12 @@ function GameDetail() {
         </Link>
 
         {/* Hero Scorebug Broadcast Header */}
-        <ScorebugHero game={game} latestPlay={latestPlay} />
+        <ScorebugHero 
+          game={game} 
+          latestPlay={latestPlay} 
+          awayLogo={game.awayLogo || teamLogos[game.awayAbbr]}
+          homeLogo={game.homeLogo || teamLogos[game.homeAbbr]}
+        />
 
         {/* Match Center Tabs */}
         <div className="gd-tabs-nav" id="game-detail-tabs">

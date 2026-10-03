@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
 import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 
 const CACHE_KEY = getSportCacheKey('nfl', 'standings');
 
@@ -12,6 +13,8 @@ function NFLStandings() {
   });
   const [loading, setLoading] = useState(() => !getCached(CACHE_KEY, 120000));
   const [activeConf, setActiveConf] = useState('AFC');
+  
+  const teamLogos = useTeamLogos('nfl');
 
   useEffect(() => {
     const cached = getCached(CACHE_KEY, 120000);
@@ -66,7 +69,12 @@ function NFLStandings() {
                   {teams.map(team => (
                     <tr key={team.abbr}>
                       <td><span className={`standings-rank ${team.rank <= 7 ? 'playoff' : ''}`}>{team.rank || '-'}</span></td>
-                      <td className="team-name"><Link to={`/nfl/teams/${team.abbr}`} className="td-team-link">{team.team}</Link></td>
+                      <td className="team-name">
+                        <Link to={`/nfl/teams/${team.abbr}`} className="td-team-link">
+                          {teamLogos[team.abbr] ? <img src={teamLogos[team.abbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                          {team.team}
+                        </Link>
+                      </td>
                       <td className="highlight">{team.wins}</td>
                       <td>{team.losses}</td>
                       <td>{team.ties || 0}</td>
@@ -89,7 +97,12 @@ function NFLStandings() {
               {standings.map(team => (
                 <tr key={team.abbr}>
                   <td><span className={`standings-rank ${team.rank <= 7 ? 'playoff' : ''}`}>{team.rank || '-'}</span></td>
-                  <td className="team-name"><Link to={`/nfl/teams/${team.abbr}`} className="td-team-link">{team.team}</Link></td>
+                  <td className="team-name">
+                    <Link to={`/nfl/teams/${team.abbr}`} className="td-team-link">
+                      {teamLogos[team.abbr] ? <img src={teamLogos[team.abbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                      {team.team}
+                    </Link>
+                  </td>
                   <td className="highlight">{team.wins}</td>
                   <td>{team.losses}</td>
                   <td>{team.ties || 0}</td>

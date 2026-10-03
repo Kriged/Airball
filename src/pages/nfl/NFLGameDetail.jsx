@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTeamLogos } from '../../utils/useTeamLogos';
 import './NFL.css';
 
 function NFLGameDetail() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const teamLogos = useTeamLogos('nfl');
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +56,11 @@ function NFLGameDetail() {
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '20px 0' }}>
             <div style={{ textAlign: 'center' }}>
+              {teamLogos[game.awayAbbr] && (
+                <div style={{ marginBottom: '8px' }}>
+                  <img src={teamLogos[game.awayAbbr]} alt="" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+                </div>
+              )}
               <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{game.awayAbbr}</div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{game.away}</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-mono)', color: game.awayScore > game.homeScore ? 'var(--court-gold)' : '#FFFFFF', marginTop: '8px' }}>
@@ -64,6 +72,11 @@ function NFLGameDetail() {
               <div style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '8px' }}>{game.quarter}</div>
             </div>
             <div style={{ textAlign: 'center' }}>
+              {teamLogos[game.homeAbbr] && (
+                <div style={{ marginBottom: '8px' }}>
+                  <img src={teamLogos[game.homeAbbr]} alt="" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+                </div>
+              )}
               <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{game.homeAbbr}</div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{game.home}</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-mono)', color: game.homeScore > game.awayScore ? 'var(--court-gold)' : '#FFFFFF', marginTop: '8px' }}>
@@ -98,7 +111,10 @@ function NFLGameDetail() {
                   <tbody>
                     {game.lineScore.map(team => (
                       <tr key={team.abbr}>
-                        <td className="team-name-cell">{team.abbr}</td>
+                        <td className="team-name-cell">
+                          {teamLogos[team.abbr] && <img src={teamLogos[team.abbr]} alt="" className="table-team-logo" onError={(e) => e.currentTarget.style.display = 'none'} />}
+                          {team.abbr}
+                        </td>
                         {team.periods.map((score, i) => (
                           <td key={i}>{score}</td>
                         ))}

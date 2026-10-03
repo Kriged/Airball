@@ -93,11 +93,17 @@ def compute_today_games(cache):
         comp = ev['competitions'][0]
         home_team = next(c for c in comp['competitors'] if c['homeAway'] == 'home')
         away_team = next(c for c in comp['competitors'] if c['homeAway'] == 'away')
-        status = 'UPCOMING'
-        if ev['status']['type']['state'] == 'in':
-            status = 'LIVE'
-        elif ev['status']['type']['completed']:
+        status_name = ev['status']['type'].get('name', '')
+        if status_name == 'STATUS_FINAL' or ev['status']['type'].get('completed'):
             status = 'FINAL'
+        elif status_name == 'STATUS_POSTPONED':
+            status = 'POSTPONED'
+        elif status_name == 'STATUS_DELAYED':
+            status = 'DELAYED'
+        elif ev['status']['type']['state'] == 'in' or status_name in ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME'):
+            status = 'LIVE'
+        else:
+            status = 'UPCOMING'
         quarter = ev['status']['type']['detail']
         time_val = ev['status']['displayClock'] if status == 'LIVE' else ('00:00' if status == 'FINAL' else 'Upcoming')
         home_abbr = home_team['team']['abbreviation']
@@ -117,6 +123,8 @@ def compute_today_games(cache):
             'awayScore': int(away_team['score']) if away_team['score'] else 0,
             'homeColor': TEAM_COLORS.get(normalize_abbr_to_app(home_abbr), '#f58426'),
             'awayColor': TEAM_COLORS.get(normalize_abbr_to_app(away_abbr), '#1d428a'),
+            'homeLogo': home_team['team'].get('logo', ''),
+            'awayLogo': away_team['team'].get('logo', ''),
             'quarter': quarter, 'time': time_val, 'status': status,
             'arena': comp.get('venue', {}).get('fullName', 'NBA Arena'),
             'stats': game_stats, 'playByPlay': [], 'boxScore': {'home': [], 'away': []}
@@ -224,14 +232,22 @@ def compute_games_list():
         away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
         if not home or not away:
             continue
-        status = 'UPCOMING'
-        if ev['status']['type']['completed']:
+        status_name = ev['status']['type'].get('name', '')
+        if status_name == 'STATUS_FINAL' or ev['status']['type'].get('completed'):
             status = 'FINAL'
-        elif ev['status']['type']['state'] == 'in':
+        elif status_name == 'STATUS_POSTPONED':
+            status = 'POSTPONED'
+        elif status_name == 'STATUS_DELAYED':
+            status = 'DELAYED'
+        elif ev['status']['type']['state'] == 'in' or status_name in ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME'):
             status = 'LIVE'
+        else:
+            status = 'UPCOMING'
         games.append({
             'id': ev['id'], 'date': ev['date'].split('T')[0],
             'home': home['team']['name'], 'away': away['team']['name'],
+            'homeAbbr': normalize_abbr_to_app(home.get('team', {}).get('abbreviation', '')),
+            'awayAbbr': normalize_abbr_to_app(away.get('team', {}).get('abbreviation', '')),
             'homeScore': int(home['score']) if home['score'] else 0,
             'awayScore': int(away['score']) if away['score'] else 0,
             'status': status, 'arena': comp.get('venue', {}).get('fullName', 'NBA Arena')
