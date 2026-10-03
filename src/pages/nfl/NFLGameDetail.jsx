@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTeamLogos } from '../../utils/useTeamLogos';
+import NFLDriveTracker from '../../components/NFLDriveTracker';
 import './NFL.css';
 
 function NFLGameDetail() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
+  const [teamStats, setTeamStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const teamLogos = useTeamLogos('nfl');
@@ -18,6 +20,20 @@ function NFLGameDetail() {
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [gameId]);
+
+  useEffect(() => {
+    if (!game || game.status !== 'UPCOMING') return undefined;
+
+    let cancelled = false;
+    Promise.all([
+      fetch(`/api/nfl/team/${game.awayAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch(`/api/nfl/team/${game.homeAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([away, home]) => {
+      if (!cancelled) setTeamStats({ away, home });
+    });
+
+    return () => { cancelled = true; };
+  }, [game]);
 
   if (loading) {
     return (
@@ -93,8 +109,51 @@ function NFLGameDetail() {
       {/* Game Detail Content */}
       <section className="page-content">
         <div className="container">
+          <NFLDriveTracker drive={game.currentDrive} game={game} />
+
+          {/* Upcoming games do not have a useful line score yet. Show both teams' season context instead. */}
+          {game.status === 'UPCOMING' && (
+            <section className="nfl-season-preview">
+              <div className="nfl-season-preview-heading">
+                <div>
+                  <p>Upcoming matchup</p>
+                  <h2>Season Snapshot</h2>
+                </div>
+                <span>Team form before kickoff</span>
+              </div>
+              {teamStats ? (
+                <div className="nfl-season-comparison">
+                  {[
+                    { side: 'away', label: 'Away', team: teamStats.away, fallback: game.awayAbbr },
+                    { side: 'home', label: 'Home', team: teamStats.home, fallback: game.homeAbbr },
+                  ].map(({ side, label, team, fallback }) => (
+                    <article className={`nfl-season-team ${side}`} key={side}>
+                      <span className="nfl-season-team-label">{label}</span>
+                      <h3>{team?.abbr || fallback}</h3>
+                      <p className="nfl-season-team-name">{team?.name || (side === 'away' ? game.away : game.home)}</p>
+                      <div className="nfl-season-record">
+                        <strong>{team ? `${team.wins}-${team.losses}${team.ties > 0 ? `-${team.ties}` : ''}` : '—'}</strong>
+                        <span>Record</span>
+                      </div>
+                      <dl>
+                        <div><dt>Win %</dt><dd>{team?.pct || '—'}</dd></div>
+                        <div><dt>Streak</dt><dd>{team?.streak || '—'}</dd></div>
+                        <div><dt>Points for</dt><dd>{team?.pf ?? '—'}</dd></div>
+                        <div><dt>Points against</dt><dd>{team?.pa ?? '—'}</dd></div>
+                        <div><dt>Conference</dt><dd>{team?.conference || '—'}</dd></div>
+                        <div><dt>Seed</dt><dd>{team?.rank > 0 ? `#${team.rank}` : '—'}</dd></div>
+                      </dl>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="nfl-season-preview-loading">Loading both teams’ season stats…</div>
+              )}
+            </section>
+          )}
+
           {/* Quarter Line Score */}
-          {game.lineScore && game.lineScore.length > 0 && (
+          {game.status !== 'UPCOMING' && game.lineScore && game.lineScore.length > 0 && (
             <div style={{ marginBottom: '36px' }}>
               <h2 className="section-title" style={{ fontSize: '1.2rem' }}>Line Score</h2>
               <div className="data-table-wrapper">
@@ -148,7 +207,7 @@ function NFLGameDetail() {
           )}
 
           {/* Fallback if no detailed data */}
-          {(!game.lineScore || game.lineScore.length === 0) && (!game.scoringSummary || game.scoringSummary.length === 0) && (
+          {game.status !== 'UPCOMING' && (!game.lineScore || game.lineScore.length === 0) && (!game.scoringSummary || game.scoringSummary.length === 0) && (
             <div className="empty-state">
               <div className="empty-state-icon">📋</div>
               <p className="empty-state-text">Detailed scoring data will be available once the game starts</p>

@@ -215,10 +215,12 @@ def compute_stats_leaders():
 
 
 def compute_games_list():
-    end_date = datetime.datetime.now()
-    start_date = end_date - datetime.timedelta(days=15)
-    dates_str = f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}"
-    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={dates_str}"
+    # ESPN accepts the season's starting year and a larger limit for the full
+    # schedule. NBA seasons span calendar years, so Jan--Jun belong to the
+    # previous season start year.
+    today = datetime.datetime.now()
+    season_year = today.year if today.month >= 8 else today.year - 1
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={season_year}&limit=2000"
     d = session.get(url, timeout=10).json()
     events = d.get('events', [])
     if not events:

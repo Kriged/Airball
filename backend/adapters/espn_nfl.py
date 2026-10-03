@@ -317,6 +317,22 @@ def register_routes(app, cache):
                     team_ls['periods'].append(int(float(period.get('displayValue', 0))))
                 line_score.append(team_ls)
 
+            # ESPN only includes this while it has a current drive. Keep the
+            # optional fields separate so the UI can hide the tracker when no
+            # live field-position data is supplied.
+            raw_drive = d.get('drives', {}).get('current') or {}
+            current_drive = None
+            if raw_drive:
+                drive_plays = raw_drive.get('plays', [])
+                current_drive = {
+                    'team': raw_drive.get('team', {}).get('abbreviation', ''),
+                    'startYardLine': raw_drive.get('start', {}).get('yardLine'),
+                    'currentYardLine': raw_drive.get('end', {}).get('yardLine'),
+                    'playCount': len(drive_plays) if isinstance(drive_plays, list) else None,
+                    'yards': raw_drive.get('yards'),
+                    'description': raw_drive.get('description', ''),
+                }
+
             game_data = {
                 'id': str(game_id), 'date': comps.get('date', '').split('T')[0],
                 'home': home_team.get('displayName', 'Home'), 'away': away_team.get('displayName', 'Away'),
@@ -328,6 +344,7 @@ def register_routes(app, cache):
                 'arena': comps.get('venue', {}).get('fullName', 'NFL Stadium'),
                 'scoringSummary': scoring_summary,
                 'lineScore': line_score,
+                'currentDrive': current_drive,
             }
             cache.set(cache_key, game_data, ttl=15 if status == 'LIVE' else 3600, swr_ttl=86400)
             return jsonify(game_data)
@@ -413,6 +430,7 @@ def register_routes(app, cache):
                             'wins': int(stats.get('wins', 0)), 'losses': int(stats.get('losses', 0)),
                             'ties': int(stats.get('ties', 0)),
                             'pct': stats.get('winPercent', '.000'), 'streak': stats.get('streak', '-'),
+                            'pf': stats.get('pointsFor', '0'), 'pa': stats.get('pointsAgainst', '0'),
                         }
                         break
             result = {'abbr': abbr, 'name': NFL_TEAM_FULL_NAMES.get(abbr, abbr), 'color': NFL_TEAM_COLORS.get(abbr, '#013369'), **team_record}

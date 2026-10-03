@@ -1,0 +1,145 @@
+.nfl-drive-panel {
+  margin-bottom: 36px;
+  padding: 22px;
+  border: 1px solid rgba(74, 158, 232, 0.26);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(1, 51, 105, 0.36), rgba(8, 20, 37, 0.82));
+}
+
+.nfl-drive-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.nfl-drive-heading h2 {
+  margin: 2px 0 4px;
+  font-size: 1.2rem;
+}
+
+.nfl-drive-heading p {
+  margin: 0;
+  color: var(--court-text-muted);
+  font-size: 0.78rem;
+}
+
+.nfl-drive-kicker {
+  color: #6fc1ff !important;
+  font-size: 0.67rem !important;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nfl-drive-kicker span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #ff3b30;
+  box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.14);
+}
+
+.nfl-drive-possession {
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.nfl-football-field {
+  position: relative;
+  min-height: 132px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 10%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 16px),
+    linear-gradient(90deg, #633017 0 6%, #105342 6% 94%, #743519 94% 100%);
+}
+
+.nfl-yard-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nfl-yard-line.midfield { width: 2px; background: rgba(255, 255, 255, 0.38); }
+
+.nfl-yard-label {
+  position: absolute;
+  bottom: 8px;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.65);
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  font-weight: 800;
+}
+
+.nfl-endzone {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.nfl-endzone-away { left: 2%; }
+.nfl-endzone-home { right: 2%; }
+
+.nfl-drive-path {
+  position: absolute;
+  top: 42%;
+  z-index: 2;
+  height: 16px;
+  min-width: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d5f2ff, #fff);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.32);
+}
+
+.nfl-drive-start {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #4a9ee8;
+}
+
+.nfl-drive-ball {
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-18deg);
+  font-size: 1rem;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+}
+
+.nfl-drive-description {
+  margin: 12px 0 0;
+  color: var(--court-text-muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 520px) {
+  .nfl-drive-panel { padding: 16px; }
+  .nfl-drive-heading { align-items: center; }
+  .nfl-football-field { min-height: 108px; }
+}
