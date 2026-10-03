@@ -14,7 +14,7 @@ This is a React single-page sports dashboard for NBA, NFL, and UFC data. The bro
 | `src/pages/nba/` | NBA page components (`NBAHome`, game detail, standings, players, stats, and so on); each component owns one screen. |
 | `src/pages/nfl/` | NFL equivalents of the NBA page components. |
 | `src/pages/ufc/` | UFC home, event, fighter, rankings, stats, and history screens. |
-| `src/components/` | Shared UI pieces such as `Navbar`, `ScorebugHero`, `MiniStandings`, `Lineups`, and their colocated CSS. |
+| `src/components/` | Shared UI pieces such as `Navbar`, `ScorebugHero`, `MiniStandings`, `Lineups`, and `NFLDriveTracker`, plus their colocated CSS. |
 | `src/context/SportContext.jsx` | Derives the selected sport from the URL and exposes its configuration through `SportProvider` / `useSport`. |
 | `src/utils/sportConfig.js` | The declarative NBA/NFL/UFC labels, navigation entries, colours, and feature flags. |
 | `src/utils/polling.js` | `useSportPolling`, the reusable immediate-fetch plus interval-polling hook. |
@@ -25,8 +25,8 @@ This is a React single-page sports dashboard for NBA, NFL, and UFC data. The bro
 | `backend/` | Flask server code. |
 | `backend/app.py` | Creates the Flask `app`, enables CORS, registers sport/logo routes, and starts background cache prewarming. |
 | `backend/sports/registry.py` | Connects the three ESPN adapter `register_routes` functions to Flask. |
-| `backend/adapters/espn_nba.py` | NBA ESPN requests, response mapping, and NBA Flask routes. |
-| `backend/adapters/espn_nfl.py` | NFL ESPN requests, response mapping, and NFL Flask routes. |
+| `backend/adapters/espn_nba.py` | NBA ESPN requests, response mapping, and NBA Flask routes; `compute_games_list()` merges all 30 regular-season team schedules into one de-duplicated fixture list. |
+| `backend/adapters/espn_nfl.py` | NFL ESPN requests, response mapping, and NFL Flask routes; it also exposes standings-backed team season fields and optional live-drive fields for game detail. |
 | `backend/adapters/espn_ufc.py` | UFC ESPN requests, response mapping, and UFC Flask routes. |
 | `backend/adapters/thesportsdb.py` | TheSportsDB team-logo and fighter-photo endpoints. |
 | `backend/core/cache.py` | Thread-safe process-memory stale-while-revalidate cache used by adapters. |
@@ -67,6 +67,26 @@ There are two separate caches:
 `Cache.set(key, value, ttl, swr_ttl)` records a soft expiry at `ttl` seconds and a hard expiry at `max(ttl, swr_ttl)` seconds. For the NBA home scoreboard, the soft TTL is **20 seconds** and the hard TTL is **300 seconds**. Before the soft expiry, the stored value is returned. Between soft and hard expiry, `get_with_swr` returns the stale value immediately and starts one background refresh for that key. On a miss or hard expiry, it makes callers wait for a synchronous refresh; the current implementation uses an `inflight` event so concurrent callers wait for the first refresh rather than each calling ESPN.
 
 If ESPN fails during the background refresh, `get_with_swr` logs `[CACHE] Background refresh error ...` and leaves the last stored value in place until its hard expiry. If there is no usable cache entry and `compute_today_games()` fails, `nba_today_games()` catches the exception and returns HTTP 500 with `{ "error": "Failed to fetch games", "games": [] }`. NFL and UFC routes have their own, not fully identical, fallback responses, so do not assume every endpoint has the same status code or body.
+
+The NBA Games tab has a separate backend entry, `nba_games_list()`, that uses the `nba:games_list` cache key with a **5-minute soft TTL** and a **1-hour hard TTL**. Its first uncached request is intentionally heavier than the home scoreboard: `compute_games_list()` requests each of the 30 NBA team schedules with at most 10 workers at once, combines them, and removes duplicate game IDs. The cached merged list prevents that work from running for every visitor.
+
+## Recent NBA and NFL screen behaviour
+
+### NBA Games: full season fixtures
+
+`src/pages/nba/NBAGames.jsx` fetches legacy route `GET /api/games`. Flask maps that to `nba_games_list()` in `backend/adapters/espn_nba.py`, which calls `compute_games_list()`. Rather than asking ESPN for a narrow recent-date scoreboard, that function requests `teams/<team_id>/schedule?seasontype=2` for every ID in `TEAM_IDS`, where `seasontype=2` means regular season. It merges the responses, de-duplicates them because each NBA game appears in both teams' schedules, converts them into the UI's game shape, sorts by date, and returns the full list.
+
+The NBA Games page stores that list in the browser cache under `games_list`, then filters the in-memory list by status or team-name search. A fallback single ESPN scoreboard request remains in `compute_games_list()` if every team-schedule request fails, so in that failure mode the page may show only the currently available scoreboard data rather than the full season.
+
+### NFL upcoming games: season snapshot
+
+`src/pages/nfl/NFLGameDetail.jsx` first requests `GET /api/nfl/games/<gameId>`. When the returned game has `status === 'UPCOMING'`, a second effect requests `GET /api/nfl/team/<awayAbbr>/info` and `GET /api/nfl/team/<homeAbbr>/info` in parallel. Those endpoints are handled by `nfl_team_info()` in `backend/adapters/espn_nfl.py`: it reads ESPN's NFL standings, finds the requested team, and returns its record, win percentage, streak, conference, seed, points for, and points against.
+
+The page uses those two responses in its **Season Snapshot** panel instead of rendering a pre-kickoff line score with no quarter values. If a team-info request fails, the panel stays visible and uses dashes for unavailable fields instead of making up a statistic. Once a game is no longer upcoming, the normal line score and scoring-play sections are used instead.
+
+### NFL live games: drive tracker
+
+For a live game, `nfl_single_game()` optionally reads `drives.current` from ESPN's game-summary response and returns it as `currentDrive`. `src/components/NFLDriveTracker.jsx` is rendered by `NFLGameDetail` only when the game is live and that data exists. It draws the compact football field and drive path from the provided start/current yard lines, plus the possessing team, play count, yards, and description. It deliberately renders nothing when ESPN does not provide active-drive data, rather than showing a guessed field position.
 
 ## Five files to read first
 

@@ -6,6 +6,7 @@ Extracted from the original monolithic app.py.
 import datetime
 from flask import jsonify
 from backend.core.provider_client import session
+import concurrent.futures
 
 
 # Lookup table for team abbreviations to hex colors
@@ -215,46 +216,76 @@ def compute_stats_leaders():
 
 
 def compute_games_list():
-    # ESPN accepts the season's starting year and a larger limit for the full
-    # schedule. NBA seasons span calendar years, so Jan--Jun belong to the
-    # previous season start year.
-    today = datetime.datetime.now()
-    season_year = today.year if today.month >= 8 else today.year - 1
-    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={season_year}&limit=2000"
-    d = session.get(url, timeout=10).json()
-    events = d.get('events', [])
-    if not events:
+    # Fetch the full regular season schedule by combining team schedules
+    def fetch_team_schedule(team_id):
+        try:
+            # seasontype=2 is regular season
+            url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/schedule?seasontype=2"
+            return session.get(url, timeout=10).json().get('events', [])
+        except Exception as e:
+            print(f"Error fetching schedule for team {team_id}: {e}")
+            return []
+
+    team_ids = list(TEAM_IDS.values())
+    all_events = []
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        for events in executor.map(fetch_team_schedule, team_ids):
+            all_events.extend(events)
+
+    if not all_events:
+        # Fallback if something went wrong
         fallback_url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
-        fb_d = session.get(fallback_url, timeout=10).json()
-        events = fb_d.get('events', [])
+        all_events = session.get(fallback_url, timeout=10).json().get('events', [])
+
     games = []
-    for ev in events:
-        comp = ev['competitions'][0]
-        home = next((c for c in comp['competitors'] if c['homeAway'] == 'home'), None)
-        away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
+    seen_ids = set()
+    
+    for ev in all_events:
+        game_id = ev['id']
+        if game_id in seen_ids:
+            continue
+        seen_ids.add(game_id)
+        
+        comp = ev.get('competitions', [{}])[0]
+        competitors = comp.get('competitors', [])
+        home = next((c for c in competitors if c.get('homeAway') == 'home'), None)
+        away = next((c for c in competitors if c.get('homeAway') == 'away'), None)
+        
         if not home or not away:
             continue
-        status_name = ev['status']['type'].get('name', '')
-        if status_name == 'STATUS_FINAL' or ev['status']['type'].get('completed'):
+            
+        status_name = ev.get('status', {}).get('type', {}).get('name', '')
+        if status_name == 'STATUS_FINAL' or ev.get('status', {}).get('type', {}).get('completed'):
             status = 'FINAL'
         elif status_name == 'STATUS_POSTPONED':
             status = 'POSTPONED'
         elif status_name == 'STATUS_DELAYED':
             status = 'DELAYED'
-        elif ev['status']['type']['state'] == 'in' or status_name in ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME'):
+        elif ev.get('status', {}).get('type', {}).get('state') == 'in' or status_name in ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME'):
             status = 'LIVE'
         else:
             status = 'UPCOMING'
+            
+        def extract_score(s):
+            if not s: return 0
+            if isinstance(s, dict): return int(float(s.get('value', 0)))
+            return int(float(s))
+            
         games.append({
-            'id': ev['id'], 'date': ev['date'].split('T')[0],
-            'home': home['team']['name'], 'away': away['team']['name'],
+            'id': game_id,
+            'date': ev.get('date', '').split('T')[0],
+            'home': home.get('team', {}).get('shortDisplayName', home.get('team', {}).get('name', '')),
+            'away': away.get('team', {}).get('shortDisplayName', away.get('team', {}).get('name', '')),
             'homeAbbr': normalize_abbr_to_app(home.get('team', {}).get('abbreviation', '')),
             'awayAbbr': normalize_abbr_to_app(away.get('team', {}).get('abbreviation', '')),
-            'homeScore': int(home['score']) if home['score'] else 0,
-            'awayScore': int(away['score']) if away['score'] else 0,
-            'status': status, 'arena': comp.get('venue', {}).get('fullName', 'NBA Arena')
+            'homeScore': extract_score(home.get('score')),
+            'awayScore': extract_score(away.get('score')),
+            'status': status,
+            'arena': comp.get('venue', {}).get('fullName', 'NBA Arena')
         })
-    games.sort(key=lambda x: x['date'], reverse=True)
+        
+    games.sort(key=lambda x: x['date'])
     return games
 
 
