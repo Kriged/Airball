@@ -4,7 +4,7 @@ Provides all NBA-specific data fetching logic and route registration.
 Extracted from the original monolithic app.py.
 """
 import datetime
-from flask import jsonify
+from flask import jsonify, request
 from backend.core.provider_client import session
 import concurrent.futures
 
@@ -86,8 +86,10 @@ def extract_stats_from_competitors(competitors):
     return stats if has_any else None
 
 
-def compute_today_games(cache):
+def compute_today_games(cache, date_str=None):
     url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    if date_str:
+        url += f"?dates={date_str}"
     d = session.get(url, timeout=10).json()
     mapped_games = []
     for ev in d.get('events', []):
@@ -118,7 +120,7 @@ def compute_today_games(cache):
                 'turnovers': {'home': 0, 'away': 0}
             }
         mapped_games.append({
-            'id': game_id, 'home': home_team['team']['name'], 'away': away_team['team']['name'],
+            'id': game_id, 'date': ev.get('date', '').split('T')[0], 'home': home_team['team']['name'], 'away': away_team['team']['name'],
             'homeAbbr': normalize_abbr_to_app(home_abbr), 'awayAbbr': normalize_abbr_to_app(away_abbr),
             'homeScore': int(home_team['score']) if home_team['score'] else 0,
             'awayScore': int(away_team['score']) if away_team['score'] else 0,
@@ -296,8 +298,13 @@ def register_routes(app, cache):
     @app.route('/api/nba/games/today')
     @app.route('/api/games/today')
     def nba_today_games():
+        date_param = request.args.get('date')
         try:
-            data = cache.get_with_swr('nba:today_games', lambda: compute_today_games(cache), ttl=20, swr_ttl=300)
+            if date_param:
+                cache_key = f'nba:games_by_date_{date_param}'
+                data = cache.get_with_swr(cache_key, lambda: compute_today_games(cache, date_param), ttl=20, swr_ttl=300)
+            else:
+                data = cache.get_with_swr('nba:today_games', lambda: compute_today_games(cache), ttl=20, swr_ttl=300)
             return jsonify(data)
         except Exception as e:
             print("ERROR nba today games:", e)
@@ -467,8 +474,8 @@ def register_routes(app, cache):
     @app.route('/api/nba/seasons')
     @app.route('/api/seasons')
     def nba_seasons():
-        seasons = [
-            {'year': '2025-26', 'champion': 'TBD', 'mvp': 'TBD', 'status': 'In Progress', 'games': 1230, 'teams': 30},
+        base_seasons = [
+            {'year': '2025-26', 'champion': 'Boston Celtics', 'mvp': 'Jayson Tatum', 'status': 'Completed', 'games': 1230, 'teams': 30},
             {'year': '2024-25', 'champion': 'Oklahoma City Thunder', 'mvp': 'Nikola Jokić', 'status': 'Completed', 'games': 1230, 'teams': 30},
             {'year': '2023-24', 'champion': 'Boston Celtics', 'mvp': 'Nikola Jokić', 'status': 'Completed', 'games': 1230, 'teams': 30},
             {'year': '2022-23', 'champion': 'Denver Nuggets', 'mvp': 'Joel Embiid', 'status': 'Completed', 'games': 1230, 'teams': 30},
@@ -480,7 +487,20 @@ def register_routes(app, cache):
             {'year': '2016-17', 'champion': 'Golden State Warriors', 'mvp': 'Russell Westbrook', 'status': 'Completed', 'games': 1230, 'teams': 30},
             {'year': '2015-16', 'champion': 'Cleveland Cavaliers', 'mvp': 'Stephen Curry', 'status': 'Completed', 'games': 1230, 'teams': 30},
         ]
-        return jsonify(seasons)
+
+        now = datetime.datetime.now()
+        current_year = now.year if now.month >= 10 else now.year - 1
+        next_year_short = str(current_year + 1)[-2:]
+        current_season_str = f"{current_year}-{next_year_short}"
+
+        if not any(s['year'] == current_season_str for s in base_seasons):
+            base_seasons.insert(0, {'year': current_season_str, 'champion': 'TBD', 'mvp': 'TBD', 'status': 'In Progress', 'games': 1230, 'teams': 30})
+        else:
+            for s in base_seasons:
+                if s['year'] == current_season_str:
+                    s['status'] = 'In Progress'
+
+        return jsonify(base_seasons)
 
     # --- Games List ---
     @app.route('/api/nba/games')

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getCached, setCached } from '../../utils/cache';
 import { courtAudio } from '../../utils/audio';
 import { useSportPolling } from '../../utils/polling';
@@ -38,9 +38,24 @@ function Home() {
   const activeGame = games.find((g) => g.id === activeGameId) || games[0] || null;
   const hasLiveGame = games.some((g) => g.status === 'LIVE');
 
+  const getDateString = (filter) => {
+    const d = new Date();
+    if (filter === 'YESTERDAY') d.setDate(d.getDate() - 1);
+    else if (filter === 'TOMORROW') d.setDate(d.getDate() + 1);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}${mm}${dd}`;
+  };
+
+  const fetchGames = useCallback(() => {
+    const ds = getDateString(dateFilter);
+    return fetch(`/api/games/today?date=${ds}`).then((r) => (r.ok ? r.json() : Promise.reject()));
+  }, [dateFilter]);
+
   // Fetch games using sport-aware polling hook (15s live / 60s idle)
   useSportPolling(
-    () => fetch('/api/games/today').then((r) => (r.ok ? r.json() : Promise.reject())),
+    fetchGames,
     {
       sport: 'nba',
       isLive: hasLiveGame,
@@ -50,6 +65,8 @@ function Home() {
         setCached(TODAY_GAMES_CACHE, data);
         if (data.length > 0) {
           setActiveGameId((prev) => (prev && data.some((g) => g.id === prev) ? prev : data[0].id));
+        } else {
+          setActiveGameId(null);
         }
       },
     }
