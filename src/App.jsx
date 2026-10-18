@@ -28,6 +28,8 @@ import UFCHome from './pages/ufc/UFCHome';
 import UFCEvents from './pages/ufc/UFCEvents';
 import UFCEventDetail from './pages/ufc/UFCEventDetail';
 import UFCFighters from './pages/ufc/UFCFighters';
+import UFCFighterDetail from './pages/ufc/UFCFighterDetail';
+import UFCCompare from './pages/ufc/UFCCompare';
 import UFCRankings from './pages/ufc/UFCRankings';
 import UFCStats from './pages/ufc/UFCStats';
 import UFCHistory from './pages/ufc/UFCHistory';
@@ -77,6 +79,8 @@ function App() {
           <Route path="/ufc/events" element={<UFCEvents />} />
           <Route path="/ufc/events/:eventId" element={<UFCEventDetail />} />
           <Route path="/ufc/fighters" element={<UFCFighters />} />
+          <Route path="/ufc/fighters/:fighterId" element={<UFCFighterDetail />} />
+          <Route path="/ufc/compare" element={<UFCCompare />} />
           <Route path="/ufc/rankings" element={<UFCRankings />} />
           <Route path="/ufc/stats" element={<UFCStats />} />
           <Route path="/ufc/history" element={<UFCHistory />} />

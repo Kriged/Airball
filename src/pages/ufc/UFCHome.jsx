@@ -28,11 +28,11 @@ function UFCHome() {
   return (
     <main className="page-layout">
       {/* Hero */}
-      <section className="home-hero" style={{ '--sport-accent': '#D20A0A', '--sport-glow': 'rgba(210, 10, 10, 0.25)' }}>
+      <section className="home-hero">
         <div className="container">
           <div className="hero-content animate-fade-in-up">
             <div className="hero-eyebrow"><span className="hero-live-dot" /><span>UFC FIGHT CENTER</span></div>
-            <h1 className="hero-title gradient-text" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #FF4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <h1 className="hero-title">
               UFC Match Center
             </h1>
             <p className="hero-subtitle">Live events, fight cards, and fighter rankings</p>

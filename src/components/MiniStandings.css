@@ -3,14 +3,15 @@
 .mini-standings-card {
   border-radius: var(--radius-xl);
   padding: 18px;
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
+  background: #0a0a0a;
 }
 
 .mini-standings-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 10px;
   margin-bottom: 10px;
 }
@@ -20,7 +21,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .mini-conf-pills {
@@ -40,12 +41,12 @@
 }
 
 .mini-conf-btn:hover {
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .mini-conf-btn.active {
-  background: var(--court-accent);
-  color: #FFFFFF;
+  background: #1a1a1a;
+  color: #e5e5e5;
 }
 
 .mini-standings-table {
@@ -61,7 +62,7 @@
   font-size: 0.65rem;
   text-transform: uppercase;
   padding: 4px 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid #141414;
 }
 
 .mini-standings-table td {
@@ -70,14 +71,14 @@
 }
 
 .mini-standings-table tr:hover {
-  background: var(--court-hover);
+  background: #141414;
 }
 
 .mini-standings-team-cell {
   text-align: left;
   font-family: var(--font-primary);
   font-weight: 600;
-  color: #FFFFFF;
+  color: #e5e5e5;
   display: flex;
   align-items: center;
   gap: 6px;

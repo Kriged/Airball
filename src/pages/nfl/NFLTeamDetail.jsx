@@ -46,12 +46,10 @@ function NFLTeamDetail() {
     );
   }
 
-  const teamColor = team.color || '#013369';
-
   return (
     <main className="page-layout">
       {/* Team Hero */}
-      <section style={{ background: `linear-gradient(135deg, ${teamColor} 0%, #0a1628 100%)`, padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
+      <section style={{ background: '#0a0a0a', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
         <div className="container">
           <Link to="/nfl/standings" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>← Back to NFL Standings</Link>
           <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>

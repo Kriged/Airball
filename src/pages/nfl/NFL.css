@@ -12,7 +12,7 @@
 .nfl-line-score td {
   padding: 10px 14px;
   text-align: center;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   font-size: 0.85rem;
 }
 
@@ -27,13 +27,13 @@
 .nfl-line-score .team-name-cell {
   text-align: left;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .nfl-line-score .total-cell {
   font-weight: 900;
   font-size: 1rem;
-  color: var(--court-gold);
+  color: #ffffff;
 }
 
 /* --- Scoring Drives Timeline --- */
@@ -48,15 +48,15 @@
   align-items: flex-start;
   gap: 14px;
   padding: 14px 18px;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
 }
 
 .scoring-play:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
 }
 
 .scoring-play-quarter {
@@ -65,8 +65,9 @@
   font-weight: 800;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(1, 51, 105, 0.2);
-  color: #4A9EE8;
+  background: #141414;
+  color: #a3a3a3;
+  border: 1px solid #1a1a1a;
   white-space: nowrap;
   min-width: 36px;
   text-align: center;
@@ -79,7 +80,7 @@
 .scoring-play-team {
   font-size: 0.72rem;
   font-weight: 800;
-  color: var(--court-gold);
+  color: #e5e5e5;
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -95,10 +96,11 @@
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
   white-space: nowrap;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: #141414;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-sm);
 }
 
@@ -110,12 +112,12 @@
 .nfl-division-title {
   font-size: 0.82rem;
   font-weight: 800;
-  color: var(--court-gold);
+  color: #e5e5e5;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding-bottom: 8px;
   margin-bottom: 12px;
-  border-bottom: 2px solid rgba(255, 184, 0, 0.2);
+  border-bottom: 1px solid #1a1a1a;
 }
 
 /* --- NFL Game Cards with Score Emphasis --- */
@@ -123,27 +125,27 @@
   font-size: 1.5rem;
 }
 
-/* --- NFL Stats: Category-specific bar colors --- */
+/* --- NFL Stats: Category-specific bar colors (Black/Charcoal style) --- */
 .nfl-stat-bar-passing .stat-bar-fill {
-  background: linear-gradient(90deg, #013369 0%, #4A9EE8 100%);
+  background: #737373;
 }
 
 .nfl-stat-bar-rushing .stat-bar-fill {
-  background: linear-gradient(90deg, #2D6A4F 0%, #52B788 100%);
+  background: #525252;
 }
 
 .nfl-stat-bar-receiving .stat-bar-fill {
-  background: linear-gradient(90deg, #D50A0A 0%, #FF6B6B 100%);
+  background: #a3a3a3;
 }
 
 .nfl-stat-bar-defense .stat-bar-fill {
-  background: linear-gradient(90deg, #7B2CBF 0%, #C77DFF 100%);
+  background: #404040;
 }
 
 /* --- NFL Home Score Cards --- */
 .nfl-score-card {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-lg);
   padding: 16px;
   transition: all var(--transition-base);
@@ -151,8 +153,8 @@
 }
 
 .nfl-score-card:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
   transform: translateY(-2px);
 }
 
@@ -175,24 +177,24 @@
   font-family: var(--font-mono);
   font-size: 1.1rem;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .nfl-team-logo {
   width: 40px;
   height: 40px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .nfl-score-card-score {
   font-family: var(--font-mono);
   font-size: 1.6rem;
   font-weight: 900;
+  color: #e5e5e5;
 }
 
 .nfl-score-card-score.winner {
-  color: var(--court-gold);
+  color: #ffffff;
 }
 
 .nfl-score-card-vs {
@@ -205,7 +207,7 @@
   text-align: center;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--court-border);
+  border-top: 1px solid #1a1a1a;
   font-size: 0.72rem;
   color: var(--court-text-muted);
 }
@@ -214,14 +216,14 @@
 .nfl-season-preview {
   margin-bottom: 36px;
   padding: 24px;
-  border: 1px solid rgba(74, 158, 232, 0.24);
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, rgba(1, 51, 105, 0.3), rgba(15, 23, 42, 0.72));
+  background: #0a0a0a;
 }
 
 .nfl-season-preview-heading {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
@@ -229,14 +231,14 @@
 
 .nfl-season-preview-heading p {
   margin: 0 0 4px;
-  color: #6fc1ff;
+  color: #a3a3a3;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.nfl-season-preview-heading h2 { margin: 0; font-size: 1.2rem; }
+.nfl-season-preview-heading h2 { margin: 0; font-size: 1.2rem; color: #e5e5e5; }
 
 .nfl-season-preview-heading > span {
   color: var(--court-text-muted);
@@ -251,13 +253,13 @@
 
 .nfl-season-team {
   padding: 18px;
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
-  background: rgba(4, 11, 24, 0.46);
+  background: #050505;
 }
 
-.nfl-season-team.home { border-top: 3px solid #4a9ee8; }
-.nfl-season-team.away { border-top: 3px solid var(--court-gold); }
+.nfl-season-team.home { border-top: 2px solid #525252; }
+.nfl-season-team.away { border-top: 2px solid #242424; }
 
 .nfl-season-team-label {
   color: var(--court-text-muted);
@@ -271,6 +273,7 @@
   margin: 8px 0 2px;
   font-family: var(--font-mono);
   font-size: 1.6rem;
+  color: #e5e5e5;
 }
 
 .nfl-season-team-name {
@@ -288,7 +291,7 @@
 }
 
 .nfl-season-record strong {
-  color: #fff;
+  color: #e5e5e5;
   font-family: var(--font-mono);
   font-size: 1.7rem;
 }
@@ -308,7 +311,7 @@
 
 .nfl-season-team dl div { min-width: 0; }
 .nfl-season-team dt { color: var(--court-text-muted); font-size: 0.66rem; }
-.nfl-season-team dd { margin: 3px 0 0; color: #fff; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+.nfl-season-team dd { margin: 3px 0 0; color: #e5e5e5; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
 
 .nfl-season-preview-loading {
   padding: 28px;

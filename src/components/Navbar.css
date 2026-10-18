@@ -1,4 +1,4 @@
-/* ===== COURTSYNC NBA HEADER & NAVIGATION ===== */
+/* ===== HEADER & NAVIGATION ===== */
 
 .navbar {
   position: sticky;
@@ -7,10 +7,8 @@
   right: 0;
   height: var(--nav-height);
   z-index: 500;
-  background: rgba(8, 11, 17, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--court-border);
+  background: #000000;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .navbar-inner {
@@ -34,12 +32,12 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--court-accent) 0%, #FFA000 100%);
+  background: #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px var(--court-accent-glow);
-  color: #FFFFFF;
+  color: #e5e5e5;
+  border: 1px solid #242424;
 }
 
 .brand-text-container {
@@ -57,10 +55,7 @@
   font-size: 1.15rem;
   font-weight: 900;
   letter-spacing: -0.03em;
-  background: linear-gradient(90deg, #FFFFFF 0%, #F1F5F9 50%, #FF8A65 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #e5e5e5;
 }
 
 .brand-tag {
@@ -68,10 +63,11 @@
   font-weight: 800;
   padding: 1px 5px;
   border-radius: 4px;
-  background: var(--court-accent);
-  color: #FFFFFF;
+  background: #1a1a1a;
+  color: #a3a3a3;
   letter-spacing: 0.06em;
   line-height: 1.2;
+  border: 1px solid #242424;
 }
 
 .brand-subtext {
@@ -97,8 +93,8 @@
 
 .nav-link:hover,
 .nav-link.active {
-  color: #FFFFFF;
-  background: var(--court-hover);
+  color: #e5e5e5;
+  background: #141414;
 }
 
 /* Live Stream Health & Latency Pill */
@@ -106,8 +102,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   padding: 5px 12px;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -127,7 +123,7 @@
   height: 100%;
   width: 100%;
   border-radius: 50%;
-  background: var(--court-green);
+  background: #525252;
   opacity: 0.75;
 }
 
@@ -137,13 +133,13 @@
   border-radius: 50%;
   height: 9px;
   width: 9px;
-  background: var(--court-green);
+  background: #525252;
 }
 
 .nav-status-text {
   font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--court-green);
+  color: #737373;
 }
 
 .nav-latency-text {
@@ -162,8 +158,8 @@
 .nav-icon-btn {
   padding: 7px 10px;
   border-radius: var(--radius-sm);
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   color: var(--court-text-muted);
   display: flex;
   align-items: center;
@@ -173,14 +169,14 @@
 }
 
 .nav-icon-btn:hover {
-  background: var(--court-hover);
-  color: #FFFFFF;
-  border-color: var(--court-subtle);
+  background: #141414;
+  color: #e5e5e5;
+  border-color: #242424;
 }
 
 .nav-icon-btn.active {
-  color: var(--court-accent);
-  border-color: rgba(255, 87, 34, 0.4);
+  color: #d4d4d4;
+  border-color: #2a2a2a;
 }
 
 .nav-pill-btn {
@@ -189,8 +185,8 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -199,8 +195,8 @@
 }
 
 .nav-pill-btn:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
 }
 
 /* Search Bar */
@@ -214,16 +210,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 6px 12px;
   transition: all var(--transition-base);
 }
 
 .nav-search-wrapper.focused .nav-search-bar {
-  border-color: var(--court-accent);
-  box-shadow: 0 0 14px var(--court-accent-glow);
+  border-color: #2a2a2a;
 }
 
 .nav-search-icon {
@@ -236,7 +231,7 @@
   background: none;
   border: none;
   outline: none;
-  color: #FFFFFF;
+  color: #e5e5e5;
   font-size: 0.8rem;
   font-family: inherit;
 }
@@ -258,10 +253,9 @@
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
   overflow: hidden;
   z-index: 200;
   animation: fadeIn 0.15s ease-out;
@@ -274,15 +268,15 @@
   width: 100%;
   padding: 10px 14px;
   font-size: 0.82rem;
-  color: #FFFFFF;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e5e5e5;
+  border-bottom: 1px solid #0f0f0f;
   text-align: left;
   cursor: pointer;
   transition: background var(--transition-fast);
 }
 
 .search-result-item:hover {
-  background: var(--court-hover);
+  background: #141414;
 }
 
 .search-result-label {
@@ -292,7 +286,7 @@
 .search-result-path {
   font-size: 0.7rem;
   color: var(--court-text-muted);
-  background: rgba(255, 255, 255, 0.05);
+  background: #0f0f0f;
   padding: 1px 6px;
   border-radius: 4px;
 }
@@ -308,12 +302,11 @@
 .sport-selector {
   display: flex;
   align-items: center;
-  background: rgba(15, 21, 35, 0.75);
-  border: 1px solid var(--court-border);
+  background: #050505;
+  border: 1px solid #1a1a1a;
   border-radius: 20px;
   padding: 3px 4px;
   gap: 3px;
-  backdrop-filter: blur(8px);
 }
 
 .sport-pill {
@@ -332,15 +325,15 @@
 }
 
 .sport-pill:hover {
-  color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.06);
+  color: #e5e5e5;
+  background: #141414;
 }
 
 .sport-pill.active {
-  background: var(--pill-color, var(--court-accent));
-  color: #FFFFFF;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  background: #1a1a1a;
+  color: #e5e5e5;
   font-weight: 800;
+  border: 1px solid #242424;
 }
 
 .sport-pill-icon {
@@ -376,4 +369,3 @@
     display: none;
   }
 }
-

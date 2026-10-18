@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { courtAudio } from '../utils/audio';
-import { useSport } from '../context/SportContext';
+import { useSport } from '../context/useSport';
 import { SPORTS, SPORT_SLUGS } from '../utils/sportConfig';
 import SettingsModal from './SettingsModal';
 import './Navbar.css';
@@ -135,7 +135,7 @@ function Navbar() {
         <div className="navbar-inner container">
           {/* Brand */}
           <Link to="/" className="navbar-brand" id="nav-home-link">
-            <div className="brand-icon-box" style={{ background: `linear-gradient(135deg, ${sportConfig.accentColor} 0%, ${sportConfig.secondaryColor || sportConfig.accentColor} 100%)` }}>
+            <div className="brand-icon-box">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M4.93 4.93l4.24 4.24" /><path d="M14.83 9.17l4.24-4.24" />
@@ -146,7 +146,7 @@ function Navbar() {
             <div className="brand-text-container">
               <div className="brand-name-row">
                 <span className="brand-title">AIRBALL</span>
-                <span className="brand-tag" style={{ background: sportConfig.accentColor }}>{sportConfig.name} LIVE</span>
+                <span className="brand-tag">{sportConfig.name} LIVE</span>
               </div>
               <span className="brand-subtext">Low-Latency Match Center</span>
             </div>
@@ -252,7 +252,7 @@ function Navbar() {
             {/* Stream Sync */}
             <button onClick={() => setShowSettings(true)} className="nav-pill-btn"
               title="Stream Sync & Anti-Spoiler Delay" id="open-stream-sync-btn">
-              <svg width="15" height="15" fill="none" stroke="#FFB800" viewBox="0 0 24 24">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
               <span className="hidden-mobile">{delaySeconds > 0 ? `+${delaySeconds}s Delay` : 'Stream Sync'}</span>

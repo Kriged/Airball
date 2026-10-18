@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { getSportConfig, DEFAULT_SPORT } from '../utils/sportConfig';
 
@@ -38,19 +38,6 @@ export function SportProvider({ children }) {
       {children}
     </SportContext.Provider>
   );
-}
-
-/**
- * Hook to access the current sport context.
- * Returns { sport: 'nba'|'nfl'|'ufc', config: SportDefinition }
- */
-export function useSport() {
-  const ctx = useContext(SportContext);
-  if (!ctx) {
-    // Outside of SportProvider — return NBA defaults
-    return { sport: DEFAULT_SPORT, config: getSportConfig(DEFAULT_SPORT) };
-  }
-  return ctx;
 }
 
 export default SportContext;

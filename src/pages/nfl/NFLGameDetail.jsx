@@ -65,7 +65,7 @@ function NFLGameDetail() {
   return (
     <main className="page-layout">
       {/* Scoreboard Hero */}
-      <section style={{ background: 'linear-gradient(135deg, #013369 0%, #0a1628 100%)', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
+      <section style={{ background: '#0a0a0a', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
         <div className="container">
           <Link to="/nfl/games" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
             ← Back to NFL Games

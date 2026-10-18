@@ -25,7 +25,7 @@
 }
 
 .gd-back-nav:hover {
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 /* Match Center Tabs Bar */
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 4px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -56,15 +56,14 @@
 }
 
 .gd-tab-btn:hover {
-  color: #FFFFFF;
-  background: var(--court-hover);
+  color: #e5e5e5;
+  background: #141414;
 }
 
 .gd-tab-btn.active {
-  color: #FFFFFF;
-  background: var(--court-card);
-  border-color: var(--court-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #e5e5e5;
+  background: #0a0a0a;
+  border-color: #242424;
 }
 
 /* Boxscore & PBP Wrappers */

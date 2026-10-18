@@ -1,64 +1,64 @@
-/* ===== COURTSYNC NBA — GLOBAL STYLES & ATHLETIC DESIGN SYSTEM ===== */
+/* ===== AIRBALL — GLOBAL STYLES & DESIGN SYSTEM ===== */
 
 /* --- CSS Custom Properties --- */
 :root {
-  /* CourtSync Athletic Color Palette */
-  --court-bg: #080B11;
-  --court-card: #0F1523;
-  --court-hover: #172033;
-  --court-border: #1F293D;
-  --court-subtle: #2A364F;
-  --court-accent: #FF5722; /* Vibrant NBA basketball orange */
-  --court-accent-glow: rgba(255, 87, 34, 0.25);
-  --court-gold: #FFB800;
-  --court-green: #00E676;
-  --court-red: #FF3B30;
-  --court-cyan: #00D2FF;
-  --court-text-muted: #8E9BAE;
+  /* Core Black & Charcoal Palette */
+  --court-bg: #000000;
+  --court-card: #0a0a0a;
+  --court-hover: #141414;
+  --court-border: #1a1a1a;
+  --court-subtle: #242424;
+  --court-accent: #e5e5e5;
+  --court-accent-glow: transparent;
+  --court-gold: #d4d4d4;
+  --court-green: #a3a3a3;
+  --court-red: #a3a3a3;
+  --court-cyan: #d4d4d4;
+  --court-text-muted: #525252;
 
   /* Sport-Level Accent Color Tokens */
-  --sport-nba-accent: #FF5722;
-  --sport-nba-glow: rgba(255, 87, 34, 0.25);
-  --sport-nba-secondary: #FFB800;
+  --sport-nba-accent: #e5e5e5;
+  --sport-nba-glow: transparent;
+  --sport-nba-secondary: #a3a3a3;
 
-  --sport-nfl-accent: #013369;
-  --sport-nfl-glow: rgba(1, 51, 105, 0.3);
-  --sport-nfl-secondary: #D50A0A;
+  --sport-nfl-accent: #d4d4d4;
+  --sport-nfl-glow: transparent;
+  --sport-nfl-secondary: #a3a3a3;
 
-  --sport-ufc-accent: #D20A0A;
-  --sport-ufc-glow: rgba(210, 10, 10, 0.25);
-  --sport-ufc-gold: #C4A747;
+  --sport-ufc-accent: #e5e5e5;
+  --sport-ufc-glow: transparent;
+  --sport-ufc-gold: #a3a3a3;
 
 
-  /* Aliased Semantic Colors for backward compatibility */
-  --bg-primary: #080B11;
-  --bg-secondary: #0D131F;
-  --bg-card: #0F1523;
-  --bg-card-hover: #172033;
-  --bg-glass: rgba(15, 21, 35, 0.85);
+  /* Aliased Semantic Colors */
+  --bg-primary: #000000;
+  --bg-secondary: #050505;
+  --bg-card: #0a0a0a;
+  --bg-card-hover: #141414;
+  --bg-glass: rgba(10, 10, 10, 0.92);
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
-  --text-muted: #8E9BAE;
+  --text-primary: #e5e5e5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #525252;
 
-  --border-color: #1F293D;
-  --border-hover: #2E3D5C;
+  --border-color: #1a1a1a;
+  --border-hover: #2a2a2a;
 
-  --nba-red: #FF5722;
-  --nba-red-dark: #D84315;
-  --nba-blue: #141D2D;
-  --nba-blue-light: #2A364F;
-  --nba-blue-accent: #00D2FF;
+  --nba-red: #a3a3a3;
+  --nba-red-dark: #737373;
+  --nba-blue: #0a0a0a;
+  --nba-blue-light: #1a1a1a;
+  --nba-blue-accent: #d4d4d4;
 
-  --gradient-red-blue: linear-gradient(135deg, #FF5722 0%, #FFB800 50%, #00D2FF 100%);
-  --gradient-dark: linear-gradient(180deg, #0D131F 0%, #080B11 100%);
-  --gradient-card: linear-gradient(145deg, rgba(15, 21, 35, 0.95), rgba(8, 11, 17, 0.98));
+  --gradient-red-blue: none;
+  --gradient-dark: none;
+  --gradient-card: none;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.65);
-  --shadow-accent: 0 0 30px rgba(255, 87, 34, 0.2);
-  --shadow-glow-accent: 0 0 60px rgba(255, 87, 34, 0.15);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-accent: none;
+  --shadow-glow-accent: none;
 
   /* Typography */
   --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
@@ -72,7 +72,7 @@
   --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Modern Athletic Border Radii */
+  /* Border Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -143,7 +143,7 @@ ul, ol {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 6px;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .section-subtitle {
@@ -154,39 +154,35 @@ ul, ol {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #FF8A65 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #e5e5e5;
+  -webkit-text-fill-color: unset;
 }
 
-/* --- Glassmorphic Scorebug & Card Systems --- */
+/* --- Glassmorphic Card Systems --- */
 .glass-panel {
-  background: rgba(15, 21, 35, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
 }
 
 .glass-highlight {
-  background: linear-gradient(135deg, rgba(255, 87, 34, 0.12) 0%, rgba(15, 21, 35, 0.5) 100%);
-  border: 1px solid rgba(255, 87, 34, 0.35);
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
 }
 
 /* --- Basketball Court Graphics --- */
 .court-line {
-  stroke: #364461;
+  stroke: #242424;
   stroke-width: 2;
   fill: none;
 }
 .court-floor {
-  fill: #0c121e;
+  fill: #050505;
 }
 .court-paint {
-  fill: #141c2c;
+  fill: #0a0a0a;
 }
 .court-restricted {
-  fill: #19243a;
+  fill: #0f0f0f;
 }
 
 /* Tabular numbers for clocks, ratings, and stats */
@@ -207,24 +203,24 @@ ul, ol {
   justify-content: center;
   line-height: 1.2;
 }
-.rating-high { background-color: #059669; color: #ffffff; }
-.rating-mid  { background-color: #D97706; color: #ffffff; }
-.rating-low  { background-color: #DC2626; color: #ffffff; }
+.rating-high { background-color: #1a1a1a; color: #a3a3a3; }
+.rating-mid  { background-color: #141414; color: #737373; }
+.rating-low  { background-color: #0f0f0f; color: #525252; }
 
-/* Custom sports scrollbar */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--court-bg);
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--court-border);
+  background: #1a1a1a;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--court-accent);
+  background: #2a2a2a;
 }
 
 .table-team-logo {
@@ -233,18 +229,17 @@ ul, ol {
   object-fit: contain;
   margin-right: 8px;
   vertical-align: middle;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
 /* Selection */
 ::selection {
-  background: var(--court-accent);
-  color: #FFFFFF;
+  background: #2a2a2a;
+  color: #e5e5e5;
 }
 
 /* --- Animations --- */
 @keyframes scoreFlash {
-  0% { transform: scale(1.25); color: var(--court-gold); }
+  0% { transform: scale(1.25); color: #d4d4d4; }
   100% { transform: scale(1); color: inherit; }
 }
 

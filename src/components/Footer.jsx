@@ -1,4 +1,4 @@
-import { useSport } from '../context/SportContext';
+import { useSport } from '../context/useSport';
 import './Footer.css';
 
 function Footer() {

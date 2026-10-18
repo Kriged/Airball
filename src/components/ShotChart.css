@@ -1,4 +1,4 @@
-/* ===== INTERACTIVE BASKETBALL SHOT CHART & HEATMAP ===== */
+/* ===== INTERACTIVE SHOT CHART & HEATMAP ===== */
 
 .shot-chart-wrapper {
   display: flex;
@@ -27,9 +27,9 @@
 .shot-filter-pill {
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-  background: var(--court-card);
+  background: #0a0a0a;
   color: var(--court-text-muted);
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
   font-size: 0.75rem;
   font-weight: 600;
   transition: all var(--transition-fast);
@@ -37,15 +37,14 @@
 }
 
 .shot-filter-pill:hover {
-  background: var(--court-hover);
-  color: #FFFFFF;
+  background: #141414;
+  color: #e5e5e5;
 }
 
 .shot-filter-pill.active {
-  background: var(--court-accent);
-  color: #FFFFFF;
-  border-color: var(--court-accent);
-  box-shadow: 0 2px 8px var(--court-accent-glow);
+  background: #1a1a1a;
+  color: #e5e5e5;
+  border-color: #242424;
 }
 
 .shot-select-group {
@@ -55,8 +54,8 @@
 }
 
 .shot-select {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: 6px 10px;
@@ -87,7 +86,7 @@
   width: 100%;
   height: 100%;
   border-radius: var(--radius-md);
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
   display: block;
 }
 
@@ -105,21 +104,18 @@
   position: absolute;
   pointer-events: none;
   z-index: 40;
-  background: rgba(15, 21, 35, 0.95);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 8px 12px;
   font-size: 0.75rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   min-width: 160px;
   animation: fadeIn 0.15s ease-out;
 }
 
 .shot-tooltip-player {
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .shot-tooltip-detail {
@@ -136,11 +132,11 @@
 }
 
 .shot-tooltip-result.made {
-  color: var(--court-green);
+  color: #a3a3a3;
 }
 
 .shot-tooltip-result.missed {
-  color: var(--court-red);
+  color: #525252;
 }
 
 .shot-zones-grid {
@@ -153,8 +149,8 @@
 }
 
 .shot-zone-card {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 10px 6px;
 }

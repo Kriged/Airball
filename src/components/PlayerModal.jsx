@@ -43,11 +43,21 @@ function PlayerModal({ player, teamName, onClose }) {
         {/* Header */}
         <div className="player-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div className="player-avatar">{initials}</div>
+            {player.image ? (
+              <img
+                src={player.image}
+                alt={player.name}
+                className="player-avatar"
+                style={{ objectFit: 'cover' }}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            ) : (
+              <div className="player-avatar">{initials}</div>
+            )}
             <div className="player-title-block">
               <h3>{player.name}</h3>
               <div className="player-title-meta">
-                {teamName || player.team || 'NBA'} • #{player.num || player.number || '—'} • {player.pos || '—'}
+                {teamName || player.team || 'Player'} • #{player.num || player.number || player.jersey_number || '—'} • {player.pos || player.position || '—'}
               </div>
             </div>
           </div>
@@ -98,22 +108,49 @@ function PlayerModal({ player, teamName, onClose }) {
           <div className="player-splits-grid">
             <div>
               <span className="player-split-lbl">PTS</span>
-              <span className="player-split-val">{player.pts ?? '—'}</span>
+              <span className="player-split-val">{player.pts ?? (player.ppg !== undefined ? player.ppg : '—')}</span>
             </div>
             <div>
               <span className="player-split-lbl">REB</span>
-              <span className="player-split-val">{player.reb ?? '—'}</span>
+              <span className="player-split-val">{player.reb ?? (player.rpg !== undefined ? player.rpg : '—')}</span>
             </div>
             <div>
               <span className="player-split-lbl">AST</span>
-              <span className="player-split-val">{player.ast ?? '—'}</span>
+              <span className="player-split-val">{player.ast ?? (player.apg !== undefined ? player.apg : '—')}</span>
             </div>
             <div>
               <span className="player-split-lbl">MIN</span>
-              <span className="player-split-val">{player.min || '—'}</span>
+              <span className="player-split-val">{player.min || (player.height ? `${player.height}` : '—')}</span>
             </div>
           </div>
         </div>
+
+        {/* Bio & Draft Specs (BallDontLie NBA API) */}
+        {(player.college || player.draft_year || player.height || player.country) && (
+          <div className="player-splits-box" style={{ marginTop: '-4px' }}>
+            <span className="player-splits-title">Bio & Draft Specs</span>
+            <div className="player-splits-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+              <div>
+                <span className="player-split-lbl">Height / Weight</span>
+                <span className="player-split-val" style={{ fontSize: '0.82rem' }}>
+                  {player.height || '—'} {player.weight && player.weight !== '—' ? `• ${player.weight} lbs` : ''}
+                </span>
+              </div>
+              <div>
+                <span className="player-split-lbl">College / Origin</span>
+                <span className="player-split-val" style={{ fontSize: '0.82rem' }}>
+                  {player.college && player.college !== '—' ? player.college : (player.country || '—')}
+                </span>
+              </div>
+              <div>
+                <span className="player-split-lbl">Draft</span>
+                <span className="player-split-val" style={{ fontSize: '0.82rem' }}>
+                  {player.draft_year ? `${player.draft_year} R${player.draft_round || 1} #${player.draft_number || '—'}` : 'Undrafted'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="player-modal-footer">

@@ -2,6 +2,7 @@
  * SportDefinition Registry
  * Central config for each sport. The UI reads this to decide which pages,
  * nav links, colors, labels, and features to expose.
+ * Styled in black, charcoal black, and charcoal grey.
  */
 
 export const SPORTS = {
@@ -10,11 +11,11 @@ export const SPORTS = {
     name: 'NBA',
     fullName: 'National Basketball Association',
     icon: '🏀',
-    accentColor: '#FF5722',
-    accentGlow: 'rgba(255, 87, 34, 0.25)',
-    secondaryColor: '#FFB800',
-    gradientFrom: '#FF5722',
-    gradientTo: '#FFB800',
+    accentColor: '#e5e5e5',
+    accentGlow: 'transparent',
+    secondaryColor: '#a3a3a3',
+    gradientFrom: '#1a1a1a',
+    gradientTo: '#141414',
     eventLabel: 'Games',
     athleteLabel: 'Players',
     // Navigation items — order matters
@@ -46,11 +47,11 @@ export const SPORTS = {
     },
     // Banner accent colors per page
     pageAccents: {
-      games: '#457b9d',
-      standings: '#1d3557',
-      players: '#e63946',
-      stats: '#e63946',
-      seasons: '#2563eb',
+      games: '#1a1a1a',
+      standings: '#1a1a1a',
+      players: '#1a1a1a',
+      stats: '#1a1a1a',
+      seasons: '#1a1a1a',
     },
   },
 
@@ -59,11 +60,11 @@ export const SPORTS = {
     name: 'NFL',
     fullName: 'National Football League',
     icon: '🏈',
-    accentColor: '#013369',
-    accentGlow: 'rgba(1, 51, 105, 0.3)',
-    secondaryColor: '#D50A0A',
-    gradientFrom: '#013369',
-    gradientTo: '#D50A0A',
+    accentColor: '#d4d4d4',
+    accentGlow: 'transparent',
+    secondaryColor: '#a3a3a3',
+    gradientFrom: '#1a1a1a',
+    gradientTo: '#141414',
     eventLabel: 'Games',
     athleteLabel: 'Players',
     navItems: [
@@ -89,11 +90,11 @@ export const SPORTS = {
       seasons: 'NFL seasons and Super Bowl history',
     },
     pageAccents: {
-      games: '#013369',
-      standings: '#013369',
-      players: '#D50A0A',
-      stats: '#D50A0A',
-      seasons: '#013369',
+      games: '#1a1a1a',
+      standings: '#1a1a1a',
+      players: '#1a1a1a',
+      stats: '#1a1a1a',
+      seasons: '#1a1a1a',
     },
   },
 
@@ -102,16 +103,17 @@ export const SPORTS = {
     name: 'UFC',
     fullName: 'Ultimate Fighting Championship',
     icon: '🥊',
-    accentColor: '#D20A0A',
-    accentGlow: 'rgba(210, 10, 10, 0.25)',
-    secondaryColor: '#C4A747',
-    gradientFrom: '#D20A0A',
-    gradientTo: '#C4A747',
+    accentColor: '#e5e5e5',
+    accentGlow: 'transparent',
+    secondaryColor: '#a3a3a3',
+    gradientFrom: '#1a1a1a',
+    gradientTo: '#141414',
     eventLabel: 'Events',
     athleteLabel: 'Fighters',
     navItems: [
       { label: 'Events', path: 'events', icon: '🥊' },
       { label: 'Fighters', path: 'fighters', icon: '🏃' },
+      { label: 'Compare', path: 'compare', icon: '⚔️' },
       { label: 'Rankings', path: 'rankings', icon: '📋' },
       { label: 'Stats', path: 'stats', icon: '📊' },
       { label: 'History', path: 'history', icon: '🏆' },
@@ -121,8 +123,8 @@ export const SPORTS = {
     hasRankings: true,
     hasAudio: false,
     eventType: 'event',
-    positions: ['All', 'Flyweight', 'Bantamweight', 'Featherweight', 'Lightweight', 'Welterweight', 'Middleweight', 'Light Heavyweight', 'Heavyweight', "Women's Strawweight", "Women's Flyweight", "Women's Bantamweight"],
-    statCategories: ['Striking', 'Takedowns', 'Submissions', 'Finish Rate'],
+    positions: ['All', 'Heavyweight', 'Light Heavyweight', 'Middleweight', 'Welterweight', 'Lightweight', 'Featherweight', 'Bantamweight', 'Flyweight', "Women's Featherweight", "Women's Bantamweight", "Women's Flyweight", "Women's Strawweight"],
+    statCategories: ['Striking (SLpM)', 'Strike Accuracy', 'Takedowns', 'Takedown Defense', 'Submissions', 'Total Wins'],
     subtitles: {
       home: 'Live UFC Events, Fight Cards & Fighter Rankings',
       events: 'Upcoming and recent UFC events and fight cards',
@@ -132,11 +134,11 @@ export const SPORTS = {
       history: 'UFC event archive and title fight history',
     },
     pageAccents: {
-      events: '#D20A0A',
-      fighters: '#D20A0A',
-      rankings: '#C4A747',
-      stats: '#D20A0A',
-      history: '#C4A747',
+      events: '#1a1a1a',
+      fighters: '#1a1a1a',
+      rankings: '#1a1a1a',
+      stats: '#1a1a1a',
+      history: '#1a1a1a',
     },
   },
 };

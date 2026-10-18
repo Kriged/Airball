@@ -1,0 +1,12 @@
+{
+  "total_fighters": 2990,
+  "total_events": 213,
+  "total_fights": 2275,
+  "champions": 1,
+  "last_updated": "2026-10-18T22:30:00Z",
+  "stances": {
+    "orthodox": 2990,
+    "southpaw": 0,
+    "switch": 0
+  }
+}

@@ -4,9 +4,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(4, 7, 12, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +17,8 @@
   max-width: 460px;
   border-radius: var(--radius-xl);
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   animation: shotPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
@@ -30,14 +29,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 14px;
 }
 
 .settings-modal-title {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .settings-section {
@@ -52,12 +51,12 @@
   align-items: center;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .settings-delay-val {
   font-family: var(--font-mono);
-  color: var(--court-gold);
+  color: #a3a3a3;
   font-weight: 700;
   font-size: 0.85rem;
 }
@@ -70,7 +69,7 @@
 
 .settings-slider {
   width: 100%;
-  accent-color: var(--court-accent);
+  accent-color: #525252;
   cursor: pointer;
   margin-top: 4px;
 }
@@ -79,7 +78,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-top: 1px solid var(--court-border);
+  border-top: 1px solid #1a1a1a;
   padding-top: 14px;
 }
 
@@ -87,8 +86,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   padding: 10px 14px;
   border-radius: var(--radius-md);
   font-size: 0.8rem;
@@ -98,13 +97,13 @@
 }
 
 .settings-trigger-item:hover {
-  background: var(--court-hover);
-  color: #FFFFFF;
-  border-color: var(--court-subtle);
+  background: #141414;
+  color: #e5e5e5;
+  border-color: #242424;
 }
 
 .settings-checkbox {
-  accent-color: var(--court-accent);
+  accent-color: #525252;
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -117,19 +116,17 @@
 }
 
 .settings-save-btn {
-  background: var(--court-accent);
-  color: #FFFFFF;
+  background: #1a1a1a;
+  color: #e5e5e5;
   font-weight: 700;
   font-size: 0.85rem;
   padding: 8px 18px;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid #242424;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px var(--court-accent-glow);
 }
 
 .settings-save-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+  background: #242424;
 }

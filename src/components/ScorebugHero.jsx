@@ -53,11 +53,11 @@ function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
                     width: '100%',
                     height: '100%',
                     borderRadius: '50%',
-                    background: '#FF3B30',
+                    background: '#525252',
                     opacity: 0.75
                   }}
                 />
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FF3B30' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#a3a3a3' }} />
               </span>
             )}
             <span>{isLive ? (game.quarter || 'LIVE') : isFinal ? 'FINAL' : 'UPCOMING'}</span>

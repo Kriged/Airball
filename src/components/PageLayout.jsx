@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useSport } from '../context/SportContext';
+import { useSport } from '../context/useSport';
 import './PageLayout.css';
 
 function PageLayout({ title, subtitle, icon, accentColor, bannerImage, backTo, backLabel, children }) {

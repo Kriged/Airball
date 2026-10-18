@@ -4,9 +4,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(4, 7, 12, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +17,8 @@
   max-width: 440px;
   border-radius: var(--radius-xl);
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   animation: shotPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
@@ -30,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 16px;
 }
 
@@ -38,22 +37,21 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #141D2E;
-  border: 2px solid var(--court-accent);
+  background: #141414;
+  border: 2px solid #242424;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.15rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
   font-family: var(--font-mono);
-  box-shadow: 0 0 16px var(--court-accent-glow);
 }
 
 .player-title-block h3 {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
   margin-bottom: 2px;
 }
 
@@ -75,8 +73,8 @@
 }
 
 .player-close-btn:hover {
-  background: var(--court-hover);
-  color: #FFFFFF;
+  background: #141414;
+  color: #e5e5e5;
 }
 
 .player-metrics-grid {
@@ -87,8 +85,8 @@
 }
 
 .player-metric-card {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 12px 8px;
 }
@@ -111,8 +109,8 @@
 }
 
 .player-splits-box {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 14px;
 }
@@ -123,7 +121,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #FFFFFF;
+  color: #e5e5e5;
   margin-bottom: 10px;
 }
 
@@ -145,7 +143,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   font-family: var(--font-mono);
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .player-modal-footer {
@@ -158,7 +156,7 @@
 }
 
 .player-active-pill {
-  color: var(--court-green);
+  color: #737373;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -170,6 +168,6 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--court-green);
+  background: #525252;
   animation: pulseGlow 1.5s infinite;
 }

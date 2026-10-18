@@ -6,12 +6,16 @@ Each adapter provides a register_routes(app, cache) function.
 from backend.adapters.espn_nba import register_routes as register_nba
 from backend.adapters.espn_nfl import register_routes as register_nfl
 from backend.adapters.espn_ufc import register_routes as register_ufc
+from backend.adapters.balldontlie import register_routes as register_bdl
+from backend.adapters.apisports_nfl import register_routes as register_apisports_nfl
 
 
 SPORT_ADAPTERS = {
     'nba': register_nba,
     'nfl': register_nfl,
     'ufc': register_ufc,
+    'balldontlie': register_bdl,
+    'apisports_nfl': register_apisports_nfl,
 }
 
 

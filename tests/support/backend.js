@@ -8,6 +8,7 @@ export function runBackend(...args) {
   const output = execFileSync('python', [runner, ...args], {
     cwd: root,
     encoding: 'utf8',
+    maxBuffer: 20 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   // Production adapters log expected upstream failures to stdout.  The bridge

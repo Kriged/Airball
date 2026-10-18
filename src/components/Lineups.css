@@ -9,14 +9,15 @@
 .lineups-panel {
   border-radius: var(--radius-xl);
   padding: 18px;
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
+  background: #0a0a0a;
 }
 
 .lineups-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--court-border);
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 12px;
   margin-bottom: 12px;
 }
@@ -24,15 +25,15 @@
 .lineups-header h3 {
   font-size: 0.85rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .lineups-status-badge {
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(0, 230, 118, 0.15);
-  color: var(--court-green);
+  background: #141414;
+  color: #737373;
   font-family: var(--font-mono);
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -50,15 +51,15 @@
   justify-content: space-between;
   padding: 10px 12px;
   border-radius: var(--radius-md);
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .oncourt-player-card:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
   transform: translateX(2px);
 }
 
@@ -72,14 +73,15 @@
   font-family: var(--font-mono);
   font-weight: 900;
   font-size: 0.8rem;
-  border: 1px solid;
+  border: 1px solid #242424;
   flex-shrink: 0;
+  background: #0f0f0f;
 }
 
 .oncourt-player-name {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .oncourt-player-meta {

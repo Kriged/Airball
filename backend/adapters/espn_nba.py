@@ -162,28 +162,42 @@ def compute_standings():
 
 
 def compute_players():
-    url = 'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=true&page=1&limit=100&sort=offensive.avgPoints%3Adesc'
-    d = session.get(url, timeout=10).json()
-    global_cats = {c['name']: c['names'] for c in d.get('categories', [])}
-    result_players = []
-    for p in d.get('athletes', []):
-        ath = p['athlete']
-        stats_dict = {}
-        for cat_data in p.get('categories', []):
-            cat_name = cat_data['name']
-            names = global_cats.get(cat_name, [])
-            values = cat_data.get('values', [])
-            for i in range(min(len(names), len(values))):
-                stats_dict[names[i]] = float(values[i])
-        result_players.append({
-            'id': ath['id'], 'name': ath['displayName'], 'team': ath['teamShortName'],
-            'pos': ath.get('position', {}).get('abbreviation', 'N/A'),
-            'ppg': round(stats_dict.get('avgPoints', 0), 1),
-            'rpg': round(stats_dict.get('avgRebounds', 0), 1),
-            'apg': round(stats_dict.get('avgAssists', 0), 1),
-            'status': 'Active'
-        })
-    return result_players
+    try:
+        url = 'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=true&page=1&limit=100&sort=offensive.avgPoints%3Adesc'
+        d = session.get(url, timeout=10).json()
+        global_cats = {c['name']: c['names'] for c in d.get('categories', [])}
+        result_players = []
+        for p in d.get('athletes', []):
+            ath = p['athlete']
+            stats_dict = {}
+            for cat_data in p.get('categories', []):
+                cat_name = cat_data['name']
+                names = global_cats.get(cat_name, [])
+                values = cat_data.get('values', [])
+                for i in range(min(len(names), len(values))):
+                    stats_dict[names[i]] = float(values[i])
+            result_players.append({
+                'id': ath['id'], 'name': ath['displayName'], 'team': ath['teamShortName'],
+                'pos': ath.get('position', {}).get('abbreviation', 'N/A'),
+                'ppg': round(stats_dict.get('avgPoints', 0), 1),
+                'rpg': round(stats_dict.get('avgRebounds', 0), 1),
+                'apg': round(stats_dict.get('avgAssists', 0), 1),
+                'status': 'Active'
+            })
+        if result_players:
+            return result_players
+    except Exception as e:
+        print(f"[NBA] ESPN compute_players failed, falling back to BallDontLie: {e}")
+
+    try:
+        from backend.adapters.balldontlie import get_players
+        bdl_res = get_players(per_page=50)
+        if bdl_res and bdl_res.get('data'):
+            return bdl_res['data']
+    except Exception as e2:
+        print(f"[NBA] BallDontLie fallback failed: {e2}")
+
+    return []
 
 
 def compute_stats_leaders():
@@ -452,12 +466,46 @@ def register_routes(app, cache):
     @app.route('/api/nba/players')
     @app.route('/api/players')
     def nba_players():
+        search_query = request.args.get('search') or request.args.get('q')
+        if search_query:
+            try:
+                from backend.adapters.balldontlie import get_players
+                cleaned = search_query.strip().lower()
+                cache_key = f'nba:players_search_{cleaned}'
+                cached = cache.get(cache_key)
+                if cached is not None:
+                    return jsonify(cached)
+                bdl_res = get_players(search=search_query, per_page=50)
+                players = bdl_res.get('data', [])
+                cache.set(cache_key, players, ttl=300, swr_ttl=86400)
+                return jsonify(players)
+            except Exception as e:
+                print(f"ERROR searching nba players with BallDontLie: {e}")
         try:
             data = cache.get_with_swr('nba:players', compute_players, ttl=1800, swr_ttl=86400)
             return jsonify(data)
         except Exception as e:
             print("ERROR nba players:", e)
             return jsonify([])
+
+    # --- Player Detail ---
+    @app.route('/api/nba/players/<int:player_id>')
+    @app.route('/api/players/<int:player_id>')
+    def nba_player_detail(player_id):
+        cache_key = f'nba:player_detail_{player_id}'
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return jsonify(cached)
+        try:
+            from backend.adapters.balldontlie import get_player_by_id
+            player = get_player_by_id(player_id)
+            if player:
+                cache.set(cache_key, player, ttl=1800, swr_ttl=86400)
+                return jsonify(player)
+            return jsonify({'error': 'Player not found'}), 404
+        except Exception as e:
+            print(f"ERROR nba player detail {player_id}:", e)
+            return jsonify({'error': 'Failed to fetch player details'}), 500
 
     # --- Stats Leaders ---
     @app.route('/api/nba/stats/leaders')

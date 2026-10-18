@@ -47,14 +47,14 @@ function NFLHome() {
   return (
     <main className="page-layout">
       {/* Hero Banner */}
-      <section className="home-hero" style={{ '--sport-accent': '#013369', '--sport-glow': 'rgba(1, 51, 105, 0.3)' }}>
+      <section className="home-hero">
         <div className="container">
           <div className="hero-content animate-fade-in-up">
             <div className="hero-eyebrow">
               <span className="hero-live-dot" />
               <span>NFL LIVE SCORES</span>
             </div>
-            <h1 className="hero-title gradient-text" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #4A9EE8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <h1 className="hero-title">
               NFL Match Center
             </h1>
             <p className="hero-subtitle">Real-time scores, standings, and analytics</p>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PageLayout from '../../components/PageLayout';
+import PlayerModal from '../../components/PlayerModal';
 import { getCached, setCached } from '../../utils/cache';
 
 const PLAYERS_CACHE_KEY = 'players';
@@ -15,6 +16,8 @@ function Players() {
   const [loading, setLoading] = useState(() => !getCached(PLAYERS_CACHE_KEY, 300000));
   const [search, setSearch] = useState('');
   const [activePos, setActivePos] = useState('All');
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const searchTimeoutRef = useRef(null);
 
   useEffect(() => {
     const cached = getCached(PLAYERS_CACHE_KEY, 300000);
@@ -43,6 +46,34 @@ function Players() {
 
     return () => { isMounted = false; };
   }, []);
+
+  // Debounced search against BallDontLie backend API for historical & active players
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    const trimmed = search.trim();
+    if (trimmed.length < 2) return;
+
+    searchTimeoutRef.current = setTimeout(() => {
+      fetch(`/api/players?search=${encodeURIComponent(trimmed)}`)
+        .then((res) => res.ok ? res.json() : [])
+        .then((searchResults) => {
+          if (!Array.isArray(searchResults) || searchResults.length === 0) return;
+          setPlayers((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
+            const newPlayers = searchResults.filter((p) => !existingIds.has(p.id));
+            return newPlayers.length > 0 ? [...newPlayers, ...prev] : prev;
+          });
+        })
+        .catch(() => {});
+    }, 350);
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [search]);
 
   const filtered = players.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,7 +141,12 @@ function Players() {
             </thead>
             <tbody>
               {filtered.map((player, i) => (
-                <tr key={player.id}>
+                <tr
+                  key={player.id}
+                  onClick={() => setSelectedPlayer(player)}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view full player profile & draft specs"
+                >
                   <td>{i + 1}</td>
                   <td className="player-name">{player.name}</td>
                   <td>{player.team}</td>
@@ -134,8 +170,17 @@ function Players() {
           <p className="empty-state-text">No players found matching your search</p>
         </div>
       )}
+
+      {selectedPlayer && (
+        <PlayerModal
+          player={selectedPlayer}
+          teamName={selectedPlayer.team}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </PageLayout>
   );
 }
 
 export default Players;
+

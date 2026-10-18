@@ -36,12 +36,14 @@ const DEFAULT_INTERVALS = { live: 20000, idle: 60000 };
  */
 export function useSportPolling(fetchFn, { sport, isLive = false, disabled = false, onData } = {}) {
   const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !disabled);
   const [error, setError]     = useState(null);
   const mountedRef             = useRef(true);
   const intervalRef            = useRef(null);
   const onDataRef              = useRef(onData);
-  onDataRef.current = onData; // keep stable ref without adding to effect deps
+  useEffect(() => {
+    onDataRef.current = onData;
+  }, [onData]);
 
   const intervals = POLL_INTERVALS[sport?.toLowerCase()] || DEFAULT_INTERVALS;
   const interval  = isLive ? intervals.live : intervals.idle;
@@ -69,16 +71,17 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
     mountedRef.current = true;
 
     if (disabled) {
-      setLoading(false);
       return;
     }
 
-    // Fire immediately on mount / interval change
-    execute();
+    // Schedule the first fetch after this effect commits. This avoids a
+    // state update during effect setup while still fetching immediately.
+    const initialFetchTimer = setTimeout(execute, 0);
 
     intervalRef.current = setInterval(execute, interval);
 
     return () => {
+      clearTimeout(initialFetchTimer);
       clearInterval(intervalRef.current);
     };
   }, [execute, interval, disabled]);

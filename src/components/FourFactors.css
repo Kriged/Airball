@@ -3,7 +3,8 @@
 .four-factors-wrapper {
   border-radius: var(--radius-xl);
   padding: 22px;
-  border: 1px solid var(--court-border);
+  border: 1px solid #1a1a1a;
+  background: #0a0a0a;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -14,7 +15,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .four-factors-header p {
@@ -52,21 +53,21 @@
 .factor-bar-track {
   height: 9px;
   width: 100%;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: 9999px;
   overflow: hidden;
   display: flex;
 }
 
 .factor-fill-away {
-  background: var(--court-cyan);
+  background: #525252;
   height: 100%;
   transition: width 0.4s ease-out;
 }
 
 .factor-fill-home {
-  background: var(--court-accent);
+  background: #a3a3a3;
   height: 100%;
   margin-left: auto;
   transition: width 0.4s ease-out;
@@ -77,12 +78,12 @@
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
   padding-top: 14px;
-  border-top: 1px solid var(--court-border);
+  border-top: 1px solid #1a1a1a;
 }
 
 .adv-metric-card {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 12px;
   text-align: center;

@@ -4,7 +4,7 @@ Provides NFL-specific data fetching logic and route registration.
 Uses ESPN's football/nfl API endpoints.
 """
 import datetime
-from flask import jsonify
+from flask import jsonify, request
 from backend.core.provider_client import session
 
 
@@ -209,6 +209,12 @@ def compute_nfl_players():
             'touchdowns': round(stats_dict.get('passingTouchdowns', 0) + stats_dict.get('rushingTouchdowns', 0) + stats_dict.get('receivingTouchdowns', 0), 0),
             'status': 'Active'
         })
+    if not result_players:
+        try:
+            from backend.adapters.apisports_nfl import FALLBACK_NFL_PLAYERS
+            return FALLBACK_NFL_PLAYERS
+        except Exception:
+            pass
     return result_players
 
 
@@ -363,12 +369,43 @@ def register_routes(app, cache):
 
     @app.route('/api/nfl/players')
     def nfl_players():
+        query = request.args.get('search') or request.args.get('q')
+        if query:
+            try:
+                from backend.adapters.apisports_nfl import search_players
+                cleaned = query.strip().lower()
+                cache_key = f'nfl:players_search_{cleaned}'
+                cached = cache.get(cache_key)
+                if cached is not None:
+                    return jsonify(cached)
+                results = search_players(query)
+                cache.set(cache_key, results, ttl=1800, swr_ttl=86400)
+                return jsonify(results)
+            except Exception as e:
+                print(f"ERROR searching NFL players: {e}")
         try:
             data = cache.get_with_swr('nfl:players', compute_nfl_players, ttl=1800, swr_ttl=86400)
             return jsonify(data)
         except Exception as e:
             print("ERROR nfl players:", e)
             return jsonify([])
+
+    @app.route('/api/nfl/players/<int:player_id>')
+    def nfl_player_detail(player_id):
+        cache_key = f'nfl:player_{player_id}'
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return jsonify(cached)
+        try:
+            from backend.adapters.apisports_nfl import get_player_by_id
+            player = get_player_by_id(player_id)
+            if player:
+                cache.set(cache_key, player, ttl=86400, swr_ttl=604800)
+                return jsonify(player)
+            return jsonify({'error': 'Player not found'}), 404
+        except Exception as e:
+            print(f"ERROR nfl player detail {player_id}:", e)
+            return jsonify({'error': 'Failed to fetch player details'}), 500
 
     @app.route('/api/nfl/stats/leaders')
     def nfl_stats_leaders():

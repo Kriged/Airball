@@ -6,6 +6,15 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   display: block;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  transition: all var(--transition-base);
+}
+
+.game-card:hover {
+  background: #141414;
+  border-color: #242424;
+  transform: translateY(-2px);
 }
 
 .game-date {
@@ -14,8 +23,8 @@
   color: var(--court-text-muted);
   font-weight: 600;
   letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--court-border);
+  background: #080808;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .game-matchup {
@@ -41,7 +50,7 @@
 .game-team-name {
   font-size: 0.95rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .game-score {
@@ -53,7 +62,7 @@
 }
 
 .game-score.winner {
-  color: var(--court-gold);
+  color: #ffffff;
 }
 
 .game-vs {
@@ -62,7 +71,8 @@
   font-weight: 700;
   padding: 4px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.04);
+  background: #141414;
+  border: 1px solid #1a1a1a;
 }
 
 .game-meta {
@@ -70,8 +80,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 18px;
-  border-top: 1px solid var(--court-border);
-  background: rgba(255, 255, 255, 0.01);
+  border-top: 1px solid #1a1a1a;
+  background: #080808;
   font-size: 0.75rem;
 }
 
@@ -86,19 +96,21 @@
 }
 
 .game-status.final {
-  color: var(--court-green);
-  background: rgba(0, 230, 118, 0.12);
+  color: #a3a3a3;
+  background: #141414;
+  border: 1px solid #1a1a1a;
 }
 
 .game-status.live {
-  color: #FF6B6B;
-  background: rgba(255, 59, 48, 0.16);
-  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ffffff;
+  background: #1a1a1a;
+  border: 1px solid #333333;
 }
 
 .game-status.upcoming {
-  color: var(--court-gold);
-  background: rgba(255, 184, 0, 0.12);
+  color: #737373;
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
 }
 
 .game-arena {
@@ -116,20 +128,21 @@
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: #141414;
   color: var(--court-text-muted);
+  border: 1px solid #1a1a1a;
 }
 
 .standings-rank.playoff {
-  background: rgba(0, 230, 118, 0.15);
-  color: var(--court-green);
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #2e2e2e;
 }
 
 .standings-rank.playin {
-  background: rgba(255, 184, 0, 0.15);
-  color: var(--court-gold);
-  border: 1px solid rgba(255, 184, 0, 0.3);
+  background: #141414;
+  color: #a3a3a3;
+  border: 1px solid #242424;
 }
 
 .streak-badge {
@@ -141,13 +154,15 @@
 }
 
 .streak-badge.win-streak {
-  background: rgba(0, 230, 118, 0.15);
-  color: var(--court-green);
+  background: #141414;
+  color: #d4d4d4;
+  border: 1px solid #242424;
 }
 
 .streak-badge.loss-streak {
-  background: rgba(255, 59, 48, 0.15);
-  color: var(--court-red);
+  background: #0f0f0f;
+  color: #737373;
+  border: 1px solid #1a1a1a;
 }
 
 .standings-legend {
@@ -172,11 +187,11 @@
 }
 
 .legend-color.playoff {
-  background: var(--court-green);
+  background: #525252;
 }
 
 .legend-color.playin {
-  background: var(--court-gold);
+  background: #242424;
 }
 
 /* --- PLAYERS PAGE --- */
@@ -188,8 +203,9 @@
 }
 
 .status-badge.status-active {
-  background: rgba(0, 230, 118, 0.15);
-  color: var(--court-green);
+  background: #141414;
+  color: #d4d4d4;
+  border: 1px solid #242424;
 }
 
 /* --- STATS LEADERBOARDS --- */
@@ -203,16 +219,16 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-md);
   padding: 14px 18px;
   transition: all var(--transition-fast);
 }
 
 .leader-row:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
   transform: translateX(4px);
 }
 
@@ -231,20 +247,25 @@
   justify-content: center;
   font-size: 0.8rem;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .rank-badge.rank-1 {
-  background: linear-gradient(135deg, #FFB800 0%, #D97706 100%);
-  box-shadow: 0 0 12px rgba(255, 184, 0, 0.4);
+  background: #242424;
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
 }
 
 .rank-badge.rank-2 {
-  background: linear-gradient(135deg, #CBD5E1 0%, #64748B 100%);
+  background: #1a1a1a;
+  color: #d4d4d4;
+  border: 1px solid #2e2e2e;
 }
 
 .rank-badge.rank-3 {
-  background: linear-gradient(135deg, #CD7F32 0%, #92400E 100%);
+  background: #141414;
+  color: #a3a3a3;
+  border: 1px solid #242424;
 }
 
 .leader-info {
@@ -255,7 +276,7 @@
   display: block;
   font-size: 0.95rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .leader-team {
@@ -269,14 +290,15 @@
 
 .stat-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #141414;
+  border: 1px solid #1a1a1a;
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .stat-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--court-accent) 0%, var(--court-gold) 100%);
+  background: #525252;
   border-radius: 9999px;
   transition: width 0.6s ease-out;
 }
@@ -285,7 +307,7 @@
   font-family: var(--font-mono);
   font-size: 1.15rem;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #e5e5e5;
   min-width: 50px;
   text-align: right;
 }
@@ -298,22 +320,22 @@
 }
 
 .season-card {
-  background: var(--court-card);
-  border: 1px solid var(--court-border);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: var(--radius-lg);
   padding: 20px;
   transition: all var(--transition-base);
 }
 
 .season-card:hover {
-  background: var(--court-hover);
-  border-color: var(--court-subtle);
+  background: #141414;
+  border-color: #242424;
   transform: translateY(-2px);
 }
 
 .season-card.current {
-  border-color: var(--court-accent);
-  box-shadow: 0 4px 20px var(--court-accent-glow);
+  border-color: #333333;
+  background: #0f0f0f;
 }
 
 .season-year-badge {
@@ -327,7 +349,7 @@
   font-family: var(--font-mono);
   font-size: 1.2rem;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .season-details {
@@ -349,7 +371,7 @@
 
 .season-detail-value {
   font-weight: 700;
-  color: #FFFFFF;
+  color: #e5e5e5;
 }
 
 .season-status {
@@ -358,11 +380,13 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #141414;
+  border: 1px solid #1a1a1a;
   color: var(--court-text-muted);
 }
 
 .season-status.in-progress {
-  color: var(--court-green);
-  background: rgba(0, 230, 118, 0.15);
+  color: #e5e5e5;
+  background: #1a1a1a;
+  border-color: #242424;
 }
