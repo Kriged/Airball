@@ -18,8 +18,8 @@ function ShotChart({ shots = [], homeName = 'Home', awayName = 'Away', homeAbbr 
     if (filterType === '3PT' && !s.type?.includes('3PT')) return false;
 
     if (selectedTeam !== 'ALL') {
-      const matchHome = selectedTeam === homeAbbr && (s.team === 'HOME' || s.team === homeAbbr);
-      const matchAway = selectedTeam === awayAbbr && (s.team === 'AWAY' || s.team === awayAbbr);
+      const matchHome = selectedTeam === homeAbbr && (s.team === 'HOME' || s.team === homeAbbr || s.teamAbbr === homeAbbr);
+      const matchAway = selectedTeam === awayAbbr && (s.team === 'AWAY' || s.team === awayAbbr || s.teamAbbr === awayAbbr);
       if (!matchHome && !matchAway) return false;
     }
 
@@ -41,6 +41,14 @@ function ShotChart({ shots = [], homeName = 'Home', awayName = 'Away', homeAbbr 
 
   const handleMouseLeave = () => {
     setActiveTooltip(null);
+  };
+
+  const handleShotSelect = (shot) => {
+    if (activeTooltip?.id === shot.id) {
+      handleMouseLeave();
+      return;
+    }
+    handleMouseEnter(shot);
   };
 
   const madeCount = shots.filter((s) => s.made).length;
@@ -170,6 +178,16 @@ function ShotChart({ shots = [], homeName = 'Home', awayName = 'Away', homeAbbr 
                       className="shot-marker animate-shot-pop"
                       onMouseEnter={() => handleMouseEnter(shot)}
                       onMouseLeave={handleMouseLeave}
+                      onClick={() => handleShotSelect(shot)}
+                      role="button"
+                      tabIndex="0"
+                      aria-label={`${shot.made ? 'Made' : 'Missed'} ${shot.type || 'shot'} by ${shot.player || 'unknown player'}`}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleShotSelect(shot);
+                        }
+                      }}
                     >
                       <circle
                         cx={shot.x}
@@ -195,6 +213,16 @@ function ShotChart({ shots = [], homeName = 'Home', awayName = 'Away', homeAbbr 
                       className="shot-marker animate-shot-pop"
                       onMouseEnter={() => handleMouseEnter(shot)}
                       onMouseLeave={handleMouseLeave}
+                      onClick={() => handleShotSelect(shot)}
+                      role="button"
+                      tabIndex="0"
+                      aria-label={`${shot.made ? 'Made' : 'Missed'} ${shot.type || 'shot'} by ${shot.player || 'unknown player'}`}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleShotSelect(shot);
+                        }
+                      }}
                     >
                       <line
                         x1={shot.x - size}

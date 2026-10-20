@@ -112,3 +112,20 @@
   display: block;
   margin-top: 2px;
 }
+
+@media (max-width: 480px) {
+  .four-factors-wrapper {
+    padding: 16px;
+    gap: 16px;
+  }
+  .advanced-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .adv-metric-card {
+    padding: 10px 6px;
+  }
+  .adv-metric-val {
+    font-size: 1rem;
+  }
+}

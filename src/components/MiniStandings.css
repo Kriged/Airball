@@ -90,3 +90,13 @@
   font-size: 0.65rem;
   width: 14px;
 }
+
+@media (max-width: 480px) {
+  .mini-standings-card {
+    padding: 14px;
+  }
+  .mini-conf-btn {
+    min-height: 34px;
+    padding: 4px 10px;
+  }
+}

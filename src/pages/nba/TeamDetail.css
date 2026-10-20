@@ -354,3 +354,37 @@
   border: 1px solid #1a1a1a;
   color: var(--court-text-muted);
 }
+
+@media (max-width: 480px) {
+  .td-header-content {
+    padding-top: 16px;
+    padding-bottom: 24px;
+  }
+
+  .td-team-identity {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .td-team-abbr {
+    font-size: 2.5rem;
+  }
+
+  .td-team-name {
+    font-size: 1.65rem;
+  }
+
+  .td-stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .td-game-opponent {
+    min-width: 0;
+  }
+
+  .td-opp-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

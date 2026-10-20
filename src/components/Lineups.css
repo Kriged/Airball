@@ -2,7 +2,7 @@
 
 .lineups-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 16px;
 }
 
@@ -88,4 +88,17 @@
   font-size: 0.65rem;
   color: var(--court-text-muted);
   display: block;
+}
+
+.oncourt-player-card {
+  min-height: 48px;
+}
+
+@media (max-width: 480px) {
+  .lineups-panel {
+    padding: 14px;
+  }
+  .oncourt-player-card {
+    padding: 8px 10px;
+  }
 }

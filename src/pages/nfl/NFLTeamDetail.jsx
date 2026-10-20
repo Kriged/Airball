@@ -49,14 +49,14 @@ function NFLTeamDetail() {
   return (
     <main className="page-layout">
       {/* Team Hero */}
-      <section style={{ background: '#0a0a0a', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
+      <section style={{ background: '#0a0a0a', padding: 'clamp(24px, 5vw, 40px) 0 clamp(18px, 4vw, 28px)', borderBottom: '1px solid var(--court-border)' }}>
         <div className="container">
-          <Link to="/nfl/standings" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>← Back to NFL Standings</Link>
-          <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            {teamLogos[teamAbbr.toUpperCase()] && <img src={teamLogos[teamAbbr.toUpperCase()]} alt="" style={{ height: '40px', verticalAlign: 'middle', marginRight: '12px' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
-            {team.name}
+          <Link to="/nfl/standings" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>← Back to NFL Standings</Link>
+          <h1 className="section-title" style={{ fontSize: 'clamp(1.5rem, 5vw, 2.2rem)', marginBottom: '8px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            {teamLogos[teamAbbr.toUpperCase()] && <img src={teamLogos[teamAbbr.toUpperCase()]} alt="" style={{ height: '36px', verticalAlign: 'middle' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+            <span>{team.name}</span>
           </h1>
-          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', fontSize: '0.82rem', color: 'var(--text-secondary)', alignItems: 'center' }}>
             {team.conference && <span>{team.conference} Conference</span>}
             {team.rank > 0 && <span>#{team.rank} Seed</span>}
             <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: '#FFFFFF' }}>{team.wins}-{team.losses}{team.ties > 0 ? `-${team.ties}` : ''}</span>

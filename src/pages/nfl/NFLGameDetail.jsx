@@ -65,42 +65,42 @@ function NFLGameDetail() {
   return (
     <main className="page-layout">
       {/* Scoreboard Hero */}
-      <section style={{ background: '#0a0a0a', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
+      <section className="nfl-game-detail-hero">
         <div className="container">
           <Link to="/nfl/games" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
             ← Back to NFL Games
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '20px 0' }}>
-            <div style={{ textAlign: 'center' }}>
+          <div className="nfl-detail-matchup-grid">
+            <div className="nfl-detail-team-block">
               {teamLogos[game.awayAbbr] && (
                 <div style={{ marginBottom: '8px' }}>
-                  <img src={teamLogos[game.awayAbbr]} alt="" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+                  <img src={teamLogos[game.awayAbbr]} alt="" style={{ width: '44px', height: '44px', objectFit: 'contain' }} onError={(e) => e.currentTarget.style.display = 'none'} />
                 </div>
               )}
-              <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{game.awayAbbr}</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{game.away}</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-mono)', color: game.awayScore > game.homeScore ? 'var(--court-gold)' : '#FFFFFF', marginTop: '8px' }}>
+              <div className="nfl-detail-team-abbr">{game.awayAbbr}</div>
+              <div className="nfl-detail-team-name">{game.away}</div>
+              <div className={`nfl-detail-team-score ${game.awayScore > game.homeScore ? 'leader' : ''}`}>
                 {game.awayScore}
               </div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <span className={`game-status ${game.status.toLowerCase()}`} style={{ fontSize: '0.85rem', padding: '6px 14px' }}>{game.status}</span>
-              <div style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '8px' }}>{game.quarter}</div>
+            <div className="nfl-detail-status-block">
+              <span className={`game-status ${game.status.toLowerCase()}`} style={{ fontSize: '0.82rem', padding: '5px 12px' }}>{game.status}</span>
+              <div style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '6px' }}>{game.quarter}</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
+            <div className="nfl-detail-team-block">
               {teamLogos[game.homeAbbr] && (
                 <div style={{ marginBottom: '8px' }}>
-                  <img src={teamLogos[game.homeAbbr]} alt="" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+                  <img src={teamLogos[game.homeAbbr]} alt="" style={{ width: '44px', height: '44px', objectFit: 'contain' }} onError={(e) => e.currentTarget.style.display = 'none'} />
                 </div>
               )}
-              <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{game.homeAbbr}</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{game.home}</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-mono)', color: game.homeScore > game.awayScore ? 'var(--court-gold)' : '#FFFFFF', marginTop: '8px' }}>
+              <div className="nfl-detail-team-abbr">{game.homeAbbr}</div>
+              <div className="nfl-detail-team-name">{game.home}</div>
+              <div className={`nfl-detail-team-score ${game.homeScore > game.awayScore ? 'leader' : ''}`}>
                 {game.homeScore}
               </div>
             </div>
           </div>
-          <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--court-text-muted)' }}>
+          <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '8px' }}>
             {game.arena} • {game.date}
           </div>
         </div>

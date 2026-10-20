@@ -13,6 +13,7 @@
   align-items: flex-end;
   overflow: hidden;
   border-bottom: 1px solid #1a1a1a;
+  min-width: 0;
 }
 
 .banner-bg {
@@ -90,7 +91,7 @@
 
 /* --- Page Content --- */
 .page-content {
-  padding: 36px 0 80px;
+  padding: 36px 0 calc(80px + var(--safe-area-bottom));
 }
 
 /* --- Shared Data Components --- */
@@ -165,11 +166,14 @@
   background: #0a0a0a;
   border: 1px solid #1a1a1a;
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
 }
 
@@ -224,7 +228,7 @@
 /* Data Cards Grid (Games list) */
 .data-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
   gap: 16px;
 }
 
@@ -267,7 +271,7 @@
     font-size: 1.8rem;
   }
   .page-content {
-    padding: 24px 0 60px;
+    padding: 24px 0 calc(60px + var(--safe-area-bottom));
   }
   .data-table th,
   .data-table td {
@@ -276,5 +280,55 @@
   }
   .data-cards {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-banner {
+    height: 200px;
+  }
+
+  .banner-content {
+    padding-bottom: 20px;
+  }
+
+  .back-link {
+    margin-bottom: 10px;
+    min-height: 38px;
+    padding-inline: 10px;
+  }
+
+  .banner-title-row {
+    gap: 10px;
+  }
+
+  .banner-title {
+    font-size: clamp(1.65rem, 8vw, 2.1rem);
+  }
+
+  .banner-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .search-bar {
+    min-height: 48px;
+    padding: 10px 14px;
+  }
+
+  .data-card {
+    padding: 16px;
+  }
+
+  .filter-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-tab {
+    flex: 0 0 auto;
+    min-height: 40px;
   }
 }

@@ -315,7 +315,7 @@
 /* --- SEASONS PAGE --- */
 .seasons-timeline {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: 16px;
 }
 
@@ -389,4 +389,124 @@
   color: #e5e5e5;
   background: #1a1a1a;
   border-color: #242424;
+}
+
+@media (max-width: 480px) {
+  .game-date,
+  .game-matchup,
+  .game-meta {
+    padding-inline: 14px;
+  }
+
+  .game-matchup {
+    gap: 8px;
+  }
+
+  .game-team {
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .game-team-name {
+    font-size: 0.84rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .game-score {
+    font-size: 1.15rem;
+  }
+
+  .game-arena {
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .standings-legend {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .leader-row {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .leader-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .leader-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .leader-bar-wrapper {
+    display: none;
+  }
+}
+
+/* --- Home Hero for NFL & UFC Hubs --- */
+.home-hero {
+  background: #000000;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 36px 0 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #a3a3a3;
+  text-transform: uppercase;
+}
+
+.hero-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a3a3a3;
+  animation: pulseGlow 1.2s infinite;
+}
+
+.hero-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #e5e5e5;
+  line-height: 1.15;
+}
+
+.hero-subtitle {
+  font-size: 0.95rem;
+  color: var(--court-text-muted);
+  max-width: 600px;
+}
+
+@media (max-width: 480px) {
+  .home-hero {
+    padding: 24px 0 20px;
+  }
+  .hero-title {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+  .hero-subtitle {
+    font-size: 0.85rem;
+  }
 }

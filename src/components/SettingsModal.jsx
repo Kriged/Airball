@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './SettingsModal.css';
 
 function SettingsModal({ delaySeconds, setDelaySeconds, onClose }) {
@@ -8,16 +8,28 @@ function SettingsModal({ delaySeconds, setDelaySeconds, onClose }) {
   const [foulTrouble, setFoulTrouble] = useState(true);
   const [everyScore, setEveryScore] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
   const handleSave = () => {
     setDelaySeconds(localDelay);
     onClose();
   };
 
   return (
-    <div className="settings-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="settings-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
       <div className="glass-panel settings-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="settings-modal-header">
-          <span className="settings-modal-title">Stream Sync &amp; Notification Engine</span>
+          <span className="settings-modal-title" id="settings-modal-title">Stream Sync &amp; Notification Engine</span>
           <button className="player-close-btn" onClick={onClose} aria-label="Close modal">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <line x1="18" y1="6" x2="6" y2="18" />

@@ -2,7 +2,7 @@
 
 .gd-page {
   padding-top: calc(var(--nav-height) + 16px);
-  padding-bottom: 48px;
+  padding-bottom: calc(48px + var(--safe-area-bottom));
   min-height: 100vh;
 }
 
@@ -69,4 +69,20 @@
 /* Boxscore & PBP Wrappers */
 .gd-content-wrapper {
   margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .gd-page {
+    padding-top: calc(var(--nav-height) + 12px);
+    padding-bottom: calc(32px + var(--safe-area-bottom));
+  }
+
+  .gd-container {
+    gap: 16px;
+  }
+
+  .gd-tab-btn {
+    min-height: 40px;
+    padding-inline: 12px;
+  }
 }

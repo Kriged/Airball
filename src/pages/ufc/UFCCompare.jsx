@@ -110,7 +110,7 @@ function UFCCompare() {
         <span style={{ fontSize: '0.78rem', color: 'var(--court-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginRight: '10px' }}>
           Featured Matchups:
         </span>
-        <div style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+        <div className="ufc-compare-featured" style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
           {FEATURED_MATCHUPS.map(m => (
             <button
               key={m.label}
@@ -125,7 +125,7 @@ function UFCCompare() {
       </div>
 
       {/* Fighter Selectors */}
-      <div className="ufc-filter-row" style={{ alignItems: 'center', gap: '16px', background: '#0a0a0a', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a', marginBottom: '24px' }}>
+      <div className="ufc-filter-row ufc-compare-selectors" style={{ alignItems: 'center', gap: '16px', background: '#0a0a0a', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a', marginBottom: '24px' }}>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--court-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
             Fighter 1
@@ -222,7 +222,7 @@ function UFCCompare() {
             <h3 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#e5e5e5', letterSpacing: '0.05em' }}>
               Stat Advantage Breakdown
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '12px' }}>
+            <div className="ufc-advantages-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '12px' }}>
               <div>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff' }}>{f1.name} Edge:</span>
                 <div className="ufc-advantage-list">

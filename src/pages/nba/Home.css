@@ -303,17 +303,33 @@
 
 .boxscore-table-card {
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
   border: 1px solid #1a1a1a;
   background: #0a0a0a;
 }
 
 .boxscore-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-align: center;
+}
+
+.boxscore-table th:first-child,
+.boxscore-player-cell {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #0a0a0a;
+}
+
+.boxscore-table thead th:first-child {
+  background: #0f0f0f;
+  z-index: 3;
 }
 
 .boxscore-table thead {
@@ -541,4 +557,88 @@
   gap: 6px;
   text-transform: uppercase;
   font-size: 0.7rem;
+}
+
+@media (max-width: 768px) {
+  .court-subnav-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .date-carousel,
+  .filter-pills {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .date-btn,
+  .filter-pill {
+    min-height: 38px;
+  }
+
+  .scoreboard-bar {
+    padding: 8px 0 12px;
+  }
+
+  .match-card {
+    flex: 0 0 200px;
+    padding: 10px 12px;
+  }
+
+  .match-center-main {
+    padding: 16px 0 32px;
+  }
+
+  .center-tabs-nav {
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .center-tab-btn {
+    min-height: 42px;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+  }
+
+  .pbp-filters-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .pbp-q-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .date-carousel {
+    justify-content: flex-start;
+  }
+
+  .filter-pills {
+    justify-content: flex-start;
+  }
+
+  .match-card {
+    flex: 0 0 180px;
+  }
+
+  .boxscore-team-btn {
+    min-height: 38px;
+    padding: 6px 12px;
+  }
+
+  .pbp-event-card {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .pbp-time-col {
+    min-width: 40px;
+  }
 }

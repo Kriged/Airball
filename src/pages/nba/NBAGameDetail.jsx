@@ -14,6 +14,7 @@ function GameDetail() {
   const [game, setGame] = useState(null);
   const [boxScore, setBoxScore] = useState({ home: [], away: [] });
   const [playByPlay, setPlayByPlay] = useState([]);
+  const [shots, setShots] = useState([]);
   const [activeTab, setActiveTab] = useState('tabBoxScore');
   const [boxScoreTeam, setBoxScoreTeam] = useState('away');
   const [pbpFilter, setPbpFilter] = useState('ALL');
@@ -59,12 +60,16 @@ function GameDetail() {
       fetch(`/api/games/${gameId}/playbyplay`)
         .then((res) => (res.ok ? res.json() : []))
         .catch(() => []),
+      fetch(`/api/games/${gameId}/shots`)
+        .then((res) => (res.ok ? res.json() : []))
+        .catch(() => []),
     ])
-      .then(([foundGame, boxData, pbpData]) => {
+      .then(([foundGame, boxData, pbpData, shotsData]) => {
         if (cancelled) return;
         setGame(foundGame);
         setBoxScore(boxData || { home: [], away: [] });
         setPlayByPlay(pbpData || []);
+        setShots(Array.isArray(shotsData) ? shotsData : []);
         setError(null);
         setLoading(false);
       })
@@ -307,6 +312,7 @@ function GameDetail() {
               awayName={game.away}
               homeAbbr={game.homeAbbr}
               awayAbbr={game.awayAbbr}
+              shots={shots}
             />
           </div>
         )}

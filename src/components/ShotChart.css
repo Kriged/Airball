@@ -100,6 +100,15 @@
   transform: scale(1.6);
 }
 
+.shot-marker:focus-visible {
+  outline: none;
+}
+
+.shot-marker:focus-visible circle,
+.shot-marker:focus-visible line {
+  filter: drop-shadow(0 0 3px #ffffff);
+}
+
 .shot-tooltip {
   position: absolute;
   pointer-events: none;
@@ -176,4 +185,47 @@
   color: var(--text-secondary);
   display: block;
   margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .shot-chart-controls,
+  .shot-court-container {
+    padding: 12px;
+  }
+
+  .shot-filter-group,
+  .shot-select-group {
+    width: 100%;
+  }
+
+  .shot-filter-group {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .shot-filter-group > span,
+  .shot-filter-pill {
+    flex: 0 0 auto;
+  }
+
+  .shot-select {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    font-size: 16px;
+  }
+
+  .shot-tooltip {
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: 8px;
+    min-width: 0;
+  }
+
+  .shot-zones-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

@@ -99,15 +99,25 @@ function Home() {
         .catch(() => []),
       fetch(`/api/games/${activeGameId}/boxscore`)
         .then((r) => (r.ok ? r.json() : { home: [], away: [] }))
-        .catch(() => ({ home: [], away: [] }))
-    ]).then(([pbpRes, boxRes]) => {
+        .catch(() => ({ home: [], away: [] })),
+      fetch(`/api/games/${activeGameId}/shots`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => [])
+    ]).then(([pbpRes, boxRes, shotsRes]) => {
       if (cancelled) return;
       if (Array.isArray(pbpRes)) {
         setPbpList(pbpRes);
       }
+      const updates = {};
       if (boxRes && (boxRes.home?.length > 0 || boxRes.away?.length > 0)) {
+        updates.boxScore = boxRes;
+      }
+      if (Array.isArray(shotsRes) && shotsRes.length > 0) {
+        updates.shots = shotsRes;
+      }
+      if (Object.keys(updates).length > 0) {
         setGames((prev) =>
-          prev.map((g) => (g.id === activeGameId ? { ...g, boxScore: boxRes } : g))
+          prev.map((g) => (g.id === activeGameId ? { ...g, ...updates } : g))
         );
       }
     });

@@ -4,6 +4,7 @@ Provides all NBA-specific data fetching logic and route registration.
 Extracted from the original monolithic app.py.
 """
 import datetime
+import re
 from flask import jsonify, request
 from backend.core.provider_client import session
 import concurrent.futures
@@ -390,6 +391,104 @@ def register_routes(app, cache):
             return jsonify(mapped_actions)
         except Exception as e:
             print("ERROR nba playbyplay:", e)
+            return jsonify([])
+
+    # --- Shot Chart Data ---
+    @app.route('/api/nba/games/<game_id>/shots')
+    @app.route('/api/games/<game_id>/shots', endpoint='legacy_shots')
+    def nba_shots(game_id):
+        cache_key = f'nba:shots_{game_id}'
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return jsonify(cached)
+        try:
+            url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={game_id}"
+            d = session.get(url, timeout=10).json()
+
+            # Build athlete ID -> name/team lookup from boxscore
+            athlete_map = {}
+            team_id_to_side = {}
+            comps = d.get('header', {}).get('competitions', [{}])[0].get('competitors', [])
+            for c in comps:
+                tid = c.get('team', {}).get('id')
+                side = c.get('homeAway', '')
+                if tid:
+                    team_id_to_side[tid] = side.upper()  # 'HOME' or 'AWAY'
+            for team_box in d.get('boxscore', {}).get('players', []):
+                t_id = team_box.get('team', {}).get('id', '')
+                t_abbr = team_box.get('team', {}).get('abbreviation', '')
+                for stat_section in team_box.get('statistics', []):
+                    for ath in stat_section.get('athletes', []):
+                        a = ath.get('athlete', {})
+                        athlete_map[a.get('id')] = {
+                            'name': a.get('displayName', 'Unknown'),
+                            'team_id': t_id,
+                            'team_abbr': normalize_abbr_to_app(t_abbr)
+                        }
+
+            plays = d.get('plays', [])
+            shots = []
+            for play in plays:
+                if not play.get('shootingPlay'):
+                    continue
+                coord = play.get('coordinate', {})
+                espn_x = coord.get('x', -999)
+                espn_y = coord.get('y', -999)
+                # Filter out invalid sentinel coordinates
+                if espn_x < -1000 or espn_y < -1000:
+                    continue
+
+                # Map ESPN coordinates (0-50 grid, basket at ~25,0)
+                # to SVG viewBox (0-500 x 0-470, basket at 250,56)
+                svg_x = espn_x * 10       # 0-50 → 0-500
+                svg_y = espn_y * 8 + 56   # 0-50 → 56-456
+
+                # Clamp to viewBox
+                svg_x = max(15, min(485, svg_x))
+                svg_y = max(15, min(455, svg_y))
+
+                # Resolve player name and team
+                participants = play.get('participants', [])
+                player_id = participants[0]['athlete']['id'] if participants else None
+                player_info = athlete_map.get(player_id, {})
+                player_name = player_info.get('name', 'Unknown')
+                team_abbr = player_info.get('team_abbr', '')
+                team_id = play.get('team', {}).get('id', '')
+                team_side = team_id_to_side.get(team_id, 'HOME')
+
+                pts_attempted = play.get('pointsAttempted', 2)
+                shot_type_text = play.get('type', {}).get('text', 'Shot')
+                if pts_attempted == 3:
+                    shot_type = f"3PT {shot_type_text}"
+                else:
+                    shot_type = shot_type_text
+
+                # Parse distance from play text (e.g. "6-foot", "25-foot")
+                text = play.get('text', '')
+                dist = ''
+                dist_match = re.search(r'(\d+)-foot', text)
+                if dist_match:
+                    dist = f"{dist_match.group(1)}ft"
+
+                shots.append({
+                    'id': play.get('id', ''),
+                    'x': round(svg_x),
+                    'y': round(svg_y),
+                    'made': play.get('scoringPlay', False),
+                    'player': player_name,
+                    'team': team_side,
+                    'teamAbbr': team_abbr,
+                    'type': shot_type,
+                    'pts': pts_attempted if play.get('scoringPlay') else 0,
+                    'q': play.get('period', {}).get('number', 1),
+                    'time': play.get('clock', {}).get('displayValue', ''),
+                    'dist': dist
+                })
+
+            cache.set(cache_key, shots, ttl=20, swr_ttl=600)
+            return jsonify(shots)
+        except Exception as e:
+            print(f"ERROR nba shots {game_id}:", e)
             return jsonify([])
 
     # --- Box Score ---

@@ -66,6 +66,10 @@
 
   /* Spacing */
   --nav-height: 68px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -90,6 +94,8 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -119,11 +125,31 @@ img {
   display: block;
 }
 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
 button {
   cursor: pointer;
   font-family: inherit;
   border: none;
   background: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #e5e5e5;
+  outline-offset: 3px;
 }
 
 ul, ol {
@@ -136,6 +162,14 @@ ul, ol {
   max-width: 1320px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+/* Keep component content from expanding a grid or flex parent past the viewport. */
+.container,
+.page-content,
+.data-card,
+.data-table-wrapper {
+  min-width: 0;
 }
 
 .section-title {
@@ -156,6 +190,10 @@ ul, ol {
 .gradient-text {
   color: #e5e5e5;
   -webkit-text-fill-color: unset;
+}
+
+.hidden-mobile {
+  display: inline;
 }
 
 /* --- Glassmorphic Card Systems --- */
@@ -291,3 +329,53 @@ ul, ol {
 .delay-3 { animation-delay: 0.24s; opacity: 0; }
 .delay-4 { animation-delay: 0.32s; opacity: 0; }
 .delay-5 { animation-delay: 0.40s; opacity: 0; }
+
+@media (max-width: 768px) {
+  input[type='text'],
+  input[type='search'],
+  input[type='email'],
+  input[type='number'],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --nav-height: 60px;
+  }
+
+  .container {
+    padding-inline: 14px;
+  }
+
+  .section-subtitle {
+    margin-bottom: 24px;
+  }
+
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

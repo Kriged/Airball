@@ -7,7 +7,11 @@ function PlayerModal({ player, teamName, onClose }) {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [onClose]);
 
   if (!player) return null;
@@ -38,7 +42,7 @@ function PlayerModal({ player, teamName, onClose }) {
   const pie = typeof player.pie === 'number' ? player.pie.toFixed(1) : null;
 
   return (
-    <div className="player-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="player-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="player-modal-title">
       <div className="glass-panel player-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="player-modal-header">
@@ -55,7 +59,7 @@ function PlayerModal({ player, teamName, onClose }) {
               <div className="player-avatar">{initials}</div>
             )}
             <div className="player-title-block">
-              <h3>{player.name}</h3>
+              <h3 id="player-modal-title">{player.name}</h3>
               <div className="player-title-meta">
                 {teamName || player.team || 'Player'} • #{player.num || player.number || player.jersey_number || '—'} • {player.pos || player.position || '—'}
               </div>

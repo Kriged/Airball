@@ -32,11 +32,11 @@ function UFCEventDetail() {
   return (
     <main className="page-layout">
       {/* Event Hero */}
-      <section style={{ background: '#0a0a0a', padding: '48px 0 32px', borderBottom: '1px solid var(--court-border)' }}>
+      <section className="ufc-event-detail-hero">
         <div className="container">
           <Link to="/ufc/events" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>← Back to UFC Events</Link>
-          <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>{event.name}</h1>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
+          <h1 className="ufc-event-hero-title">{event.name}</h1>
+          <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'var(--text-secondary)', flexWrap: 'wrap', alignItems: 'center' }}>
             <span>{event.date}</span>
             <span>•</span>
             <span>{event.venue}</span>

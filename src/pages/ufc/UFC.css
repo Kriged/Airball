@@ -175,7 +175,7 @@
 /* --- UFC Rankings --- */
 .ufc-rankings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
   gap: 20px;
 }
 
@@ -271,7 +271,7 @@
 /* --- UFC Fighter Grid --- */
 .ufc-fighters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 14px;
 }
 
@@ -371,7 +371,7 @@
 /* --- Stats Leaderboards & Overview --- */
 .ufc-stats-overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: 14px;
   margin-bottom: 32px;
 }
@@ -409,7 +409,7 @@
 
 .ufc-leaderboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 20px;
 }
 
@@ -733,5 +733,164 @@
   background: #ffffff;
   height: 100%;
   border-radius: 4px;
+}
+
+/* --- UFC Event Detail Hero --- */
+.ufc-event-detail-hero {
+  background: #0a0a0a;
+  padding: 36px 0 24px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.ufc-event-hero-title {
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 900;
+  color: #e5e5e5;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .ufc-event-detail-hero {
+    padding: 24px 0 18px;
+  }
+
+  .ufc-bout-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .ufc-bout-fighters {
+    width: 100%;
+  }
+
+  .ufc-bout-fighter-col,
+  .ufc-fighter-name {
+    min-width: 0;
+  }
+
+  .ufc-fighter-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ufc-bout-result {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .ufc-compare-header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .ufc-compare-vs-badge {
+    justify-self: center;
+  }
+
+  .ufc-compare-fighter-card {
+    padding: 18px;
+  }
+
+  .ufc-advantages-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .ufc-stat-comparison-row {
+    grid-template-columns: minmax(45px, auto) 1fr minmax(45px, auto);
+    gap: 8px;
+  }
+
+  .ufc-stat-comparison-row > :nth-child(2),
+  .ufc-stat-comparison-row > :nth-child(4) {
+    display: none;
+  }
+
+  .ufc-stat-comparison-row > :nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    font-size: 0.68rem !important;
+  }
+
+  .ufc-compare-featured {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ufc-compare-featured .filter-tab {
+    flex: 0 0 auto;
+  }
+
+  .ufc-compare-selectors {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 10px !important;
+  }
+
+  .ufc-compare-selectors > div:nth-child(2) {
+    align-self: center;
+    margin-top: 0 !important;
+  }
+
+  .ufc-fighter-detail-hero {
+    padding: 24px 0 20px;
+  }
+
+  .ufc-fighter-hero-content {
+    gap: 16px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ufc-fighter-title-row {
+    align-items: center;
+  }
+
+  .ufc-fighter-badges {
+    justify-content: center;
+  }
+
+  .ufc-tale-tape-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ufc-fighter-headshot,
+  .ufc-fighter-headshot-placeholder {
+    width: 46px;
+    height: 46px;
+    font-size: 1.2rem;
+  }
+
+  .ufc-bout-vs {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+  }
+
+  .ufc-fighter-name {
+    font-size: 0.82rem;
+  }
+
+  .ufc-select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .ufc-fighter-detail-avatar,
+  .ufc-fighter-detail-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    font-size: 2.5rem;
+  }
 }
 

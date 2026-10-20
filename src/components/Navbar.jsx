@@ -93,11 +93,35 @@ function Navbar() {
   const [delaySeconds, setDelaySeconds] = useState(0);
   const [latency, setLatency] = useState(42);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { sport: activeSport, config: sportConfig } = useSport();
 
   const searchableItems = useMemo(() => buildSearchItems(activeSport), [activeSport]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Lock body scroll and handle escape when mobile drawer is open
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKey);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   // Fluctuate latency
   useEffect(() => {
@@ -153,7 +177,7 @@ function Navbar() {
           </Link>
 
           {/* Sport Selector */}
-          <div className="sport-selector" id="sport-selector">
+          <div className="sport-selector" id="sport-selector" aria-label="Choose a sport">
             {SPORT_SLUGS.map(slug => {
               const cfg = SPORTS[slug];
               return (
@@ -171,7 +195,7 @@ function Navbar() {
             })}
           </div>
 
-          {/* Primary Nav Links — Dynamic per sport */}
+          {/* Primary Nav Links — Desktop / Tablet */}
           <div className="nav-links">
             {sportConfig.navItems.map(nav => (
               <Link
@@ -199,6 +223,7 @@ function Navbar() {
                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                 onKeyDown={handleKeyDown}
                 id="nav-search-input"
+                aria-label={`Search ${sportConfig.name}`}
               />
               {query && (
                 <button className="nav-search-clear" onClick={() => setQuery('')} aria-label="Clear search">✕</button>
@@ -233,7 +258,7 @@ function Navbar() {
             {/* Audio Chime Toggle — Only show for sports with audio */}
             {sportConfig.hasAudio && (
               <button onClick={toggleSound} className={`nav-icon-btn ${audioActive ? 'active' : ''}`}
-                title={audioActive ? 'Mute court audio' : 'Enable court audio'} id="audio-toggle-btn">
+                title={audioActive ? 'Mute court audio' : 'Enable court audio'} aria-label={audioActive ? 'Mute court audio' : 'Enable court audio'} id="audio-toggle-btn">
                 {audioActive ? (
                   <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -251,15 +276,152 @@ function Navbar() {
 
             {/* Stream Sync */}
             <button onClick={() => setShowSettings(true)} className="nav-pill-btn"
-              title="Stream Sync & Anti-Spoiler Delay" id="open-stream-sync-btn">
+              title="Stream Sync & Anti-Spoiler Delay" aria-label="Open stream sync settings" id="open-stream-sync-btn">
               <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
               <span className="hidden-mobile">{delaySeconds > 0 ? `+${delaySeconds}s Delay` : 'Stream Sync'}</span>
             </button>
+
+            {/* Mobile Menu Toggle Button (< 900px) */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`nav-icon-btn nav-mobile-toggle ${mobileMenuOpen ? 'active' : ''}`}
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+              id="mobile-nav-toggle-btn"
+            >
+              {mobileMenuOpen ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Subnav Strip (< 900px) for direct one-tap navigation */}
+        <div className="mobile-subnav-strip" aria-label={`${sportConfig.name} Sections`}>
+          <div className="container mobile-subnav-inner">
+            <Link
+              to={`/${activeSport}`}
+              className={`mobile-subnav-link ${(location.pathname === `/${activeSport}` || (activeSport === 'nba' && location.pathname === '/')) ? 'active' : ''}`}
+            >
+              Home
+            </Link>
+            {sportConfig.navItems.map(nav => (
+              <Link
+                key={nav.path}
+                to={`/${activeSport}/${nav.path}`}
+                className={`mobile-subnav-link ${isActiveNavPath(nav.path) ? 'active' : ''}`}
+              >
+                {nav.label}
+              </Link>
+            ))}
           </div>
         </div>
       </nav>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileMenuOpen && (
+        <div className="mobile-drawer-backdrop" onClick={() => setMobileMenuOpen(false)}>
+          <div className="mobile-drawer-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-drawer-header">
+              <div className="mobile-drawer-brand">
+                <span className="brand-title">AIRBALL</span>
+                <span className="brand-tag">{sportConfig.name}</span>
+              </div>
+              <button
+                className="nav-icon-btn mobile-drawer-close"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Sport Switcher Section */}
+            <div className="mobile-drawer-section">
+              <div className="mobile-drawer-section-title">Change League</div>
+              <div className="mobile-drawer-sports">
+                {SPORT_SLUGS.map(slug => {
+                  const cfg = SPORTS[slug];
+                  const isActive = activeSport === slug;
+                  return (
+                    <Link
+                      key={slug}
+                      to={`/${slug}`}
+                      className={`mobile-sport-card ${isActive ? 'active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      style={{ '--pill-color': cfg.accentColor }}
+                    >
+                      <span className="mobile-sport-icon">{cfg.icon}</span>
+                      <span className="mobile-sport-name">{cfg.name}</span>
+                      {isActive && <span className="mobile-sport-active-dot" />}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Primary Nav Links */}
+            <div className="mobile-drawer-section">
+              <div className="mobile-drawer-section-title">{sportConfig.name} Hub</div>
+              <div className="mobile-drawer-links">
+                <Link
+                  to={`/${activeSport}`}
+                  className={`mobile-drawer-link ${(location.pathname === `/${activeSport}` || (activeSport === 'nba' && location.pathname === '/')) ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="mobile-drawer-link-text">Live Center & Scoreboard</span>
+                  <span className="mobile-drawer-arrow">→</span>
+                </Link>
+                {sportConfig.navItems.map(nav => (
+                  <Link
+                    key={nav.path}
+                    to={`/${activeSport}/${nav.path}`}
+                    className={`mobile-drawer-link ${isActiveNavPath(nav.path) ? 'active' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="mobile-drawer-link-text">{nav.label}</span>
+                    <span className="mobile-drawer-arrow">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Preferences & Stream Sync */}
+            <div className="mobile-drawer-section">
+              <div className="mobile-drawer-section-title">Match Center Utilities</div>
+              <div className="mobile-drawer-actions">
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setShowSettings(true); }}
+                  className="mobile-drawer-action-btn"
+                >
+                  <span>⏱️ Stream Delay Buffer</span>
+                  <span className="mobile-drawer-action-val">{delaySeconds > 0 ? `+${delaySeconds}s` : 'Real-Time (0s)'}</span>
+                </button>
+                {sportConfig.hasAudio && (
+                  <button
+                    onClick={toggleSound}
+                    className="mobile-drawer-action-btn"
+                  >
+                    <span>{audioActive ? '🔊 Audio Alerts On' : '🔇 Audio Muted'}</span>
+                    <span className="mobile-drawer-action-val">{audioActive ? 'Active' : 'Off'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showSettings && (
         <SettingsModal delaySeconds={delaySeconds} setDelaySeconds={setDelaySeconds} onClose={() => setShowSettings(false)} />

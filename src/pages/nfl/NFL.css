@@ -325,3 +325,82 @@
   .nfl-season-preview-heading { align-items: flex-start; flex-direction: column; }
   .nfl-season-comparison { grid-template-columns: 1fr; }
 }
+
+/* --- NFL Game Detail Hero --- */
+.nfl-game-detail-hero {
+  background: #0a0a0a;
+  padding: 36px 0 24px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.nfl-detail-matchup-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 40px);
+  padding: 16px 0;
+  width: 100%;
+}
+
+.nfl-detail-team-block {
+  text-align: center;
+  flex: 1;
+  max-width: 140px;
+}
+
+.nfl-detail-team-abbr {
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  font-weight: 900;
+  color: #e5e5e5;
+}
+
+.nfl-detail-team-name {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nfl-detail-team-score {
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  margin-top: 6px;
+  line-height: 1;
+}
+
+.nfl-detail-team-score.leader {
+  color: #e5e5e5;
+}
+
+.nfl-detail-status-block {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .nfl-game-detail-hero {
+    padding: 24px 0 16px;
+  }
+
+  .nfl-detail-matchup-grid {
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .scoring-play {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .scoring-play-quarter {
+    align-self: flex-start;
+  }
+
+  .scoring-play-score {
+    align-self: flex-start;
+  }
+}

@@ -3,7 +3,7 @@
 .footer {
   position: relative;
   margin-top: auto;
-  padding: 24px 0;
+  padding: 24px 0 calc(24px + var(--safe-area-bottom));
   border-top: 1px solid #1a1a1a;
   background: #050505;
   font-size: 0.75rem;

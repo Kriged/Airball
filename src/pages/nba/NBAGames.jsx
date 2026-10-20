@@ -96,7 +96,7 @@ function Games() {
       ) : filtered.length > 0 ? (
         <div className="data-cards" id="games-list">
           {filtered.map((game) => (
-            <Link to={`/games/${game.id}`} className="data-card game-card game-card-link" key={game.id} id={`game-${game.id}`}>
+            <Link to={`/nba/games/${game.id}`} className="data-card game-card game-card-link" key={game.id} id={`game-${game.id}`}>
             <div className="game-date">{game.date}</div>
             <div className="game-matchup">
               <div className="game-team">
