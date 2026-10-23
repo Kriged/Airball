@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTeamLogos } from '../../utils/useTeamLogos';
+import { useTimezone } from '../../context/useTimezone';
+import { cachedResponseFetch } from '../../utils/cache';
 import './TeamDetail.css';
 
 function TeamDetail() {
   const { teamAbbr } = useParams();
+  const { formatDate, formatDateTime } = useTimezone();
   const [teamInfo, setTeamInfo] = useState(null);
   const [schedule, setSchedule] = useState([]);
   const [roster, setRoster] = useState([]);
@@ -21,18 +24,18 @@ function TeamDetail() {
 
     // BUG-008 + BUG-012: Check res.ok and handle 404
     Promise.all([
-      fetch(`/api/team/${abbr}/info`).then((r) => {
+      cachedResponseFetch(`/api/team/${abbr}/info`).then((r) => {
         if (!r.ok) {
           if (r.status === 404) throw new Error('Team not found');
           throw new Error(`HTTP error ${r.status}`);
         }
         return r.json();
       }),
-      fetch(`/api/team/${abbr}/schedule`).then((r) => {
+      cachedResponseFetch(`/api/team/${abbr}/schedule`).then((r) => {
         if (!r.ok) throw new Error(`HTTP error ${r.status}`);
         return r.json();
       }),
-      fetch(`/api/team/${abbr}/roster`).then((r) => {
+      cachedResponseFetch(`/api/team/${abbr}/roster`).then((r) => {
         if (!r.ok) throw new Error(`HTTP error ${r.status}`);
         return r.json();
       }),
@@ -273,7 +276,11 @@ function TeamDetail() {
                         key={game.id}
                         id={`team-game-${game.id}`}
                       >
-                        <div className="td-game-date">{game.date}</div>
+                        <div className="td-game-date">
+                          {game.status === 'UPCOMING'
+                            ? formatDateTime(game, { includeWeekday: true })
+                            : formatDate(game, { includeWeekday: true, includeYear: true })}
+                        </div>
                         <div className="td-game-location">{isHome ? 'vs' : '@'}</div>
                         <div className="td-game-opponent">
                           <span className="td-opp-abbr">{oppAbbr}</span>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PageLayout from '../../components/PageLayout';
 import PlayerModal from '../../components/PlayerModal';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 
 const CACHE_KEY = getSportCacheKey('nfl', 'players');
 const positions = ['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
@@ -21,7 +21,7 @@ function NFLPlayers() {
     const cached = getCached(CACHE_KEY, 300000);
     if (cached && !cached.isStale) return;
     let isMounted = true;
-    fetch('/api/nfl/players')
+    cachedResponseFetch('/api/nfl/players')
       .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then(data => {
         if (!isMounted) return;
@@ -42,7 +42,7 @@ function NFLPlayers() {
     if (trimmed.length < 2) return;
 
     searchTimeoutRef.current = setTimeout(() => {
-      fetch(`/api/nfl/players?search=${encodeURIComponent(trimmed)}`)
+      cachedResponseFetch(`/api/nfl/players?search=${encodeURIComponent(trimmed)}`)
         .then(res => res.ok ? res.json() : [])
         .then(results => {
           if (!Array.isArray(results) || results.length === 0) return;

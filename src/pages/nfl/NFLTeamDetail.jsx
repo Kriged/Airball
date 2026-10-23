@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTeamLogos } from '../../utils/useTeamLogos';
+import { useTimezone } from '../../context/useTimezone';
+import { cachedResponseFetch } from '../../utils/cache';
 
 function NFLTeamDetail() {
   const { teamAbbr } = useParams();
+  const { formatDate, formatDateTime } = useTimezone();
   const [team, setTeam] = useState(null);
   const [schedule, setSchedule] = useState([]);
   const [roster, setRoster] = useState([]);
@@ -15,9 +18,9 @@ function NFLTeamDetail() {
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetch(`/api/nfl/team/${teamAbbr}/info`).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`/api/nfl/team/${teamAbbr}/schedule`).then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch(`/api/nfl/team/${teamAbbr}/roster`).then(r => r.ok ? r.json() : []).catch(() => []),
+      cachedResponseFetch(`/api/nfl/team/${teamAbbr}/info`).then(r => r.ok ? r.json() : null).catch(() => null),
+      cachedResponseFetch(`/api/nfl/team/${teamAbbr}/schedule`).then(r => r.ok ? r.json() : []).catch(() => []),
+      cachedResponseFetch(`/api/nfl/team/${teamAbbr}/roster`).then(r => r.ok ? r.json() : []).catch(() => []),
     ]).then(([teamData, schedData, rosterData]) => {
       if (cancelled) return;
       if (teamData) setTeam(teamData);
@@ -82,7 +85,11 @@ function NFLTeamDetail() {
                   <tbody>
                     {schedule.map(g => (
                       <tr key={g.id}>
-                        <td>{g.date}</td>
+                        <td>
+                          {g.status === 'UPCOMING'
+                            ? formatDateTime(g, { includeWeekday: true })
+                            : formatDate(g, { includeWeekday: true, includeYear: true })}
+                        </td>
                         <td style={{ fontWeight: g.awayAbbr === teamAbbr.toUpperCase() ? 800 : 400 }}>
                           {teamLogos[g.awayAbbr] && <img src={teamLogos[g.awayAbbr]} alt="" className="table-team-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
                           {g.away}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached } from '../../utils/cache';
 import { useTeamLogos } from '../../utils/useTeamLogos';
 
 const STANDINGS_CACHE_KEY = 'standings';
@@ -23,7 +23,7 @@ function Standings() {
     }
 
     let isMounted = true;
-    fetch('/api/standings')
+    cachedResponseFetch('/api/standings')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();

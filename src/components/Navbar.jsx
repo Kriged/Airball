@@ -4,6 +4,7 @@ import { courtAudio } from '../utils/audio';
 import { useSport } from '../context/useSport';
 import { SPORTS, SPORT_SLUGS } from '../utils/sportConfig';
 import SettingsModal from './SettingsModal';
+import TimezoneSelector from './TimezoneSelector';
 import './Navbar.css';
 
 // Build searchable items dynamically based on sport
@@ -103,6 +104,8 @@ function Navbar() {
 
   // Close mobile drawer on route change
   useEffect(() => {
+    // The drawer is transient UI, so navigation must close it before the next page renders.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
@@ -274,6 +277,9 @@ function Navbar() {
               </button>
             )}
 
+            {/* Timezone Selector */}
+            <TimezoneSelector />
+
             {/* Stream Sync */}
             <button onClick={() => setShowSettings(true)} className="nav-pill-btn"
               title="Stream Sync & Anti-Spoiler Delay" aria-label="Open stream sync settings" id="open-stream-sync-btn">
@@ -401,6 +407,9 @@ function Navbar() {
             <div className="mobile-drawer-section">
               <div className="mobile-drawer-section-title">Match Center Utilities</div>
               <div className="mobile-drawer-actions">
+                <div style={{ padding: '6px 0' }}>
+                  <TimezoneSelector />
+                </div>
                 <button
                   onClick={() => { setMobileMenuOpen(false); setShowSettings(true); }}
                   className="mobile-drawer-action-btn"

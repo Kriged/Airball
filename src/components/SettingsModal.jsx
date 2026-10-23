@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTimezone } from '../context/useTimezone';
 import './SettingsModal.css';
 
 function SettingsModal({ delaySeconds, setDelaySeconds, onClose }) {
+  const { timezone, isAuto, setTimezone, popularTimezones, detectedTimezone } = useTimezone();
+  const [selectedTz, setSelectedTz] = useState(isAuto ? 'auto' : timezone);
   const [localDelay, setLocalDelay] = useState(delaySeconds || 0);
   const [leadChanges, setLeadChanges] = useState(true);
   const [buzzerBeaters, setBuzzerBeaters] = useState(true);
@@ -22,6 +25,7 @@ function SettingsModal({ delaySeconds, setDelaySeconds, onClose }) {
 
   const handleSave = () => {
     setDelaySeconds(localDelay);
+    setTimezone(selectedTz);
     onClose();
   };
 
@@ -36,6 +40,40 @@ function SettingsModal({ delaySeconds, setDelaySeconds, onClose }) {
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+        </div>
+
+        {/* Timezone Preference */}
+        <div className="settings-section">
+          <div className="settings-label-row">
+            <span>Match &amp; Schedule Timezone</span>
+            <span className="settings-delay-val">
+              {selectedTz === 'auto' ? `Auto (${detectedTimezone})` : selectedTz}
+            </span>
+          </div>
+          <p className="settings-desc">
+            All game times, schedules, and event kickoffs adapt automatically to this timezone.
+          </p>
+          <select
+            value={selectedTz}
+            onChange={(e) => setSelectedTz(e.target.value)}
+            style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#ffffff',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {popularTimezones.map((tz) => (
+              <option key={tz.value} value={tz.value} style={{ background: '#1c1c1e', color: '#ffffff' }}>
+                {tz.value === 'auto' ? `Auto-Detect (${detectedTimezone})` : tz.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Delay Slider */}

@@ -11,6 +11,7 @@ import time
 import requests
 from flask import jsonify, request
 from backend.core.rate_limiter import api_sports_limiter
+from backend.core.provider_client import fetch_with_circuit_breaker, ProviderUnavailableError
 from backend.adapters.espn_nfl import NFL_TEAM_FULL_NAMES, NFL_TEAM_IDS
 
 API_BASE = "https://v1.american-football.api-sports.io"
@@ -114,7 +115,7 @@ def _request_headers():
     }
 
 
-def fetch_apisports(endpoint, params=None, timeout=10, ttl=3600):
+def fetch_apisports(endpoint, params=None, timeout=(2.0, 3.0), ttl=3600):
     """Execute authenticated call to API-Sports with cache & daily quota guard."""
     cache_key = f"{endpoint}:{str(params)}"
     now = time.time()
@@ -133,17 +134,14 @@ def fetch_apisports(endpoint, params=None, timeout=10, ttl=3600):
 
     url = f"{API_BASE}/{endpoint.lstrip('/')}"
     try:
-        resp = _session.get(url, headers=_request_headers(), params=params, timeout=timeout)
-        if resp.status_code == 429:
-            print(f"[API-SPORTS] Rate limited (429) on {endpoint}.")
-            if cache_key in _MEMORY_CACHE:
-                return _MEMORY_CACHE[cache_key][0]
-            return {"response": [], "results": 0, "rate_limited": True}
-        resp.raise_for_status()
+        resp = fetch_with_circuit_breaker(
+            "api_sports", url, request_session=_session, headers=_request_headers(),
+            params=params, timeout=timeout,
+        )
         data = resp.json()
         _MEMORY_CACHE[cache_key] = (data, now + ttl)
         return data
-    except Exception as e:
+    except (ProviderUnavailableError, requests.RequestException, ValueError) as e:
         print(f"[API-SPORTS] Error fetching {endpoint}: {e}")
         if cache_key in _MEMORY_CACHE:
             return _MEMORY_CACHE[cache_key][0]

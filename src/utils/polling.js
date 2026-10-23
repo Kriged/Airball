@@ -15,13 +15,26 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Per-sport polling intervals in milliseconds
 export const POLL_INTERVALS = {
-  nba: { live: 15000, idle: 60000 },
-  nfl: { live: 20000, idle: 120000 },
+  nba: { live: 15000, idle: 900000 },
+  nfl: { live: 20000, idle: 900000 },
   ufc: { live: 10000, idle: 300000 }, // UFC rounds are short
 };
 
 /** Fallback intervals when sport is not recognised */
 const DEFAULT_INTERVALS = { live: 20000, idle: 60000 };
+
+function documentIsVisible() {
+  return typeof document === 'undefined' || document.visibilityState !== 'hidden';
+}
+
+function containsLiveGame(result) {
+  const games = Array.isArray(result) ? result : (result?.games || result?.data || []);
+  if (!Array.isArray(games)) return false;
+  return games.some((game) => {
+    const status = String(game?.status || game?.state || '').toUpperCase();
+    return ['LIVE', 'IN_PROGRESS', 'IN PROGRESS', 'HALFTIME'].includes(status);
+  });
+}
 
 /**
  * @param {() => Promise<any>} fetchFn  - async function that returns the data
@@ -38,6 +51,8 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(() => !disabled);
   const [error, setError]     = useState(null);
+  const [visible, setVisible] = useState(documentIsVisible);
+  const [detectedLive, setDetectedLive] = useState(false);
   const mountedRef             = useRef(true);
   const intervalRef            = useRef(null);
   const onDataRef              = useRef(onData);
@@ -46,12 +61,14 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
   }, [onData]);
 
   const intervals = POLL_INTERVALS[sport?.toLowerCase()] || DEFAULT_INTERVALS;
-  const interval  = isLive ? intervals.live : intervals.idle;
+  const interval  = (isLive || detectedLive) ? intervals.live : intervals.idle;
 
   const execute = useCallback(async () => {
+    if (!documentIsVisible()) return;
     try {
       const result = await fetchFn();
       if (!mountedRef.current) return;
+      setDetectedLive(containsLiveGame(result));
       if (onDataRef.current) {
         onDataRef.current(result);
       } else {
@@ -66,11 +83,17 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
     }
   }, [fetchFn]);
 
+  useEffect(() => {
+    const updateVisibility = () => setVisible(documentIsVisible());
+    document?.addEventListener?.('visibilitychange', updateVisibility);
+    return () => document?.removeEventListener?.('visibilitychange', updateVisibility);
+  }, []);
+
   // Re-schedule whenever interval or disabled flag changes
   useEffect(() => {
     mountedRef.current = true;
 
-    if (disabled) {
+    if (disabled || !visible) {
       return;
     }
 
@@ -84,7 +107,7 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
       clearTimeout(initialFetchTimer);
       clearInterval(intervalRef.current);
     };
-  }, [execute, interval, disabled]);
+  }, [execute, interval, disabled, visible]);
 
   // Cleanup on unmount
   useEffect(() => {

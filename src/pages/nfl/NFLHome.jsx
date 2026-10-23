@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 import { useSportPolling } from '../../utils/polling';
 import { useTeamLogos } from '../../utils/useTeamLogos';
+import { useTimezone } from '../../context/useTimezone';
 import './NFL.css';
 
 const SPORT = 'nfl';
 
 function NFLHome() {
+  const { formatTime } = useTimezone();
   const cacheKey = getSportCacheKey(SPORT, 'today_games');
   const cached = getCached(cacheKey, 30000);
   const [games, setGames] = useState(cached && Array.isArray(cached.data) ? cached.data : []);
@@ -16,9 +18,11 @@ function NFLHome() {
   const teamLogos = useTeamLogos('nfl');
   const hasLiveGame = games.some((g) => g.status === 'LIVE');
 
-  // Sport-aware polling: 20s when live, 120s idle
+  const fetchGames = useCallback(() => cachedFetch('/api/nfl/games/today'), []);
+
+  // Sport-aware polling: 20s when live, 15m when no games are in progress.
   useSportPolling(
-    () => fetch('/api/nfl/games/today').then((r) => (r.ok ? r.json() : Promise.reject())),
+    fetchGames,
     {
       sport: 'nfl',
       isLive: hasLiveGame,
@@ -32,8 +36,8 @@ function NFLHome() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/nfl/standings')
-      .then(r => r.ok ? r.json() : null)
+    cachedFetch('/api/nfl/standings')
+      .then(data => data || null)
       .then(d => { if (!cancelled && d) setStandings(d); })
       .catch(() => {});
     return () => { cancelled = true; };
@@ -112,6 +116,11 @@ function NFLHome() {
                   <div className="nfl-score-card-status">
                     <span className={`game-status ${game.status.toLowerCase()}`}>{game.status}</span>
                     {game.status === 'LIVE' && <span> • {game.quarter}</span>}
+                    {game.status === 'UPCOMING' && (
+                      <span style={{ color: '#FFB800', fontWeight: 600, fontSize: '0.78rem' }}>
+                        {' '}• {formatTime(game, { includeDay: true })}
+                      </span>
+                    )}
                   </div>
                 </Link>
               ))}

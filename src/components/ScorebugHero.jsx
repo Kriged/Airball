@@ -1,6 +1,8 @@
+import { useTimezone } from '../context/useTimezone';
 import './ScorebugHero.css';
 
 function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
+  const { formatTime } = useTimezone();
   if (!game) return null;
 
   const isLive = game.status === 'LIVE';
@@ -64,7 +66,7 @@ function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
           </span>
 
           <div className="scorebug-clock">
-            {isLive ? (game.time || '00:00') : isFinal ? 'Final' : (game.quarter || 'Scheduled')}
+            {isLive ? (game.time || '00:00') : isFinal ? 'Final' : (formatTime(game, { includeDay: true }) || 'Scheduled')}
           </div>
 
           {isLive && typeof game.shotClock === 'number' && (

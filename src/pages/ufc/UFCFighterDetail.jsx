@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFighterPhoto } from '../../utils/useFighterPhoto';
+import { useTimezone } from '../../context/useTimezone';
+import { cachedResponseFetch } from '../../utils/cache';
 import './UFC.css';
 
 function UFCFighterDetail() {
+  const { formatDate } = useTimezone();
   const { fighterId } = useParams();
   const [fighter, setFighter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,7 +14,7 @@ function UFCFighterDetail() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`/api/ufc/fighters/${encodeURIComponent(fighterId)}`)
+    cachedResponseFetch(`/api/ufc/fighters/${encodeURIComponent(fighterId)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!cancelled && data && !data.error) {
@@ -232,7 +235,7 @@ function UFCFighterDetail() {
                         vs. {fight.opponent || fight.fighter2 || 'Opponent'}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--court-text-muted)' }}>
-                        {fight.event || 'UFC Event'} {fight.date ? `• ${fight.date}` : ''}
+                        {fight.event || 'UFC Event'} {fight.date ? `• ${formatDate(fight.date, { includeYear: true })}` : ''}
                       </div>
                     </div>
 

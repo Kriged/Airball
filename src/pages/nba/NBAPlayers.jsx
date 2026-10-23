@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PageLayout from '../../components/PageLayout';
 import PlayerModal from '../../components/PlayerModal';
-import { getCached, setCached } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached } from '../../utils/cache';
 
 const PLAYERS_CACHE_KEY = 'players';
 
@@ -26,7 +26,7 @@ function Players() {
     }
 
     let isMounted = true;
-    fetch('/api/players')
+    cachedResponseFetch('/api/players')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
@@ -57,7 +57,7 @@ function Players() {
     if (trimmed.length < 2) return;
 
     searchTimeoutRef.current = setTimeout(() => {
-      fetch(`/api/players?search=${encodeURIComponent(trimmed)}`)
+      cachedResponseFetch(`/api/players?search=${encodeURIComponent(trimmed)}`)
         .then((res) => res.ok ? res.json() : [])
         .then((searchResults) => {
           if (!Array.isArray(searchResults) || searchResults.length === 0) return;

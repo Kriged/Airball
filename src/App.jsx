@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { SportProvider } from './context/SportContext';
+import { TimezoneProvider } from './context/TimezoneContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -40,52 +41,54 @@ function App() {
   return (
     <BrowserRouter>
       <SportProvider>
-        <Navbar />
-        <Routes>
-          {/* Default home — NBA */}
-          <Route path="/" element={<Home />} />
+        <TimezoneProvider>
+          <Navbar />
+          <Routes>
+            {/* Default home — NBA */}
+            <Route path="/" element={<Home />} />
 
-          {/* === NBA Routes === */}
-          <Route path="/nba" element={<Home />} />
-          <Route path="/nba/games" element={<Games />} />
-          <Route path="/nba/games/:gameId" element={<GameDetail />} />
-          <Route path="/nba/standings" element={<Standings />} />
-          <Route path="/nba/players" element={<Players />} />
-          <Route path="/nba/stats" element={<Stats />} />
-          <Route path="/nba/seasons" element={<Seasons />} />
-          <Route path="/nba/teams/:teamAbbr" element={<TeamDetail />} />
+            {/* === NBA Routes === */}
+            <Route path="/nba" element={<Home />} />
+            <Route path="/nba/games" element={<Games />} />
+            <Route path="/nba/games/:gameId" element={<GameDetail />} />
+            <Route path="/nba/standings" element={<Standings />} />
+            <Route path="/nba/players" element={<Players />} />
+            <Route path="/nba/stats" element={<Stats />} />
+            <Route path="/nba/seasons" element={<Seasons />} />
+            <Route path="/nba/teams/:teamAbbr" element={<TeamDetail />} />
 
-          {/* Legacy NBA routes — redirect for backward compatibility */}
-          <Route path="/players" element={<Navigate to="/nba/players" replace />} />
-          <Route path="/games" element={<Navigate to="/nba/games" replace />} />
-          <Route path="/games/:gameId" element={<GameDetail />} />
-          <Route path="/stats" element={<Navigate to="/nba/stats" replace />} />
-          <Route path="/seasons" element={<Navigate to="/nba/seasons" replace />} />
-          <Route path="/standings" element={<Navigate to="/nba/standings" replace />} />
-          <Route path="/teams/:teamAbbr" element={<TeamDetail />} />
+            {/* Legacy NBA routes — redirect for backward compatibility */}
+            <Route path="/players" element={<Navigate to="/nba/players" replace />} />
+            <Route path="/games" element={<Navigate to="/nba/games" replace />} />
+            <Route path="/games/:gameId" element={<GameDetail />} />
+            <Route path="/stats" element={<Navigate to="/nba/stats" replace />} />
+            <Route path="/seasons" element={<Navigate to="/nba/seasons" replace />} />
+            <Route path="/standings" element={<Navigate to="/nba/standings" replace />} />
+            <Route path="/teams/:teamAbbr" element={<TeamDetail />} />
 
-          {/* === NFL Routes === */}
-          <Route path="/nfl" element={<NFLHome />} />
-          <Route path="/nfl/games" element={<NFLGames />} />
-          <Route path="/nfl/games/:gameId" element={<NFLGameDetail />} />
-          <Route path="/nfl/standings" element={<NFLStandings />} />
-          <Route path="/nfl/players" element={<NFLPlayers />} />
-          <Route path="/nfl/stats" element={<NFLStats />} />
-          <Route path="/nfl/seasons" element={<NFLSeasons />} />
-          <Route path="/nfl/teams/:teamAbbr" element={<NFLTeamDetail />} />
+            {/* === NFL Routes === */}
+            <Route path="/nfl" element={<NFLHome />} />
+            <Route path="/nfl/games" element={<NFLGames />} />
+            <Route path="/nfl/games/:gameId" element={<NFLGameDetail />} />
+            <Route path="/nfl/standings" element={<NFLStandings />} />
+            <Route path="/nfl/players" element={<NFLPlayers />} />
+            <Route path="/nfl/stats" element={<NFLStats />} />
+            <Route path="/nfl/seasons" element={<NFLSeasons />} />
+            <Route path="/nfl/teams/:teamAbbr" element={<NFLTeamDetail />} />
 
-          {/* === UFC Routes === */}
-          <Route path="/ufc" element={<UFCHome />} />
-          <Route path="/ufc/events" element={<UFCEvents />} />
-          <Route path="/ufc/events/:eventId" element={<UFCEventDetail />} />
-          <Route path="/ufc/fighters" element={<UFCFighters />} />
-          <Route path="/ufc/fighters/:fighterId" element={<UFCFighterDetail />} />
-          <Route path="/ufc/compare" element={<UFCCompare />} />
-          <Route path="/ufc/rankings" element={<UFCRankings />} />
-          <Route path="/ufc/stats" element={<UFCStats />} />
-          <Route path="/ufc/history" element={<UFCHistory />} />
-        </Routes>
-        <Footer />
+            {/* === UFC Routes === */}
+            <Route path="/ufc" element={<UFCHome />} />
+            <Route path="/ufc/events" element={<UFCEvents />} />
+            <Route path="/ufc/events/:eventId" element={<UFCEventDetail />} />
+            <Route path="/ufc/fighters" element={<UFCFighters />} />
+            <Route path="/ufc/fighters/:fighterId" element={<UFCFighterDetail />} />
+            <Route path="/ufc/compare" element={<UFCCompare />} />
+            <Route path="/ufc/rankings" element={<UFCRankings />} />
+            <Route path="/ufc/stats" element={<UFCStats />} />
+            <Route path="/ufc/history" element={<UFCHistory />} />
+          </Routes>
+          <Footer />
+        </TimezoneProvider>
       </SportProvider>
     </BrowserRouter>
   );

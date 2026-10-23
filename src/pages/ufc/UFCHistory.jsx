@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
+import { cachedResponseFetch } from '../../utils/cache';
 import './UFC.css';
 
 function UFCHistory() {
@@ -8,7 +9,7 @@ function UFCHistory() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/ufc/history')
+    cachedResponseFetch('/api/ufc/history')
       .then(r => r.ok ? r.json() : [])
       .then(d => { setHistory(d || []); setLoading(false); })
       .catch(() => setLoading(false));

@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTimezone } from '../../context/useTimezone';
+import { cachedResponseFetch } from '../../utils/cache';
 import './UFC.css';
 
 function UFCEventDetail() {
+  const { formatDateTime, formatBout } = useTimezone();
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/ufc/events/${eventId}`)
+    cachedResponseFetch(`/api/ufc/events/${eventId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (!cancelled && d && !d.error) { setEvent(d); setLoading(false); } else if (!cancelled) setLoading(false); })
       .catch(() => { if (!cancelled) setLoading(false); });
@@ -37,7 +40,7 @@ function UFCEventDetail() {
           <Link to="/ufc/events" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>← Back to UFC Events</Link>
           <h1 className="ufc-event-hero-title">{event.name}</h1>
           <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'var(--text-secondary)', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span>{event.date}</span>
+            <span>{formatDateTime(event, { includeWeekday: true, includeYear: true })}</span>
             <span>•</span>
             <span>{event.venue}</span>
             <span>•</span>
@@ -99,7 +102,7 @@ function UFCEventDetail() {
                   {(bout.method || bout.result) && (
                     <div className="ufc-bout-result">
                       {bout.method && <div className="ufc-bout-method">{bout.method}</div>}
-                      {bout.result && <div className="ufc-bout-detail">{bout.result}</div>}
+                      {bout.result && <div className="ufc-bout-detail">{formatBout(bout.result)}</div>}
                       {bout.round > 0 && <div className="ufc-bout-detail">R{bout.round} {bout.time}</div>}
                     </div>
                   )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 import { useTeamLogos } from '../../utils/useTeamLogos';
 
 const CACHE_KEY = getSportCacheKey('nfl', 'standings');
@@ -20,7 +20,7 @@ function NFLStandings() {
     const cached = getCached(CACHE_KEY, 120000);
     if (cached && !cached.isStale) return;
     let isMounted = true;
-    fetch('/api/nfl/standings')
+    cachedResponseFetch('/api/nfl/standings')
       .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then(data => {
         if (!isMounted) return;

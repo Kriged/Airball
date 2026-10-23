@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 import './UFC.css';
 
 const STATS_KEY = getSportCacheKey('ufc', 'stats_leaders');
@@ -30,7 +30,7 @@ function UFCStats() {
   // Fetch overview database counts
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/ufc/stats/overview')
+    cachedResponseFetch('/api/ufc/stats/overview')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!cancelled && data) {
@@ -46,7 +46,7 @@ function UFCStats() {
   useEffect(() => {
     let cancelled = false;
     const cacheKey = `${STATS_KEY}_${activeStat}_${minFights}`;
-    fetch(`/api/ufc/stats/leaders?stat=${activeStat}&limit=15&min_fights=${minFights}`)
+    cachedResponseFetch(`/api/ufc/stats/leaders?stat=${activeStat}&limit=15&min_fights=${minFights}`)
       .then(r => r.ok ? r.json() : null)
       .then(res => {
         if (!cancelled && res && Array.isArray(res.leaders)) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached } from '../../utils/cache';
 
 const STATS_CACHE_KEY = 'stats_leaders';
 const statCategories = ['Points', 'Rebounds', 'Assists', 'Steals', 'Blocks'];
@@ -20,7 +20,7 @@ function Stats() {
     }
 
     let isMounted = true;
-    fetch('/api/stats/leaders')
+    cachedResponseFetch('/api/stats/leaders')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();

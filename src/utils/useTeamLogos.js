@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { cachedFetch } from './cache';
 
 const SESSION_KEY_PREFIX = 'sport_logos_';
 
@@ -37,11 +38,7 @@ export function useTeamLogos(sport) {
     if (Object.keys(logos).length > 0) return;
 
     let cancelled = false;
-    fetch(`/api/${sport}/teams/logos`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+    cachedFetch(`/api/${sport}/teams/logos`)
       .then(data => {
         if (cancelled) return;
         if (data && typeof data === 'object') {

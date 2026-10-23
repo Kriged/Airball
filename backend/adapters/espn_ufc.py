@@ -149,11 +149,14 @@ def compute_ufc_events():
                 'result': result,
             })
 
+        ev_date = ev.get('date', '')
         events.append({
             'id': ev['id'],
             'name': ev.get('name', ev.get('shortName', 'UFC Event')),
             'shortName': ev.get('shortName', ''),
-            'date': ev.get('date', '').split('T')[0],
+            'date': ev_date.split('T')[0] if ev_date else '',
+            'isoDate': ev_date,
+            'startTime': ev_date,
             'venue': comp.get('venue', {}).get('fullName', 'UFC Arena'),
             'status': status,
             'bouts': bouts,
@@ -211,10 +214,13 @@ def compute_ufc_event_detail(event_id):
                 'time': bout_comp.get('status', {}).get('displayClock', ''),
             })
 
+        comp_date = comps.get('date', '')
         return {
             'id': eid,
             'name': header.get('eventName', header.get('season', {}).get('name', 'UFC Event')),
-            'date': comps.get('date', '').split('T')[0],
+            'date': comp_date.split('T')[0] if comp_date else '',
+            'isoDate': comp_date,
+            'startTime': comp_date,
             'venue': comps.get('venue', {}).get('fullName', 'UFC Arena'),
             'status': status,
             'bouts': fight_card,

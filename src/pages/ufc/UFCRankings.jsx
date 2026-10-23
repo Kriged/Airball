@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 import './UFC.css';
 
 const CACHE_KEY = getSportCacheKey('ufc', 'rankings');
@@ -13,7 +13,7 @@ function UFCRankings() {
     const c = getCached(CACHE_KEY, 300000);
     if (c && !c.isStale) return;
     let m = true;
-    fetch('/api/ufc/rankings').then(r => r.ok ? r.json() : {}).then(d => { if (m) { setRankings(d || {}); setCached(CACHE_KEY, d || {}); setLoading(false); } }).catch(() => { if (m) setLoading(false); });
+    cachedResponseFetch('/api/ufc/rankings').then(r => r.ok ? r.json() : {}).then(d => { if (m) { setRankings(d || {}); setCached(CACHE_KEY, d || {}); setLoading(false); } }).catch(() => { if (m) setLoading(false); });
     return () => { m = false; };
   }, []);
 

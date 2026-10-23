@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useTimezone } from '../../context/useTimezone';
 
 const SPORT = 'nfl';
 const CACHE_KEY = getSportCacheKey(SPORT, 'games_list');
@@ -9,6 +10,7 @@ const statusFilters = ['All', 'FINAL', 'LIVE', 'UPCOMING'];
 const statusLabels = { 'All': 'All Games', 'FINAL': 'Final', 'LIVE': 'Live', 'UPCOMING': 'Upcoming' };
 
 function NFLGames() {
+  const { formatDateTime, formatDate } = useTimezone();
   const [games, setGames] = useState(() => {
     const cached = getCached(CACHE_KEY, 60000);
     return cached ? cached.data : [];
@@ -21,7 +23,7 @@ function NFLGames() {
     const cached = getCached(CACHE_KEY, 60000);
     if (cached && !cached.isStale) return;
     let isMounted = true;
-    fetch('/api/nfl/games')
+    cachedResponseFetch('/api/nfl/games')
       .then(res => { if (!res.ok) throw new Error(`HTTP error ${res.status}`); return res.json(); })
       .then(data => {
         if (!isMounted) return;
@@ -68,7 +70,11 @@ function NFLGames() {
         <div className="data-cards" id="nfl-games-list">
           {filtered.map(game => (
             <Link to={`/nfl/games/${game.id}`} className="data-card game-card game-card-link" key={game.id} id={`nfl-game-${game.id}`}>
-              <div className="game-date">{game.date}</div>
+              <div className="game-date">
+                {game.status === 'UPCOMING'
+                  ? formatDateTime(game, { includeWeekday: true, includeYear: true })
+                  : formatDate(game, { includeWeekday: true, includeYear: true })}
+              </div>
               <div className="game-matchup">
                 <div className="game-team">
                   <span className="game-team-name">{game.away}</span>

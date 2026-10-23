@@ -8,6 +8,7 @@ import os
 import time
 import requests
 from flask import jsonify, request
+from backend.core.provider_client import fetch_with_circuit_breaker, ProviderUnavailableError
 
 BDL_BASE = "https://api.balldontlie.io/v1"
 
@@ -80,7 +81,7 @@ def _request_headers():
     }
 
 
-def fetch_bdl(endpoint, params=None, timeout=10):
+def fetch_bdl(endpoint, params=None, timeout=(2.0, 3.0)):
     """Execute authenticated request against BallDontLie v1 API with rate limit handling."""
     cache_key = f"{endpoint}:{str(params)}"
     now = time.time()
@@ -94,17 +95,14 @@ def fetch_bdl(endpoint, params=None, timeout=10):
     headers = _request_headers()
 
     try:
-        response = _session.get(url, headers=headers, params=params, timeout=timeout)
-        if response.status_code == 429:
-            print(f"[BDL] Rate limited (429) on {endpoint}. Serving fallback/cached.")
-            if cache_key in _MEMORY_CACHE:
-                return _MEMORY_CACHE[cache_key][0]
-            return {"data": [], "meta": {}, "rate_limited": True}
-        response.raise_for_status()
+        response = fetch_with_circuit_breaker(
+            "balldontlie", url, request_session=_session, headers=headers,
+            params=params, timeout=timeout,
+        )
         res_json = response.json()
         _MEMORY_CACHE[cache_key] = (res_json, now + 300)
         return res_json
-    except requests.exceptions.RequestException as e:
+    except (ProviderUnavailableError, requests.exceptions.RequestException, ValueError) as e:
         print(f"[BDL] Request error for {endpoint}: {e}")
         if cache_key in _MEMORY_CACHE:
             return _MEMORY_CACHE[cache_key][0]

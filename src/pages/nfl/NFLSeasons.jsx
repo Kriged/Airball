@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
+import { cachedResponseFetch } from '../../utils/cache';
 
 function NFLSeasons() {
   const [seasons, setSeasons] = useState([]);
@@ -7,7 +8,7 @@ function NFLSeasons() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/nfl/seasons')
+    cachedResponseFetch('/api/nfl/seasons')
       .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then(data => { setSeasons(data || []); setLoading(false); })
       .catch(err => { console.error('NFL seasons error:', err); setLoading(false); });

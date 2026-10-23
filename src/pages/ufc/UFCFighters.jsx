@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
 import { useFighterPhoto } from '../../utils/useFighterPhoto';
 import './UFC.css';
 
@@ -69,7 +69,7 @@ function UFCFighters() {
     if (c && !c.isStale && Array.isArray(c.data) && c.data.length > 0) return;
     let m = true;
 
-    fetch('/api/ufc/fighters?limit=500')
+    cachedResponseFetch('/api/ufc/fighters?limit=500')
       .then(r => r.ok ? r.json() : [])
       .then(d => {
         if (m) {

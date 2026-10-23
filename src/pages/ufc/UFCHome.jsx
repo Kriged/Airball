@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useTimezone } from '../../context/useTimezone';
 import './UFC.css';
 
 function UFCHome() {
+  const { formatDateTime } = useTimezone();
   const cacheKey = getSportCacheKey('ufc', 'events');
   const cached = getCached(cacheKey, 60000);
   const [events, setEvents] = useState(cached && Array.isArray(cached.data) ? cached.data : []);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/ufc/events')
+    cachedResponseFetch('/api/ufc/events')
       .then(r => r.ok ? r.json() : [])
       .then(data => {
         if (cancelled) return;
@@ -46,7 +48,7 @@ function UFCHome() {
           {nextEvent && (
             <div style={{ marginBottom: '48px' }}>
               <h2 className="section-title">{nextEvent.status === 'LIVE' ? '🔴 Live Now' : 'Next Event'}</h2>
-              <p className="section-subtitle">{nextEvent.date} • {nextEvent.venue}</p>
+              <p className="section-subtitle">{formatDateTime(nextEvent, { includeWeekday: true, includeYear: true })} • {nextEvent.venue}</p>
               <Link to={`/ufc/events/${nextEvent.id}`} className="ufc-event-card" id="ufc-next-event">
                 <div className="ufc-event-header">
                   <span className="ufc-event-name">{nextEvent.name}</span>
@@ -99,7 +101,7 @@ function UFCHome() {
                       </div>
                     )}
                     <div className="ufc-event-footer">
-                      <span>{event.date}</span>
+                      <span>{formatDateTime(event, { includeWeekday: true, includeYear: true })}</span>
                       <span>{event.venue}</span>
                     </div>
                   </Link>

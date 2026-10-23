@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached } from '../../utils/cache';
+import { useTimezone } from '../../context/useTimezone';
 
 const GAMES_CACHE_KEY = 'games_list';
 
@@ -10,6 +11,7 @@ const statusFilters = ['All', 'FINAL', 'LIVE', 'UPCOMING'];
 const statusLabels = { 'All': 'All Games', 'FINAL': 'Final', 'LIVE': 'Live', 'UPCOMING': 'Upcoming' };
 
 function Games() {
+  const { formatDateTime, formatDate } = useTimezone();
   const [games, setGames] = useState(() => {
     const cached = getCached(GAMES_CACHE_KEY, 60000);
     return cached ? cached.data : [];
@@ -26,7 +28,7 @@ function Games() {
 
     let isMounted = true;
     // BUG-012: Added res.ok check
-    fetch('/api/games')
+    cachedResponseFetch('/api/games')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
@@ -97,7 +99,11 @@ function Games() {
         <div className="data-cards" id="games-list">
           {filtered.map((game) => (
             <Link to={`/nba/games/${game.id}`} className="data-card game-card game-card-link" key={game.id} id={`game-${game.id}`}>
-            <div className="game-date">{game.date}</div>
+            <div className="game-date">
+              {game.status === 'UPCOMING'
+                ? formatDateTime(game, { includeWeekday: true, includeYear: true })
+                : formatDate(game, { includeWeekday: true, includeYear: true })}
+            </div>
             <div className="game-matchup">
               <div className="game-team">
                 <span className="game-team-name">{game.away}</span>

@@ -4,6 +4,77 @@
  */
 
 const memoryCache = new Map();
+const inFlightRequests = new Map();
+const API_CACHE_PREFIX = 'airball_cache:';
+export const MEMORY_TTL_MS = 30_000;
+
+function readPersistentCache(url) {
+  try {
+    const raw = localStorage.getItem(`${API_CACHE_PREFIX}${url}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePersistentCache(url, data) {
+  try {
+    localStorage.setItem(`${API_CACHE_PREFIX}${url}`, JSON.stringify({ timestamp: Date.now(), data }));
+  } catch {
+    // Storage is an optional resilience layer; quota/privacy errors are harmless.
+  }
+}
+
+function isFallbackPayload(data) {
+  return Boolean(data && typeof data === 'object' && (
+    data.fallback || data.rate_limited || data.quota_exhausted || data.error
+  ));
+}
+
+/**
+ * Fetch an API response once per URL, even when StrictMode mounts more than one
+ * consumer. Successful payloads are persisted so an offline/rate-limited tab can
+ * render its last known response without waiting on the network.
+ */
+export async function cachedFetch(url, options = {}) {
+  const { force = false, ...fetchOptions } = options;
+  const cached = readPersistentCache(url);
+
+  if (!force && cached && Date.now() - cached.timestamp < MEMORY_TTL_MS) {
+    return cached.data;
+  }
+  if (inFlightRequests.has(url)) {
+    return inFlightRequests.get(url);
+  }
+
+  const request = fetch(url, fetchOptions)
+    .then(async (response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (isFallbackPayload(data) && cached?.data) return cached.data;
+      writePersistentCache(url, data);
+      return data;
+    })
+    .catch((error) => {
+      if (cached?.data !== undefined) return cached.data;
+      throw error;
+    })
+    .finally(() => {
+      inFlightRequests.delete(url);
+    });
+
+  inFlightRequests.set(url, request);
+  return request;
+}
+
+/**
+ * Compatibility wrapper for screens that still need a Fetch-like response.
+ * It keeps those callers on the same deduplicated/local-storage request path.
+ */
+export async function cachedResponseFetch(url, options = {}) {
+  const data = await cachedFetch(url, options);
+  return { ok: true, status: 200, json: async () => data };
+}
 
 /**
  * Build a sport-namespaced cache key.

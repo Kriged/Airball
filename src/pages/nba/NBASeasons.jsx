@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../../components/PageLayout';
+import { cachedResponseFetch } from '../../utils/cache';
 
 function Seasons() {
   const [seasons, setSeasons] = useState([]);
@@ -7,7 +8,7 @@ function Seasons() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/seasons')
+    cachedResponseFetch('/api/seasons')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();

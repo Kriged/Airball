@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { cachedFetch } from './cache';
 
 const SESSION_PREFIX = 'ufc_photo_';
 
@@ -33,8 +34,7 @@ export function useFighterPhoto(name) {
     if (photoUrl) return;
 
     let cancelled = false;
-    fetch(`/api/ufc/fighter/${encodeURIComponent(name)}/photo`)
-      .then((r) => (r.ok ? r.json() : null))
+    cachedFetch(`/api/ufc/fighter/${encodeURIComponent(name)}/photo`)
       .then((data) => {
         if (cancelled) return;
         const url = data?.photoUrl || '';

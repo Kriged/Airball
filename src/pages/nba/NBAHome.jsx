@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getCached, setCached } from '../../utils/cache';
+import { cachedFetch, getCached, setCached } from '../../utils/cache';
 import { courtAudio } from '../../utils/audio';
 import { useSportPolling } from '../../utils/polling';
 import { useTeamLogos } from '../../utils/useTeamLogos';
@@ -10,16 +10,17 @@ import FourFactors from '../../components/FourFactors';
 import TopPerformers from '../../components/TopPerformers';
 import MiniStandings from '../../components/MiniStandings';
 import PlayerModal from '../../components/PlayerModal';
+import { useTimezone } from '../../context/useTimezone';
 import './Home.css';
 
-const TODAY_GAMES_CACHE = 'today_games';
-
 function Home() {
-  const cached = getCached(TODAY_GAMES_CACHE, 30000);
+  const { timezone, formatTime, dateCarouselLabels, getDateForFilter } = useTimezone();
+  const [dateFilter, setDateFilter] = useState('TODAY');
+  const cacheKey = `today_games_${dateFilter}_${timezone}`;
+  const cached = getCached(cacheKey, 30000);
   const [games, setGames] = useState(cached && Array.isArray(cached.data) ? cached.data : []);
   const [activeGameId, setActiveGameId] = useState(games[0]?.id || null);
   const [activeTab, setActiveTab] = useState('tabShotChart');
-  const [dateFilter, setDateFilter] = useState('TODAY');
   const [quickFilter, setQuickFilter] = useState('ALL');
   const [pbpFilter, setPbpFilter] = useState('ALL');
   const [boxScoreTeam, setBoxScoreTeam] = useState('HOME');
@@ -38,20 +39,17 @@ function Home() {
   const activeGame = games.find((g) => g.id === activeGameId) || games[0] || null;
   const hasLiveGame = games.some((g) => g.status === 'LIVE');
 
-  const getDateString = (filter) => {
-    const d = new Date();
-    if (filter === 'YESTERDAY') d.setDate(d.getDate() - 1);
-    else if (filter === 'TOMORROW') d.setDate(d.getDate() + 1);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}${mm}${dd}`;
-  };
+  const getDateString = useCallback((filter) => {
+    let offset = 0;
+    if (filter === 'YESTERDAY') offset = -1;
+    else if (filter === 'TOMORROW') offset = 1;
+    return getDateForFilter ? getDateForFilter(offset) : '';
+  }, [getDateForFilter]);
 
   const fetchGames = useCallback(() => {
     const ds = getDateString(dateFilter);
-    return fetch(`/api/games/today?date=${ds}`).then((r) => (r.ok ? r.json() : Promise.reject()));
-  }, [dateFilter]);
+    return cachedFetch(`/api/games/today?date=${ds}&tz=${encodeURIComponent(timezone)}`);
+  }, [dateFilter, getDateString, timezone]);
 
   // Fetch games using sport-aware polling hook (15s live / 60s idle)
   useSportPolling(
@@ -62,7 +60,7 @@ function Home() {
       onData: (data) => {
         if (!Array.isArray(data)) return;
         setGames(data);
-        setCached(TODAY_GAMES_CACHE, data);
+        setCached(cacheKey, data);
         if (data.length > 0) {
           setActiveGameId((prev) => (prev && data.some((g) => g.id === prev) ? prev : data[0].id));
         } else {
@@ -75,8 +73,8 @@ function Home() {
   // Fetch Standings
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/standings')
-      .then((r) => (r.ok ? r.json() : null))
+    cachedFetch('/api/standings')
+      .then((data) => data || null)
       .then((d) => {
         if (!cancelled && d) setLiveStandings(d);
       })
@@ -94,14 +92,11 @@ function Home() {
     let cancelled = false;
 
     Promise.all([
-      fetch(`/api/games/${activeGameId}/playbyplay`)
-        .then((r) => (r.ok ? r.json() : []))
+      cachedFetch(`/api/games/${activeGameId}/playbyplay`)
         .catch(() => []),
-      fetch(`/api/games/${activeGameId}/boxscore`)
-        .then((r) => (r.ok ? r.json() : { home: [], away: [] }))
+      cachedFetch(`/api/games/${activeGameId}/boxscore`)
         .catch(() => ({ home: [], away: [] })),
-      fetch(`/api/games/${activeGameId}/shots`)
-        .then((r) => (r.ok ? r.json() : []))
+      cachedFetch(`/api/games/${activeGameId}/shots`)
         .catch(() => [])
     ]).then(([pbpRes, boxRes, shotsRes]) => {
       if (cancelled) return;
@@ -194,7 +189,10 @@ function Home() {
               className={`date-btn ${dateFilter === 'YESTERDAY' ? 'active' : ''}`}
               onClick={() => setDateFilter('YESTERDAY')}
             >
-              Yesterday
+              <span>Yesterday</span>
+              {dateCarouselLabels?.yesterday && (
+                <span className="date-btn-sub">({dateCarouselLabels.yesterday})</span>
+              )}
             </button>
             <button
               className={`date-btn ${dateFilter === 'TODAY' ? 'active' : ''}`}
@@ -202,12 +200,18 @@ function Home() {
             >
               <span className="live-pulse-dot" />
               <span>TODAY</span>
+              {dateCarouselLabels?.today && (
+                <span className="date-btn-sub">({dateCarouselLabels.today})</span>
+              )}
             </button>
             <button
               className={`date-btn ${dateFilter === 'TOMORROW' ? 'active' : ''}`}
               onClick={() => setDateFilter('TOMORROW')}
             >
-              Tomorrow
+              <span>Tomorrow</span>
+              {dateCarouselLabels?.tomorrow && (
+                <span className="date-btn-sub">({dateCarouselLabels.tomorrow})</span>
+              )}
             </button>
           </div>
 
@@ -275,7 +279,7 @@ function Home() {
                         </span>
                       ) : (
                         <span style={{ color: g.status === 'FINAL' ? 'var(--court-text-muted)' : '#FFB800' }}>
-                          {g.status === 'FINAL' ? 'FINAL' : (g.quarter || 'Upcoming')}
+                          {g.status === 'FINAL' ? 'FINAL' : (formatTime(g, { includeDay: true }) || 'Upcoming')}
                         </span>
                       )}
                     </div>

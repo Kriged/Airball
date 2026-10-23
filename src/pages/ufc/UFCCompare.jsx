@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
 import { useFighterPhoto } from '../../utils/useFighterPhoto';
+import { cachedResponseFetch } from '../../utils/cache';
 import './UFC.css';
 
 const DEFAULT_FIGHTER_1 = 'conor-mcgregor';
@@ -44,7 +45,7 @@ function UFCCompare() {
 
   // Load fighter dropdown options
   useEffect(() => {
-    fetch('/api/ufc/fighters?limit=200&sort_by=wins')
+    cachedResponseFetch('/api/ufc/fighters?limit=200&sort_by=wins')
       .then(r => r.ok ? r.json() : [])
       .then(d => {
         const list = Array.isArray(d) ? d : (d.data || []);
@@ -58,7 +59,7 @@ function UFCCompare() {
     if (!fighter1Id || !fighter2Id) return;
     let cancelled = false;
 
-    fetch(`/api/ufc/fighters/compare?fighter1=${encodeURIComponent(fighter1Id)}&fighter2=${encodeURIComponent(fighter2Id)}`)
+    cachedResponseFetch(`/api/ufc/fighters/compare?fighter1=${encodeURIComponent(fighter1Id)}&fighter2=${encodeURIComponent(fighter2Id)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!cancelled && data && !data.error) {

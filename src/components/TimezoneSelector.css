@@ -1,0 +1,218 @@
+.tz-selector-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tz-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--court-text-primary, #ffffff);
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.03em;
+  user-select: none;
+}
+
+.tz-pill-btn:hover,
+.tz-pill-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+}
+
+.tz-icon {
+  font-size: 0.85rem;
+}
+
+.tz-abbr {
+  color: #ffffff;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.05em;
+}
+
+.tz-auto-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.tz-chevron {
+  font-size: 0.55rem;
+  opacity: 0.6;
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+}
+
+.tz-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-width: 90vw;
+  max-height: 440px;
+  background: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: tzFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tzFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tz-dropdown-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tz-header-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.tz-header-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.tz-current-clock {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  color: #00e676;
+  background: rgba(0, 230, 118, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tz-header-sub {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--court-text-muted, #a3a3a3);
+  line-height: 1.35;
+}
+
+.tz-options-list {
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tz-options-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tz-options-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.tz-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 6px;
+}
+
+.tz-option-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  color: #ffffff;
+}
+
+.tz-option-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tz-option-item.selected {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.tz-opt-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tz-opt-icon {
+  font-size: 1rem;
+}
+
+.tz-opt-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  padding: 3px 6px;
+  border-radius: 4px;
+  min-width: 38px;
+  text-align: center;
+}
+
+.tz-option-item.selected .tz-opt-badge {
+  background: #ffffff;
+  color: #000000;
+}
+
+.tz-opt-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tz-opt-region,
+.tz-opt-meta {
+  font-size: 0.68rem;
+  color: var(--court-text-muted, #8e8e93);
+}
+
+.tz-check {
+  color: #00e676;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-left: 8px;
+}

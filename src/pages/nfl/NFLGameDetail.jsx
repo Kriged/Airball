@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTeamLogos } from '../../utils/useTeamLogos';
 import NFLDriveTracker from '../../components/NFLDriveTracker';
+import { useTimezone } from '../../context/useTimezone';
+import { cachedResponseFetch } from '../../utils/cache';
 import './NFL.css';
 
 function NFLGameDetail() {
+  const { formatTime, formatDate, formatDateTime } = useTimezone();
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
   const [teamStats, setTeamStats] = useState(null);
@@ -14,7 +17,7 @@ function NFLGameDetail() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/nfl/games/${gameId}`)
+    cachedResponseFetch(`/api/nfl/games/${gameId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (!cancelled && d && !d.error) { setGame(d); setLoading(false); } else if (!cancelled) setLoading(false); })
       .catch(() => { if (!cancelled) setLoading(false); });
@@ -26,8 +29,8 @@ function NFLGameDetail() {
 
     let cancelled = false;
     Promise.all([
-      fetch(`/api/nfl/team/${game.awayAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-      fetch(`/api/nfl/team/${game.homeAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      cachedResponseFetch(`/api/nfl/team/${game.awayAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      cachedResponseFetch(`/api/nfl/team/${game.homeAbbr}/info`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
     ]).then(([away, home]) => {
       if (!cancelled) setTeamStats({ away, home });
     });
@@ -85,7 +88,9 @@ function NFLGameDetail() {
             </div>
             <div className="nfl-detail-status-block">
               <span className={`game-status ${game.status.toLowerCase()}`} style={{ fontSize: '0.82rem', padding: '5px 12px' }}>{game.status}</span>
-              <div style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '6px' }}>{game.quarter}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '6px' }}>
+                {game.status === 'UPCOMING' ? formatTime(game, { includeDay: true }) : game.quarter}
+              </div>
             </div>
             <div className="nfl-detail-team-block">
               {teamLogos[game.homeAbbr] && (
@@ -101,7 +106,7 @@ function NFLGameDetail() {
             </div>
           </div>
           <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--court-text-muted)', marginTop: '8px' }}>
-            {game.arena} • {game.date}
+            {game.arena} • {game.status === 'UPCOMING' ? formatDateTime(game, { includeWeekday: true, includeYear: true }) : formatDate(game, { includeWeekday: true, includeYear: true })}
           </div>
         </div>
       </section>

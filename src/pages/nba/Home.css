@@ -60,6 +60,19 @@
   font-weight: 800;
 }
 
+.date-btn-sub {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--court-text-muted);
+  opacity: 0.8;
+  margin-left: 3px;
+}
+
+.date-btn.active .date-btn-sub {
+  color: #a3a3a3;
+  opacity: 1;
+}
+
 .live-pulse-dot {
   width: 7px;
   height: 7px;

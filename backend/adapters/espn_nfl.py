@@ -67,8 +67,12 @@ def compute_nfl_today_games():
         time_val = ev['status']['displayClock'] if status == 'LIVE' else ('00:00' if status == 'FINAL' else 'Upcoming')
         home_abbr = home_team['team']['abbreviation']
         away_abbr = away_team['team']['abbreviation']
+        ev_date = ev.get('date', '') or comp.get('date', '')
         mapped_games.append({
             'id': ev['id'],
+            'date': ev_date.split('T')[0] if ev_date else '',
+            'isoDate': ev_date,
+            'startTime': ev_date,
             'home': home_team['team']['name'],
             'away': away_team['team']['name'],
             'homeAbbr': home_abbr,
@@ -110,8 +114,12 @@ def compute_nfl_games_list():
             status = 'FINAL'
         elif ev['status']['type']['state'] == 'in':
             status = 'LIVE'
+        ev_date = ev.get('date', '')
         games.append({
-            'id': ev['id'], 'date': ev['date'].split('T')[0],
+            'id': ev['id'],
+            'date': ev_date.split('T')[0] if ev_date else '',
+            'isoDate': ev_date,
+            'startTime': ev_date,
             'home': home['team']['name'], 'away': away['team']['name'],
             'homeAbbr': home['team']['abbreviation'],
             'awayAbbr': away['team']['abbreviation'],
@@ -339,8 +347,10 @@ def register_routes(app, cache):
                     'description': raw_drive.get('description', ''),
                 }
 
+            comp_date = comps.get('date', '')
             game_data = {
-                'id': str(game_id), 'date': comps.get('date', '').split('T')[0],
+                'id': str(game_id), 'date': comp_date.split('T')[0] if comp_date else '',
+                'isoDate': comp_date, 'startTime': comp_date,
                 'home': home_team.get('displayName', 'Home'), 'away': away_team.get('displayName', 'Away'),
                 'homeAbbr': home_team.get('abbreviation', ''), 'awayAbbr': away_team.get('abbreviation', ''),
                 'homeScore': int(home.get('score', 0)) if home.get('score') else 0,
@@ -512,8 +522,10 @@ def register_routes(app, cache):
                     if hs == asc: result_val = 'T'
                     elif (hs > asc if is_home else asc > hs): result_val = 'W'
                     else: result_val = 'L'
+                ev_date = ev.get('date', '') or comp.get('date', '')
                 games.append({
-                    'id': ev.get('id'), 'date': ev.get('date', '').split('T')[0],
+                    'id': ev.get('id'), 'date': ev_date.split('T')[0] if ev_date else '',
+                    'isoDate': ev_date, 'startTime': ev_date,
                     'home': home.get('team', {}).get('shortDisplayName', ''),
                     'away': away.get('team', {}).get('shortDisplayName', ''),
                     'homeAbbr': h_ab, 'awayAbbr': a_ab, 'homeScore': hs, 'awayScore': asc,

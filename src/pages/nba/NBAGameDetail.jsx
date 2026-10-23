@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getCached } from '../../utils/cache';
+import { cachedResponseFetch, getCached } from '../../utils/cache';
 import ScorebugHero from '../../components/ScorebugHero';
 import ShotChart from '../../components/ShotChart';
 import Lineups from '../../components/Lineups';
@@ -38,13 +38,13 @@ function GameDetail() {
       if (foundInToday) return foundInToday;
 
       try {
-        const res = await fetch(`/api/games/${gameId}`);
+        const res = await cachedResponseFetch(`/api/games/${gameId}`);
         if (res.ok) return await res.json();
       } catch (err) {
         console.warn('Targeted game fetch failed, falling back:', err);
       }
 
-      const listRes = await fetch('/api/games');
+      const listRes = await cachedResponseFetch('/api/games');
       if (!listRes.ok) throw new Error(`HTTP error ${listRes.status}`);
       const games = await listRes.json();
       const found = games.find((g) => String(g.id) === String(gameId));
@@ -54,13 +54,13 @@ function GameDetail() {
 
     Promise.all([
       fetchGamePromise(),
-      fetch(`/api/games/${gameId}/boxscore`)
+      cachedResponseFetch(`/api/games/${gameId}/boxscore`)
         .then((res) => (res.ok ? res.json() : { home: [], away: [] }))
         .catch(() => ({ home: [], away: [] })),
-      fetch(`/api/games/${gameId}/playbyplay`)
+      cachedResponseFetch(`/api/games/${gameId}/playbyplay`)
         .then((res) => (res.ok ? res.json() : []))
         .catch(() => []),
-      fetch(`/api/games/${gameId}/shots`)
+      cachedResponseFetch(`/api/games/${gameId}/shots`)
         .then((res) => (res.ok ? res.json() : []))
         .catch(() => []),
     ])

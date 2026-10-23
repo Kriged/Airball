@@ -5,7 +5,8 @@ Thin orchestrator that registers sport adapters and shared routes.
 import time
 import threading
 import datetime
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from backend.core.cache import cache
 from backend.sports.registry import register_all_sports
@@ -13,6 +14,36 @@ from backend.adapters.thesportsdb import register_routes as register_tsdb
 
 app = Flask(__name__)
 CORS(app)
+
+
+# Vercel's shared CDN performs stale-while-revalidate across all function
+# instances. Keep browser freshness short so a tab can still see live scores.
+EDGE_TTL_RULES = {
+    "/games/today": (45, 300),
+    "/standings": (1800, 86400),
+    "/stats/": (1800, 86400),
+    "/rankings": (3600, 86400),
+    "/teams": (43200, 86400),
+    "/fighters": (43200, 86400),
+}
+
+
+@app.after_request
+def add_vercel_edge_cache_headers(response):
+    """Make successful GET API results shareable by Vercel's Edge CDN."""
+    if request.method == "GET" and response.status_code == 200:
+        s_maxage, stale = 120, 600
+        for pattern, values in EDGE_TTL_RULES.items():
+            if pattern in request.path:
+                s_maxage, stale = values
+                break
+        response.headers["Cache-Control"] = (
+            f"public, max-age=15, s-maxage={s_maxage}, stale-while-revalidate={stale}"
+        )
+    elif response.status_code >= 400:
+        # Error payloads must never become a CDN response for healthy callers.
+        response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 # Health check endpoint
@@ -75,7 +106,10 @@ def prewarm_cache():
         print(f"[PREWARM] Notice: TSDB logo prewarm failed: {e}")
 
 
-threading.Thread(target=prewarm_cache, daemon=True).start()
+# Background work cannot outlive a Vercel response. CDN SWR and the persisted
+# cache cover production; local developers can opt into prewarming explicitly.
+if os.getenv("AIRBALL_ENABLE_PREWARM") == "1" and not os.getenv("VERCEL"):
+    threading.Thread(target=prewarm_cache, daemon=True).start()
 
 # Disable debug mode for production safety; enable threaded mode
 if __name__ == '__main__':

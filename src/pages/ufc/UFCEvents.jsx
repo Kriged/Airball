@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../../components/PageLayout';
-import { getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { cachedResponseFetch, getCached, setCached, getSportCacheKey } from '../../utils/cache';
+import { useTimezone } from '../../context/useTimezone';
 import './UFC.css';
 
 const CACHE_KEY = getSportCacheKey('ufc', 'events');
@@ -9,6 +10,7 @@ const statusFilters = ['All', 'UPCOMING', 'COMPLETED'];
 const statusLabels = { 'All': 'All Events', 'UPCOMING': 'Upcoming', 'COMPLETED': 'Completed' };
 
 function UFCEvents() {
+  const { formatDateTime } = useTimezone();
   const [events, setEvents] = useState(() => { const c = getCached(CACHE_KEY, 60000); return c ? c.data : []; });
   const [loading, setLoading] = useState(() => !getCached(CACHE_KEY, 60000));
   const [activeStatus, setActiveStatus] = useState('All');
@@ -18,7 +20,7 @@ function UFCEvents() {
     const c = getCached(CACHE_KEY, 60000);
     if (c && !c.isStale) return;
     let m = true;
-    fetch('/api/ufc/events').then(r => r.ok ? r.json() : []).then(d => { if (m) { setEvents(d || []); setCached(CACHE_KEY, d || []); setLoading(false); } }).catch(() => { if (m) setLoading(false); });
+    cachedResponseFetch('/api/ufc/events').then(r => r.ok ? r.json() : []).then(d => { if (m) { setEvents(d || []); setCached(CACHE_KEY, d || []); setLoading(false); } }).catch(() => { if (m) setLoading(false); });
     return () => { m = false; };
   }, []);
 
@@ -85,7 +87,7 @@ function UFCEvents() {
                 </div>
               )}
               <div className="ufc-event-footer">
-                <span>{event.date}</span><span>{event.venue}</span>
+                <span>{formatDateTime(event, { includeWeekday: true, includeYear: true })}</span><span>{event.venue}</span>
               </div>
             </Link>
           ))}
