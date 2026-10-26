@@ -1,0 +1,26 @@
+Airball Sports Updates
+Copyright (c) 2026 Kriged
+
+Third-Party Data Provider Notices, Terms of Use, and Redistribution Restrictions:
+
+1. ESPN APIs (site.api.espn.com & site.web.api.espn.com):
+   - Sports scoreboards, box scores, game schedules, play-by-play, and athlete rosters are fetched via ESPN public web endpoints.
+   - All league names, team names, logos, athlete identities, and trademarks belong to ESPN Enterprises, Inc., the National Basketball Association (NBA), the National Football League (NFL), the Ultimate Fighting Championship (UFC), and their respective affiliate organizations.
+   - This application is an independent project and is not affiliated with, sponsored by, or endorsed by ESPN, the NBA, the NFL, or the UFC.
+   - ESPN terms strictly restrict commercial use, resale, bulk aggregation, or automated commercial redistribution.
+
+2. TheSportsDB API (thesportsdb.com):
+   - Team logos, league badges, and athlete photography are provided via TheSportsDB API.
+   - The free-tier API (developer key) is explicitly restricted to personal, non-commercial, hobbyist, and educational use.
+   - Commercial applications and production deployments with monetized traffic require a commercial API subscription under TheSportsDB licensing terms.
+   - Team badges and portraits remain the intellectual property and trademarks of their respective copyright holders.
+
+3. API-Sports (api-sports.io):
+   - Detailed American Football (NFL) standings, rosters, and statistical data are optionally integrated via API-Sports.
+   - API-Sports services are governed by their Terms of Service (https://api-sports.io/terms).
+   - Direct redistribution or resale of raw data is prohibited. Commercial deployments require a valid commercial tier subscription.
+
+4. BallDontLie API (balldontlie.io):
+   - NBA player directories, bio statistics, and season box score averages are provided via BallDontLie API.
+   - Usage is subject to the BallDontLie Terms of Use. Free tier keys are provided for evaluation, personal development, and non-commercial hobby projects.
+   - Commercial usage requires an active commercial license. NBA logos, names, and official player marks are proprietary to NBA Properties, Inc.

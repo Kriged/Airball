@@ -1,3 +1,13 @@
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+
 # Logs
 logs
 *.log

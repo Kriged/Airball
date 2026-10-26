@@ -18,7 +18,7 @@ API_BASE = "https://v1.american-football.api-sports.io"
 LEAGUE_NFL_ID = 1
 
 def get_api_key():
-    return os.getenv("NFL_API_KEY") or os.getenv("API_SPORTS_KEY") or "d0b578997077889c54acfebde4972e81"
+    return (os.getenv("NFL_API_KEY") or os.getenv("API_SPORTS_KEY") or "").strip()
 
 _session = requests.Session()
 _MEMORY_CACHE = {}

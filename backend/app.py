@@ -8,12 +8,38 @@ import datetime
 import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from backend.core.config import get_allowed_cors_origins, validate_environment
+from backend.core.security import register_security_middleware
 from backend.core.cache import cache
 from backend.sports.registry import register_all_sports
 from backend.adapters.thesportsdb import register_routes as register_tsdb
 
 app = Flask(__name__)
-CORS(app)
+
+# Validate environment variables on startup
+validate_environment()
+
+# Configure strict session/cookie flags
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "airball-security-session-secret-2026"),
+)
+
+# Strict CORS: only allowed origins (local development + configured domains)
+allowed_origins = get_allowed_cors_origins()
+CORS(
+    app,
+    resources={r"/api/*": {"origins": allowed_origins}},
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+    supports_credentials=False,
+    max_age=86400,
+)
+
+# Register security headers, rate limiting, and safe error handling
+register_security_middleware(app)
 
 
 # Vercel's shared CDN performs stale-while-revalidate across all function

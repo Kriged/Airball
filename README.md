@@ -171,5 +171,19 @@ npm test -- --run
 python -m pytest -q
 ```
 
-The test suite covers provider response normalization, cache behavior, failure handling, and the NBA, NFL, and UFC API routes.
+The test suite covers provider response normalization, cache behavior, failure handling, security hardening, and the NBA, NFL, and UFC API routes.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) © 2026 Kriged.
+
+## Data Attribution & Third-Party Terms
+
+All sports scores, statistics, player profiles, and logos are retrieved through third-party APIs and public services subject to their respective terms of use:
+- **ESPN APIs**: Scoreboards and play-by-play data are fetched via ESPN public endpoints. Intended for non-commercial personal viewing. All trademarks belong to ESPN, NBA, NFL, and UFC.
+- **TheSportsDB**: Team logos and fighter photos are provided under [TheSportsDB Free API](https://www.thesportsdb.com) terms, restricted to non-commercial/hobbyist use.
+- **API-Sports**: NFL statistics and rosters are provided under [API-Sports Terms of Service](https://api-sports.io/terms). Raw data redistribution is prohibited; commercial use requires a paid subscription.
+- **BallDontLie**: NBA stats and player directories are provided under [BallDontLie Terms](https://www.balldontlie.io). Non-commercial use on free tier; trademarks belong to NBA Properties, Inc.
+
+See [NOTICE](NOTICE) for complete third-party licensing and usage terms.
 

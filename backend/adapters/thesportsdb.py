@@ -8,11 +8,16 @@ Endpoints exposed:
   GET /api/nfl/teams/logos  → {'KC': 'https://...', ...}
   GET /api/ufc/fighter/<name>/photo → {'photoUrl': 'https://...'}
 """
+import os
 import time
 import requests
 from flask import jsonify
+from backend.core.security import sanitize_string
 
-TSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3"
+def get_tsdb_base():
+    """Retrieve TheSportsDB base URL using configured environment key."""
+    key = (os.getenv("THESPORTSDB_KEY") or "3").strip()
+    return f"https://www.thesportsdb.com/api/v1/json/{key}"
 
 # Persistent session shared for TheSportsDB calls
 _session = requests.Session()
@@ -99,7 +104,7 @@ NFL_TEAMS = {
 def _fetch_team_logo(team_name):
     """Look up a team by name on TheSportsDB and return its badge URL or None."""
     try:
-        url = f"{TSDB_BASE}/searchteams.php"
+        url = f"{get_tsdb_base()}/searchteams.php"
         resp = _session.get(url, params={'t': team_name}, timeout=10)
         resp.raise_for_status()
         teams = resp.json().get('teams') or []
@@ -113,7 +118,7 @@ def _fetch_team_logo(team_name):
 def _fetch_player_photo(player_name):
     """Look up a player/fighter by name and return their thumb URL or None."""
     try:
-        url = f"{TSDB_BASE}/searchplayers.php"
+        url = f"{get_tsdb_base()}/searchplayers.php"
         resp = _session.get(url, params={'p': player_name}, timeout=10)
         resp.raise_for_status()
         players = resp.json().get('player') or []
@@ -179,17 +184,21 @@ def register_routes(app, cache):
     @app.route('/api/ufc/fighter/<path:name>/photo')
     def ufc_fighter_photo(name):
         """Return the headshot URL for a UFC fighter (cached 24h)."""
-        cache_key = f'ufc:photo_{name.lower()}'
+        clean_name = sanitize_string(name, max_len=100)
+        if not clean_name:
+            return jsonify({'photoUrl': ''}), 400
+
+        cache_key = f'ufc:photo_{clean_name.lower()}'
         cached = cache.get(cache_key)
         if cached is not None:
             return jsonify(cached)
         try:
-            photo_url = _fetch_player_photo(name)
+            photo_url = _fetch_player_photo(clean_name)
             result = {'photoUrl': photo_url or ''}
             cache.set(cache_key, result, ttl=86400, swr_ttl=604800)
             return jsonify(result)
         except Exception as e:
-            print(f"ERROR ufc fighter photo for '{name}':", e)
+            print(f"ERROR ufc fighter photo for '{clean_name}':", e)
             return jsonify({'photoUrl': ''}), 500
 
     # ------------------------------------------------------------------

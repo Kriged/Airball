@@ -13,7 +13,7 @@ from backend.core.provider_client import fetch_with_circuit_breaker, ProviderUna
 BDL_BASE = "https://api.balldontlie.io/v1"
 
 def get_api_key():
-    return os.getenv("BALLDONTLIE_API_KEY") or os.getenv("NBA_API_KEY") or "3dd6823e-e3a1-412e-bd35-c551ae940d0f"
+    return (os.getenv("BALLDONTLIE_API_KEY") or os.getenv("NBA_API_KEY") or "").strip()
 
 # Persistent session with API key header
 _session = requests.Session()
