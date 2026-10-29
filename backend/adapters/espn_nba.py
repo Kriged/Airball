@@ -133,6 +133,23 @@ def extract_stats_from_competitors(competitors):
     return stats if has_any else None
 
 
+def extract_line_score(competitor):
+    """Normalize ESPN period scores into regulation quarters and overtime."""
+    quarters = []
+    overtime = []
+    for period in competitor.get('linescores', []):
+        value = period.get('displayValue', period.get('value', 0))
+        try:
+            value = int(float(value))
+        except (TypeError, ValueError):
+            value = 0
+        if period.get('period', len(quarters) + len(overtime) + 1) <= 4:
+            quarters.append(value)
+        else:
+            overtime.append(value)
+    return quarters, sum(overtime) if overtime else 0
+
+
 def map_espn_event(ev):
     comp = ev['competitions'][0]
     home_team = next(c for c in comp['competitors'] if c['homeAway'] == 'home')
@@ -152,6 +169,8 @@ def map_espn_event(ev):
     time_val = ev['status']['displayClock'] if status == 'LIVE' else ('00:00' if status == 'FINAL' else 'Upcoming')
     home_abbr = home_team['team']['abbreviation']
     away_abbr = away_team['team']['abbreviation']
+    home_quarters, home_overtime = extract_line_score(home_team)
+    away_quarters, away_overtime = extract_line_score(away_team)
     game_id = ev['id']
     game_stats = extract_stats_from_competitors(comp.get('competitors', []))
     if not game_stats:
@@ -172,6 +191,8 @@ def map_espn_event(ev):
         'awayColor': TEAM_COLORS.get(normalize_abbr_to_app(away_abbr), '#1d428a'),
         'homeLogo': home_team['team'].get('logo', ''),
         'awayLogo': away_team['team'].get('logo', ''),
+        'homeQuarters': home_quarters, 'awayQuarters': away_quarters,
+        'homeOvertime': home_overtime, 'awayOvertime': away_overtime,
         'quarter': quarter, 'time': time_val, 'status': status,
         'arena': comp.get('venue', {}).get('fullName', 'NBA Arena'),
         'stats': game_stats, 'playByPlay': [], 'boxScore': {'home': [], 'away': []}
@@ -487,7 +508,9 @@ def register_routes(app, cache):
     @app.route('/api/nba/games/<game_id>')
     @app.route('/api/games/<game_id>', endpoint='legacy_game_detail')
     def nba_single_game(game_id):
-        cache_key = f'nba:game_detail_{game_id}'
+        # Versioned key invalidates detail payloads cached before line scores
+        # were included in the normalized game response.
+        cache_key = f'nba:game_detail_v2_{game_id}'
         cached = cache.get(cache_key)
         if cached is not None:
             return jsonify(cached)
@@ -507,6 +530,8 @@ def register_routes(app, cache):
             away_team = away.get('team', {})
             home_abbr = normalize_abbr_to_app(home_team.get('abbreviation', ''))
             away_abbr = normalize_abbr_to_app(away_team.get('abbreviation', ''))
+            home_quarters, home_overtime = extract_line_score(home)
+            away_quarters, away_overtime = extract_line_score(away)
             comp_date = comps.get('date', '')
             game_data = {
                 'id': str(game_id), 'date': comp_date.split('T')[0] if comp_date else '',
@@ -516,6 +541,8 @@ def register_routes(app, cache):
                 'homeAbbr': home_abbr, 'awayAbbr': away_abbr,
                 'homeScore': int(home.get('score', 0)) if home.get('score') else 0,
                 'awayScore': int(away.get('score', 0)) if away.get('score') else 0,
+                'homeQuarters': home_quarters, 'awayQuarters': away_quarters,
+                'homeOvertime': home_overtime, 'awayOvertime': away_overtime,
                 'status': status, 'quarter': status_type.get('detail', ''),
                 'time': comps.get('status', {}).get('displayClock', '00:00'),
                 'arena': comps.get('venue', {}).get('fullName', 'NBA Arena')

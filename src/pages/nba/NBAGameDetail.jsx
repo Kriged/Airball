@@ -29,6 +29,13 @@ function GameDetail() {
     let cancelled = false;
 
     const fetchGamePromise = async () => {
+      try {
+        const res = await cachedResponseFetch(`/api/games/${gameId}`, { force: true });
+        if (res.ok) return await res.json();
+      } catch (err) {
+        console.warn('Targeted game fetch failed, falling back:', err);
+      }
+
       const cachedGames = getCached('games_list');
       const foundInList = cachedGames?.data?.find((g) => String(g.id) === String(gameId));
       if (foundInList) return foundInList;
@@ -36,13 +43,6 @@ function GameDetail() {
       const cachedToday = getCached('today_games');
       const foundInToday = cachedToday?.data?.find((g) => String(g.id) === String(gameId));
       if (foundInToday) return foundInToday;
-
-      try {
-        const res = await cachedResponseFetch(`/api/games/${gameId}`);
-        if (res.ok) return await res.json();
-      } catch (err) {
-        console.warn('Targeted game fetch failed, falling back:', err);
-      }
 
       const listRes = await cachedResponseFetch('/api/games');
       if (!listRes.ok) throw new Error(`HTTP error ${listRes.status}`);

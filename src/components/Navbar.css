@@ -206,14 +206,18 @@
 /* Search Bar */
 .nav-search-wrapper {
   position: relative;
-  flex: 1;
+  flex: 1 1 320px;
+  width: 100%;
   max-width: 320px;
-  min-width: 0;
+  min-width: 120px;
 }
 
 .nav-search-bar {
   display: flex;
   align-items: center;
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
   gap: 8px;
   background: #0a0a0a;
   border: 1px solid #1a1a1a;
@@ -232,7 +236,9 @@
 }
 
 .nav-search-input {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
   background: none;
   border: none;
   outline: none;
@@ -634,13 +640,11 @@
   .brand-tag {
     display: none;
   }
-
-  .nav-status-pill .nav-status-text {
-    display: none;
-  }
+  
   .nav-search-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
     max-width: none;
-    flex: 1 1 80px;
   }
   .sport-pill {
     padding: 6px 10px;

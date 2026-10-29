@@ -13,9 +13,12 @@ function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
   const awayScore = game.awayScore ?? (isUpcoming ? '—' : 0);
 
   // Use real quarters from API if provided; otherwise show empty/dash
-  const hasQuarterData = Array.isArray(game.awayQuarters) && Array.isArray(game.homeQuarters);
+  const hasQuarterData = Array.isArray(game.awayQuarters) && Array.isArray(game.homeQuarters) &&
+    game.awayQuarters.length > 0 && game.homeQuarters.length > 0;
   const awayQ = hasQuarterData ? game.awayQuarters : ['—', '—', '—', '—'];
   const homeQ = hasQuarterData ? game.homeQuarters : ['—', '—', '—', '—'];
+  const awayOT = game.awayOvertime ?? 0;
+  const homeOT = game.homeOvertime ?? 0;
 
   const numHome = Number(homeScore);
   const numAway = Number(awayScore);
@@ -209,7 +212,7 @@ function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
                 <td>{awayQ[1]}</td>
                 <td>{awayQ[2]}</td>
                 <td className={hasQuarterData ? 'active-q' : ''}>{awayQ[3]}</td>
-                <td style={{ color: 'var(--court-subtle)' }}>-</td>
+                <td style={{ color: hasQuarterData ? 'inherit' : 'var(--court-subtle)' }}>{hasQuarterData ? awayOT : '-'}</td>
                 <td className="total-cell">{awayScore}</td>
               </tr>
               <tr>
@@ -221,7 +224,7 @@ function ScorebugHero({ game, latestPlay, scoreFlashing, awayLogo, homeLogo }) {
                 <td>{homeQ[1]}</td>
                 <td>{homeQ[2]}</td>
                 <td className={hasQuarterData ? 'active-q' : ''}>{homeQ[3]}</td>
-                <td style={{ color: 'var(--court-subtle)' }}>-</td>
+                <td style={{ color: hasQuarterData ? 'inherit' : 'var(--court-subtle)' }}>{hasQuarterData ? homeOT : '-'}</td>
                 <td className="total-cell">{homeScore}</td>
               </tr>
             </tbody>

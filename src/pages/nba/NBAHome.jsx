@@ -92,18 +92,26 @@ function Home() {
     let cancelled = false;
 
     Promise.all([
+      cachedFetch(`/api/games/${activeGameId}`, { force: true })
+        .catch(() => null),
       cachedFetch(`/api/games/${activeGameId}/playbyplay`)
         .catch(() => []),
       cachedFetch(`/api/games/${activeGameId}/boxscore`)
         .catch(() => ({ home: [], away: [] })),
       cachedFetch(`/api/games/${activeGameId}/shots`)
         .catch(() => [])
-    ]).then(([pbpRes, boxRes, shotsRes]) => {
+    ]).then(([gameRes, pbpRes, boxRes, shotsRes]) => {
       if (cancelled) return;
       if (Array.isArray(pbpRes)) {
         setPbpList(pbpRes);
       }
       const updates = {};
+      if (gameRes && typeof gameRes === 'object') {
+        updates.homeQuarters = gameRes.homeQuarters;
+        updates.awayQuarters = gameRes.awayQuarters;
+        updates.homeOvertime = gameRes.homeOvertime;
+        updates.awayOvertime = gameRes.awayOvertime;
+      }
       if (boxRes && (boxRes.home?.length > 0 || boxRes.away?.length > 0)) {
         updates.boxScore = boxRes;
       }

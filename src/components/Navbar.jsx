@@ -252,11 +252,7 @@ function Navbar() {
           {/* Right Action Controls */}
           <div className="nav-actions">
             {/* Live Socket Status */}
-            <div className="nav-status-pill">
-              <span className="nav-ping-wrapper"><span className="nav-ping-ring" /><span className="nav-ping-dot" /></span>
-              <span className="nav-status-text">SPORT-RADAR 2.0s</span>
-              <span className="nav-latency-text">{latency}ms</span>
-            </div>
+
 
             {/* Audio Chime Toggle — Only show for sports with audio */}
             {sportConfig.hasAudio && (
