@@ -2,17 +2,19 @@
 
 .scorebug-hero {
   border-radius: var(--radius-xl);
+    width: 100%;
+    min-width: 0;
   padding: 20px;
   position: relative;
   overflow: hidden;
   border: 1px solid #1a1a1a;
   background: #0a0a0a;
+    min-width: 0;
 }
 
 .scorebug-watermark {
   position: absolute;
   right: -50px;
-  top: -50px;
   opacity: 0.03;
   pointer-events: none;
   width: 320px;
@@ -68,6 +70,7 @@
   font-weight: 700;
   color: #e5e5e5;
   background: #0a0a0a;
+    overflow: hidden;
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid #1a1a1a;
@@ -118,6 +121,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
+    min-width: 0;
 }
 
 .scorebug-team-side.home {
@@ -362,6 +366,12 @@
   .scorebug-team-side.home {
     justify-content: flex-end;
     text-align: right;
+  }
+
+  .scorebug-team-side > div:not(.scorebug-team-badge) {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
   }
 
   .scorebug-team-badge {

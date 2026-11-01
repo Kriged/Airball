@@ -634,7 +634,13 @@
 
 @media (max-width: 640px) {
   .navbar-inner {
-    gap: 8px;
+    height: auto;
+    min-height: var(--nav-height);
+    flex-wrap: wrap;
+    column-gap: 8px;
+    row-gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 
   .brand-tag {
@@ -642,9 +648,25 @@
   }
   
   .nav-search-wrapper {
-    flex: 1 1 auto;
+    order: 4;
+    flex: 0 0 100%;
     min-width: 0;
     max-width: none;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .navbar-brand {
+    order: 1;
+  }
+
+  .sport-selector {
+    order: 2;
+  }
+
+  .nav-actions {
+    order: 3;
+    margin-left: auto;
   }
   .sport-pill {
     padding: 6px 10px;
@@ -673,9 +695,16 @@
 }
 
 @media (max-width: 420px) {
-  .brand-text-container,
   .nav-status-pill {
     display: none;
+  }
+
+  .brand-text-container {
+    display: flex;
+  }
+
+  .brand-title {
+    font-size: 0.95rem;
   }
 
   .brand-icon-box {

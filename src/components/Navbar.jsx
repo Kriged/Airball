@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { courtAudio } from '../utils/audio';
 import { useSport } from '../context/useSport';
 import { SPORTS, SPORT_SLUGS } from '../utils/sportConfig';
 import SettingsModal from './SettingsModal';
@@ -89,7 +88,6 @@ function buildSearchItems(activeSport) {
 function Navbar() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [audioActive, setAudioActive] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [delaySeconds, setDelaySeconds] = useState(0);
 
@@ -134,12 +132,6 @@ function Navbar() {
 
   const handleSelect = (item) => { setQuery(''); setIsFocused(false); navigate(item.path); };
   const handleKeyDown = (e) => { if (e.key === 'Enter' && results.length > 0) handleSelect(results[0]); };
-
-  const toggleSound = () => {
-    const newState = courtAudio.toggleAudio();
-    setAudioActive(newState);
-    if (newState) courtAudio.play('three');
-  };
 
   // Determine active path for nav link highlighting
   const isActiveNavPath = (path) => {
@@ -244,25 +236,6 @@ function Navbar() {
           <div className="nav-actions">
             {/* Live Socket Status */}
 
-
-            {/* Audio Chime Toggle — Only show for sports with audio */}
-            {sportConfig.hasAudio && (
-              <button onClick={toggleSound} className={`nav-icon-btn ${audioActive ? 'active' : ''}`}
-                title={audioActive ? 'Mute court audio' : 'Enable court audio'} aria-label={audioActive ? 'Mute court audio' : 'Enable court audio'} id="audio-toggle-btn">
-                {audioActive ? (
-                  <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                ) : (
-                  <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="23" y1="9" x2="17" y2="15" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="17" y1="9" x2="23" y2="15" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                )}
-              </button>
-            )}
 
             {/* Timezone Selector */}
             <TimezoneSelector />
@@ -404,15 +377,6 @@ function Navbar() {
                   <span>⏱️ Stream Delay Buffer</span>
                   <span className="mobile-drawer-action-val">{delaySeconds > 0 ? `+${delaySeconds}s` : 'Real-Time (0s)'}</span>
                 </button>
-                {sportConfig.hasAudio && (
-                  <button
-                    onClick={toggleSound}
-                    className="mobile-drawer-action-btn"
-                  >
-                    <span>{audioActive ? '🔊 Audio Alerts On' : '🔇 Audio Muted'}</span>
-                    <span className="mobile-drawer-action-val">{audioActive ? 'Active' : 'Off'}</span>
-                  </button>
-                )}
               </div>
             </div>
           </div>

@@ -657,6 +657,13 @@
 }
 
 @media (max-width: 640px) {
+  .match-center-main,
+  .match-center-left,
+  .match-center-right {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .container {
     padding-left: 12px;
     padding-right: 12px;
