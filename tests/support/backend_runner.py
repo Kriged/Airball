@@ -121,6 +121,20 @@ def cache_case(case):
         first = cache.get_with_swr("scoreboard", compute, ttl=0, swr_ttl=0)
         second = cache.get_with_swr("scoreboard", compute, ttl=0, swr_ttl=0)
         return {"calls": calls, "results": [first, second]}
+    if case == "stale_triggers_refresh":
+        # Soft TTL = 0 so data is immediately stale, but hard TTL = 60 keeps it valid.
+        # The first call is a cold-cache miss (computes synchronously).
+        first = cache.get_with_swr("scoreboard", compute, ttl=0, swr_ttl=60)
+        # Allow a moment so the entry's soft_expiry is in the past.
+        time.sleep(0.05)
+        # The second call finds stale data: it returns stale immediately and
+        # kicks off a background refresh (the core SWR behavior).
+        second = cache.get_with_swr("scoreboard", compute, ttl=0, swr_ttl=60)
+        # Wait for the background refresh thread to complete.
+        time.sleep(0.5)
+        # The third call should now see the refreshed value.
+        third = cache.get_with_swr("scoreboard", compute, ttl=0, swr_ttl=60)
+        return {"calls": calls, "results": [first, second, third]}
     if case == "concurrent":
         barrier = threading.Barrier(50)
         results = []

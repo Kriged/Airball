@@ -39,7 +39,7 @@ export const SPORTS = {
     // Page subtitles
     subtitles: {
       home: 'Real-Time NBA Live Scores & Analytics',
-      games: 'Box scores, schedules, and game results',
+      games: 'Daily finished games, schedules, and detailed box scores',
       standings: 'Conference and division standings with live records',
       players: 'Search and explore NBA players from all eras',
       stats: 'League leaders, analytics, and advanced metrics',

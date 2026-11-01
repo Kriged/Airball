@@ -20,11 +20,19 @@ app = Flask(__name__)
 validate_environment()
 
 # Configure strict session/cookie flags
+_secret_key = os.getenv("FLASK_SECRET_KEY")
+_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("VERCEL") == "1"
+if not _secret_key and _is_prod:
+    raise RuntimeError(
+        "FLASK_SECRET_KEY must be set in production. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "airball-security-session-secret-2026"),
+    SECRET_KEY=_secret_key or os.urandom(32).hex(),
 )
 
 # Strict CORS: only allowed origins (local development + configured domains)
@@ -107,7 +115,7 @@ def prewarm_cache():
         # NBA
         ('nba:today_games', lambda: compute_today_games(cache), 20, 300),
         ('nba:stats_leaders', compute_stats_leaders, 1800, 86400),
-        ('nba:games_list', compute_games_list, 300, 3600),
+        ('nba:games_list_v2', compute_games_list, 300, 900),
         ('nba:standings', compute_standings, 300, 3600),
         # NFL
         ('nfl:today_games', compute_nfl_today_games, 30, 300),

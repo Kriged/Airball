@@ -92,7 +92,6 @@ function Navbar() {
   const [audioActive, setAudioActive] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [delaySeconds, setDelaySeconds] = useState(0);
-  const [latency, setLatency] = useState(42);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -125,14 +124,6 @@ function Navbar() {
       document.body.style.overflow = '';
     };
   }, [mobileMenuOpen]);
-
-  // Fluctuate latency
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLatency(Math.floor(38 + Math.random() * 12));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   const results = query.trim().length > 0
     ? searchableItems.filter((item) => {

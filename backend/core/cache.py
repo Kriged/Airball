@@ -62,10 +62,12 @@ class Cache:
         with self.lock:
             return float(self.provider_cooldowns.get(provider, 0))
 
-    def set_cooldown(self, provider, until):
+    def set_cooldown(self, provider, until, persist=False):
+        """Record a provider cooldown without blocking the request path."""
         with self.lock:
             self.provider_cooldowns[provider] = float(until)
-            self._persist_locked()
+            if persist:
+                self._persist_locked()
 
     def clear_cooldown(self, provider):
         with self.lock:
@@ -102,11 +104,23 @@ class Cache:
                 if now < entry['soft_expiry']:
                     return entry['value']
                 elif now < entry['hard_expiry']:
-                    # Data is past soft TTL but within hard TTL: return it immediately. On Vercel,
-                    # CDN SWR handles the refresh because serverless background threads are not durable.
+                    # Data is past soft TTL but within hard TTL: return stale data
+                    # immediately and kick off a background refresh.
                     if key not in self.refreshing:
                         self.refreshing.add(key)
-                        self.refreshing.discard(key)
+                        stale_value = entry['value']
+
+                        def _bg_refresh(k=key, fn=compute_fn, t=ttl, s=swr_ttl):
+                            try:
+                                val = fn()
+                                if val is not None:
+                                    self.set(k, val, ttl=t, swr_ttl=s)
+                            finally:
+                                with self.lock:
+                                    self.refreshing.discard(k)
+
+                        threading.Thread(target=_bg_refresh, daemon=True).start()
+                        return stale_value
                     return entry['value']
 
             # Cache miss or hard expiry

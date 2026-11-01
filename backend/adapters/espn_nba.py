@@ -155,7 +155,12 @@ def map_espn_event(ev):
     home_team = next(c for c in comp['competitors'] if c['homeAway'] == 'home')
     away_team = next(c for c in comp['competitors'] if c['homeAway'] == 'away')
     status_name = ev['status']['type'].get('name', '')
-    if status_name == 'STATUS_FINAL' or ev['status']['type'].get('completed'):
+    status_type = ev['status']['type']
+    is_postponed = 'POSTPONED' in status_name
+    is_delayed = 'DELAYED' in status_name
+    if not is_postponed and not is_delayed and (
+        status_type.get('completed') or status_type.get('state') == 'post' or 'FINAL' in status_name
+    ):
         status = 'FINAL'
     elif status_name == 'STATUS_POSTPONED':
         status = 'POSTPONED'
@@ -439,8 +444,13 @@ def compute_games_list():
         if not home or not away:
             continue
             
-        status_name = ev.get('status', {}).get('type', {}).get('name', '')
-        if status_name == 'STATUS_FINAL' or ev.get('status', {}).get('type', {}).get('completed'):
+        status_type = ev.get('status', {}).get('type', {})
+        status_name = status_type.get('name', '')
+        is_postponed = 'POSTPONED' in status_name
+        is_delayed = 'DELAYED' in status_name
+        if not is_postponed and not is_delayed and (
+            status_type.get('completed') or status_type.get('state') == 'post' or 'FINAL' in status_name
+        ):
             status = 'FINAL'
         elif status_name == 'STATUS_POSTPONED':
             status = 'POSTPONED'
@@ -453,8 +463,11 @@ def compute_games_list():
             
         def extract_score(s):
             if not s: return 0
-            if isinstance(s, dict): return int(float(s.get('value', 0)))
-            return int(float(s))
+            if isinstance(s, dict): s = s.get('value', s.get('displayValue', 0))
+            try:
+                return int(float(s))
+            except (TypeError, ValueError):
+                return 0
             
         ev_date = ev.get('date', '') or comp.get('date', '')
         games.append({
@@ -472,7 +485,10 @@ def compute_games_list():
             'arena': comp.get('venue', {}).get('fullName', 'NBA Arena')
         })
         
-    games.sort(key=lambda x: x['date'])
+    # Keep the most recent finished games at the top of the Games tab. The
+    # endpoint is refreshed throughout the day so completed games appear
+    # without waiting for the next season snapshot.
+    games.sort(key=lambda x: x['isoDate'] or x['date'], reverse=True)
     return games
 
 
@@ -703,32 +719,49 @@ def register_routes(app, cache):
                     team_side = 'away' if 'home' in used_sides else 'home'
                 stats_keys = team_box['statistics'][0]['names']
                 athletes = team_box['statistics'][0]['athletes']
-                min_idx = stats_keys.index('MIN') if 'MIN' in stats_keys else -1
-                pts_idx = stats_keys.index('PTS') if 'PTS' in stats_keys else -1
-                reb_idx = stats_keys.index('REB') if 'REB' in stats_keys else -1
-                ast_idx = stats_keys.index('AST') if 'AST' in stats_keys else -1
-                fg_idx = stats_keys.index('FG') if 'FG' in stats_keys else -1
+
+                def stat_value(stats_arr, *names, default='0'):
+                    for name in names:
+                        if name in stats_keys:
+                            return stats_arr[stats_keys.index(name)]
+                    return default
+
+                def int_stat(stats_arr, *names):
+                    try:
+                        return int(float(stat_value(stats_arr, *names)))
+                    except (TypeError, ValueError):
+                        return 0
+
+                def split_stat(stats_arr, *names):
+                    value = str(stat_value(stats_arr, *names, default='0-0'))
+                    try:
+                        made, attempts = value.split('-', 1)
+                        return int(made), int(attempts)
+                    except (TypeError, ValueError):
+                        return 0, 0
+
                 mapped = []
                 for ath in athletes:
                     if ath.get('didNotPlay'): continue
                     stats_arr = ath.get('stats', [])
                     if not stats_arr: continue
-                    fg_val = stats_arr[fg_idx] if fg_idx != -1 else '0-0'
-                    try:
-                        if '-' in str(fg_val):
-                            parts = str(fg_val).split('-')
-                            fgm, fga = int(parts[0]), int(parts[1])
-                        else:
-                            fgm, fga = 0, 0
-                    except (ValueError, IndexError):
-                        fgm, fga = 0, 0
+                    fgm, fga = split_stat(stats_arr, 'FG')
+                    three_pm, three_pa = split_stat(stats_arr, '3PT', '3P')
+                    ftm, fta = split_stat(stats_arr, 'FT')
                     mapped.append({
                         'name': ath['athlete']['displayName'],
-                        'min': stats_arr[min_idx] if min_idx != -1 else '0',
-                        'pts': int(stats_arr[pts_idx]) if pts_idx != -1 else 0,
-                        'reb': int(stats_arr[reb_idx]) if reb_idx != -1 else 0,
-                        'ast': int(stats_arr[ast_idx]) if ast_idx != -1 else 0,
-                        'fgm': fgm, 'fga': fga
+                        'min': stat_value(stats_arr, 'MIN'),
+                        'pts': int_stat(stats_arr, 'PTS'),
+                        'reb': int_stat(stats_arr, 'REB'),
+                        'ast': int_stat(stats_arr, 'AST'),
+                        'stl': int_stat(stats_arr, 'STL'),
+                        'blk': int_stat(stats_arr, 'BLK'),
+                        'to': int_stat(stats_arr, 'TO', 'TOV'),
+                        'pf': int_stat(stats_arr, 'PF'),
+                        'pm': int_stat(stats_arr, '+/-', 'PLUS_MINUS'),
+                        'fgm': fgm, 'fga': fga,
+                        'threePm': three_pm, 'threePa': three_pa,
+                        'ftm': ftm, 'fta': fta
                     })
                 result[team_side] = mapped
             cache.set(cache_key, result, ttl=20, swr_ttl=1200)
@@ -841,7 +874,7 @@ def register_routes(app, cache):
     @app.route('/api/games')
     def nba_games_list():
         try:
-            data = cache.get_with_swr('nba:games_list', compute_games_list, ttl=300, swr_ttl=3600)
+            data = cache.get_with_swr('nba:games_list_v2', compute_games_list, ttl=300, swr_ttl=900)
             return jsonify(data)
         except Exception as e:
             print("ERROR nba games list:", e)
@@ -980,7 +1013,7 @@ def register_routes(app, cache):
         tasks = [
             ('nba:today_games', lambda: compute_today_games(cache), 20, 300),
             ('nba:stats_leaders', compute_stats_leaders, 1800, 86400),
-            ('nba:games_list', compute_games_list, 300, 3600),
+            ('nba:games_list_v2', compute_games_list, 300, 900),
             ('nba:standings', compute_standings, 300, 3600),
         ]
         for key, fn, ttl, swr_ttl in tasks:

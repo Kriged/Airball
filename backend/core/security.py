@@ -75,12 +75,22 @@ class IPRateLimiter:
 
 
 def get_client_ip():
-    """Extract client IP respecting standard reverse-proxy headers safely."""
-    # Vercel / Cloudflare / reverse proxy headers
-    x_forwarded = request.headers.get("X-Forwarded-For")
-    if x_forwarded:
-        # First IP in the comma-separated list is the original client
-        return x_forwarded.split(",")[0].strip()
+    """Extract client IP from trusted proxy headers or fall back to remote_addr.
+
+    TRUSTED_PROXY_DEPTH controls how many rightmost X-Forwarded-For entries
+    are trusted (default 1, meaning only the IP appended by the first
+    reverse proxy). Set to 0 to ignore X-Forwarded-For entirely.
+    """
+    depth = int(os.getenv("TRUSTED_PROXY_DEPTH", "1"))
+    if depth > 0:
+        x_forwarded = request.headers.get("X-Forwarded-For")
+        if x_forwarded:
+            # Each trusted reverse proxy appends one entry. The client IP
+            # written by the outermost trusted proxy is at position -depth.
+            parts = [ip.strip() for ip in x_forwarded.split(",")]
+            if len(parts) >= depth:
+                return parts[-depth]
+            # Fewer entries than expected depth — fall through to remote_addr
     return request.remote_addr or "127.0.0.1"
 
 

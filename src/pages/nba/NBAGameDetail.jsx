@@ -235,11 +235,15 @@ function GameDetail() {
                       <th>Rating</th>
                       <th>MIN</th>
                       <th style={{ color: '#FFFFFF' }}>PTS</th>
+                      <th>FG</th>
+                      <th>3PT</th>
+                      <th>FT</th>
+                      <th>FG%</th>
                       <th>REB</th>
                       <th>AST</th>
-                      <th>FGM</th>
-                      <th>FGA</th>
-                      <th>FG%</th>
+                      <th>STL</th>
+                      <th>BLK</th>
+                      <th>TO</th>
                       <th style={{ color: '#FFFFFF', paddingRight: 12 }}>+/-</th>
                     </tr>
                   </thead>
@@ -273,15 +277,19 @@ function GameDetail() {
                           </td>
                           <td>{player.min || '0:00'}</td>
                           <td style={{ fontWeight: 800, color: '#FFFFFF' }}>{player.pts ?? 0}</td>
-                          <td>{player.reb ?? 0}</td>
-                          <td>{player.ast ?? 0}</td>
-                          <td>{player.fgm ?? 0}</td>
-                          <td>{player.fga ?? 0}</td>
+                          <td>{player.fgm ?? 0}-{player.fga ?? 0}</td>
+                          <td>{player.threePm ?? 0}-{player.threePa ?? 0}</td>
+                          <td>{player.ftm ?? 0}-{player.fta ?? 0}</td>
                           <td>
                             <span style={{ color: parseFloat(fgPct) >= 50 ? '#00E676' : parseFloat(fgPct) < 30 ? '#FF3B30' : 'inherit' }}>
                               {fgPct}%
                             </span>
                           </td>
+                          <td>{player.reb ?? 0}</td>
+                          <td>{player.ast ?? 0}</td>
+                          <td>{player.stl ?? 0}</td>
+                          <td>{player.blk ?? 0}</td>
+                          <td>{player.to ?? 0}</td>
                           <td style={{ fontWeight: 800, paddingRight: 12, color: pm !== null ? (pm >= 0 ? '#00E676' : '#FF3B30') : 'var(--court-text-muted)' }}>
                             {pm !== null ? (pm >= 0 ? `+${pm}` : pm) : '—'}
                           </td>

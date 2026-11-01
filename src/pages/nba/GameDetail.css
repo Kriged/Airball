@@ -71,6 +71,14 @@
   margin-top: 8px;
 }
 
+.boxscore-table-card {
+  overflow-x: auto;
+}
+
+.boxscore-table {
+  min-width: 760px;
+}
+
 @media (max-width: 480px) {
   .gd-page {
     padding-top: calc(var(--nav-height) + 12px);

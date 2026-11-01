@@ -4,10 +4,10 @@ import PageLayout from '../../components/PageLayout';
 import { cachedResponseFetch, getCached, setCached } from '../../utils/cache';
 import { useTimezone } from '../../context/useTimezone';
 
-const GAMES_CACHE_KEY = 'games_list';
+const GAMES_CACHE_KEY = `games_list_v2_${new Date().toISOString().slice(0, 10)}`;
 
 // BUG-007: Added 'Live' filter option
-const statusFilters = ['All', 'FINAL', 'LIVE', 'UPCOMING'];
+const statusFilters = ['FINAL', 'All', 'LIVE', 'UPCOMING'];
 const statusLabels = { 'All': 'All Games', 'FINAL': 'Final', 'LIVE': 'Live', 'UPCOMING': 'Upcoming' };
 
 function Games() {
@@ -17,8 +17,9 @@ function Games() {
     return cached ? cached.data : [];
   });
   const [loading, setLoading] = useState(() => !getCached(GAMES_CACHE_KEY, 60000));
-  const [activeStatus, setActiveStatus] = useState('All');
+  const [activeStatus, setActiveStatus] = useState('FINAL');
   const [search, setSearch] = useState('');
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     const cached = getCached(GAMES_CACHE_KEY, 60000);
@@ -28,7 +29,7 @@ function Games() {
 
     let isMounted = true;
     // BUG-012: Added res.ok check
-    cachedResponseFetch('/api/games')
+    cachedResponseFetch(`/api/games?daily=${GAMES_CACHE_KEY}`, { force: true })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
@@ -38,6 +39,8 @@ function Games() {
         const validGames = data || [];
         setGames(validGames);
         setCached(GAMES_CACHE_KEY, validGames);
+        setCached('games_list', validGames);
+        setLastUpdated(new Date());
         setLoading(false);
       })
       .catch((err) => {
@@ -50,7 +53,8 @@ function Games() {
   }, []);
 
   const filtered = games.filter((g) => {
-    const matchStatus = activeStatus === 'All' || g.status === activeStatus;
+    const normalizedStatus = String(g.status || '').toUpperCase();
+    const matchStatus = activeStatus === 'All' || normalizedStatus === activeStatus;
     const matchSearch = g.home.toLowerCase().includes(search.toLowerCase()) ||
                         g.away.toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
@@ -59,7 +63,7 @@ function Games() {
   return (
     <PageLayout
       title="Games"
-      subtitle="Box scores, schedules, and game results"
+      subtitle="Daily finished games, schedules, and detailed box scores"
       icon="🏀"
       accentColor="#457b9d"
       bannerImage="/images/games.png"
@@ -77,7 +81,8 @@ function Games() {
         />
       </div>
 
-      <div className="filter-tabs" id="game-status-filters">
+      <div className="games-toolbar">
+        <div className="filter-tabs" id="game-status-filters">
         {statusFilters.map((s) => (
           <button
             key={s}
@@ -88,6 +93,12 @@ function Games() {
             {statusLabels[s]}
           </button>
         ))}
+        </div>
+        {lastUpdated && (
+          <span className="games-last-updated">
+            Updated {lastUpdated.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+          </span>
+        )}
       </div>
 
       {loading ? (
@@ -108,7 +119,7 @@ function Games() {
               <div className="game-team">
                 <span className="game-team-name">{game.away}</span>
                 {/* BUG-007: Show scores for both Final and Live games */}
-                {(game.status === 'FINAL' || game.status === 'LIVE') && (
+                {(['FINAL', 'LIVE'].includes(String(game.status).toUpperCase())) && (
                   <span className={`game-score ${game.awayScore > game.homeScore ? 'winner' : ''}`}>
                     {game.awayScore}
                   </span>
@@ -117,7 +128,7 @@ function Games() {
               <span className="game-vs">@</span>
               <div className="game-team">
                 <span className="game-team-name">{game.home}</span>
-                {(game.status === 'FINAL' || game.status === 'LIVE') && (
+                {(['FINAL', 'LIVE'].includes(String(game.status).toUpperCase())) && (
                   <span className={`game-score ${game.homeScore > game.awayScore ? 'winner' : ''}`}>
                     {game.homeScore}
                   </span>
@@ -125,8 +136,15 @@ function Games() {
               </div>
             </div>
             <div className="game-meta">
-              <span className={`game-status ${game.status.toLowerCase()}`}>{game.status}</span>
+              <span className={`game-status ${String(game.status).toLowerCase()}`}>
+                {String(game.status).toUpperCase() === 'FINAL' ? 'FINAL' : game.status}
+              </span>
               <span className="game-arena">{game.arena}</span>
+              <span className="game-details-link">
+                {String(game.status).toUpperCase() === 'FINAL'
+                  ? `${game.away} ${game.awayScore} - ${game.homeScore} ${game.home}`
+                  : 'View details →'}
+              </span>
             </div>
           </Link>
         ))}
