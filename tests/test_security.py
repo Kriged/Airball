@@ -4,7 +4,7 @@ Tests for security hardening: headers, CORS, input validation, rate limiting, an
 import pytest
 from backend.app import app
 from backend.core.security import limiter, sanitize_string, validate_request_inputs
-from backend.core.config import get_allowed_cors_origins
+from backend.core.config import get_allowed_cors_origins, validate_environment
 
 
 @pytest.fixture
@@ -71,3 +71,12 @@ def test_cors_configuration():
     origins = get_allowed_cors_origins()
     assert any('localhost' in o for o in origins)
     assert any('5173' in o for o in origins)
+
+
+def test_production_validation_does_not_require_optional_bdl_key(monkeypatch):
+    monkeypatch.setenv('VERCEL', '1')
+    monkeypatch.setenv('USE_API_SPORTS', 'false')
+    monkeypatch.delenv('BALLDONTLIE_API_KEY', raising=False)
+    monkeypatch.delenv('NBA_API_KEY', raising=False)
+
+    assert validate_environment() is True

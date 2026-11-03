@@ -22,11 +22,11 @@ validate_environment()
 # Configure strict session/cookie flags
 _secret_key = os.getenv("FLASK_SECRET_KEY")
 _is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("VERCEL") == "1"
+# This API does not use Flask sessions. Do not make a missing optional session
+# signing key crash an otherwise stateless Vercel function before `/api/health`
+# or the scoreboard routes can run. A configured key is still used when present.
 if not _secret_key and _is_prod:
-    raise RuntimeError(
-        "FLASK_SECRET_KEY must be set in production. "
-        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
-    )
+    print("[CONFIG] FLASK_SECRET_KEY is not set; using an ephemeral key for this stateless function.")
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
