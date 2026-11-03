@@ -48,7 +48,7 @@ function Home() {
 
   const fetchGames = useCallback(() => {
     const ds = getDateString(dateFilter);
-    return cachedFetch(`/api/games/today?date=${ds}&tz=${encodeURIComponent(timezone)}`);
+    return cachedFetch(`/api/games/today?date=${ds}&tz=${encodeURIComponent(timezone)}`, { force: true });
   }, [dateFilter, getDateString, timezone]);
 
   // Fetch games using sport-aware polling hook (15s live / 60s idle)
@@ -57,6 +57,7 @@ function Home() {
     {
       sport: 'nba',
       isLive: hasLiveGame,
+      retryOnEmpty: true,
       onData: (data) => {
         if (!Array.isArray(data)) return;
         setGames(data);

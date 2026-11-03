@@ -15,13 +15,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Per-sport polling intervals in milliseconds
 export const POLL_INTERVALS = {
-  nba: { live: 15000, idle: 900000 },
-  nfl: { live: 20000, idle: 900000 },
-  ufc: { live: 10000, idle: 300000 }, // UFC rounds are short
+  nba: { live: 15000, retry: 45000, idle: 900000 },
+  nfl: { live: 20000, retry: 45000, idle: 900000 },
+  ufc: { live: 10000, retry: 30000, idle: 300000 }, // UFC rounds are short
 };
 
 /** Fallback intervals when sport is not recognised */
-const DEFAULT_INTERVALS = { live: 20000, idle: 60000 };
+const DEFAULT_INTERVALS = { live: 20000, retry: 45000, idle: 60000 };
 
 function documentIsVisible() {
   return typeof document === 'undefined' || document.visibilityState !== 'hidden';
@@ -36,6 +36,11 @@ function containsLiveGame(result) {
   });
 }
 
+function isEmptyResult(result) {
+  const games = Array.isArray(result) ? result : (result?.games || result?.data || []);
+  return Array.isArray(games) && games.length === 0;
+}
+
 /**
  * @param {() => Promise<any>} fetchFn  - async function that returns the data
  * @param {object} options
@@ -47,12 +52,19 @@ function containsLiveGame(result) {
  *   updated — callers can manage their own state instead.
  * @returns {{ data: any, loading: boolean, error: Error|null, refetch: () => void }}
  */
-export function useSportPolling(fetchFn, { sport, isLive = false, disabled = false, onData } = {}) {
+export function useSportPolling(fetchFn, {
+  sport,
+  isLive = false,
+  disabled = false,
+  retryOnEmpty = false,
+  onData,
+} = {}) {
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(() => !disabled);
   const [error, setError]     = useState(null);
   const [visible, setVisible] = useState(documentIsVisible);
   const [detectedLive, setDetectedLive] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const mountedRef             = useRef(true);
   const intervalRef            = useRef(null);
   const onDataRef              = useRef(onData);
@@ -61,7 +73,9 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
   }, [onData]);
 
   const intervals = POLL_INTERVALS[sport?.toLowerCase()] || DEFAULT_INTERVALS;
-  const interval  = (isLive || detectedLive) ? intervals.live : intervals.idle;
+  const interval  = (isLive || detectedLive)
+    ? intervals.live
+    : (retrying ? intervals.retry : intervals.idle);
 
   const execute = useCallback(async () => {
     if (!documentIsVisible()) return;
@@ -69,6 +83,7 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
       const result = await fetchFn();
       if (!mountedRef.current) return;
       setDetectedLive(containsLiveGame(result));
+      setRetrying(retryOnEmpty && isEmptyResult(result));
       if (onDataRef.current) {
         onDataRef.current(result);
       } else {
@@ -77,11 +92,12 @@ export function useSportPolling(fetchFn, { sport, isLive = false, disabled = fal
       setError(null);
     } catch (err) {
       if (!mountedRef.current) return;
+      setRetrying(retryOnEmpty);
       setError(err);
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [fetchFn]);
+  }, [fetchFn, retryOnEmpty]);
 
   useEffect(() => {
     const updateVisibility = () => setVisible(documentIsVisible());

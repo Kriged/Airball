@@ -1,6 +1,7 @@
 import requests
 import time
 from requests.adapters import HTTPAdapter
+from urllib.parse import parse_qs, urlparse
 from .cache import cache
 
 
@@ -8,10 +9,27 @@ class FailFastSession(requests.Session):
     """Session used by ESPN adapters that still call ``session.get`` directly."""
     provider_name = "espn"
 
+    @staticmethod
+    def provider_key(url):
+        """Scope ESPN cooldowns to a league and endpoint instead of globally."""
+        path_parts = [part for part in urlparse(url).path.split('/') if part]
+        sport_index = next((index for index, part in enumerate(path_parts) if part == 'sports'), None)
+        if sport_index is None or len(path_parts) <= sport_index + 2:
+            return FailFastSession.provider_name
+
+        league = path_parts[sport_index + 2]
+        endpoint = path_parts[-1] if path_parts[-1] != league else 'root'
+        provider_key = f"{FailFastSession.provider_name}:{league}:{endpoint}"
+        dates = parse_qs(urlparse(url).query).get('dates', [])
+        if endpoint == 'scoreboard' and dates:
+            provider_key = f"{provider_key}:{dates[0]}"
+        return provider_key
+
     def request(self, method, url, **kwargs):
+        provider_key = self.provider_key(url)
         now = time.time()
-        if cache.cooldown_until(self.provider_name) > now:
-            raise ProviderCircuitOpenError(f"{self.provider_name} circuit is open")
+        if cache.cooldown_until(provider_key) > now:
+            raise ProviderCircuitOpenError(f"{provider_key} circuit is open")
 
         # Adapter call sites historically supplied timeout=10. Clamp every call here
         # so one overlooked call cannot consume a serverless request's whole budget.
@@ -19,16 +37,16 @@ class FailFastSession(requests.Session):
         try:
             response = super().request(method, url, **kwargs)
         except requests.RequestException as error:
-            cache.set_cooldown(self.provider_name, now + 15)
+            cache.set_cooldown(provider_key, now + 15)
             raise ProviderUnavailableError(str(error)) from error
 
         if response.status_code in (402, 403, 429):
-            cache.set_cooldown(self.provider_name, now + _retry_after_seconds(response))
-            raise ProviderRateLimitedError(f"{self.provider_name} returned HTTP {response.status_code}")
+            cache.set_cooldown(provider_key, now + _retry_after_seconds(response))
+            raise ProviderRateLimitedError(f"{provider_key} returned HTTP {response.status_code}")
         if response.status_code >= 500:
-            cache.set_cooldown(self.provider_name, now + 15)
-            raise ProviderUnavailableError(f"{self.provider_name} returned HTTP {response.status_code}")
-        cache.clear_cooldown(self.provider_name)
+            cache.set_cooldown(provider_key, now + 15)
+            raise ProviderUnavailableError(f"{provider_key} returned HTTP {response.status_code}")
+        cache.clear_cooldown(provider_key)
         return response
 
 
@@ -121,4 +139,4 @@ def fetch_with_circuit_breaker(provider_name, url, *, request_session=None, head
 
 def fetch_json(url, timeout=(2.0, 3.0)):
     """Fetch ESPN JSON through the same bounded, fail-fast policy."""
-    return fetch_with_circuit_breaker("espn", url, timeout=timeout).json()
+    return fetch_with_circuit_breaker(FailFastSession.provider_key(url), url, timeout=timeout).json()
