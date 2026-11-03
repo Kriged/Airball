@@ -74,3 +74,36 @@ def test_stats_overview(client):
     data = res.get_json()
     assert data['total_fighters'] > 1000
     assert 'stances' in data
+
+def test_events_list_default_returns_archive(client):
+    res = client.get('/api/ufc/events')
+    assert res.status_code == 200
+    data = res.get_json()
+    assert isinstance(data, list)
+    assert len(data) >= 200
+    completed = [e for e in data if e.get('status') == 'COMPLETED']
+    assert len(completed) >= 200
+    first_bouts = completed[0].get('bouts', [])
+    assert len(first_bouts) > 0
+    # Winner boolean is present
+    f1 = first_bouts[0]['fighter1']
+    f2 = first_bouts[0]['fighter2']
+    assert 'winner' in f1 and 'winner' in f2
+
+def test_fighter_details_includes_fight_history(client):
+    res = client.get('/api/ufc/fighters/charles-oliveira')
+    assert res.status_code == 200
+    data = res.get_json()
+    assert 'fights' in data
+    assert len(data['fights']) > 0
+    first_fight = data['fights'][0]
+    assert 'result' in first_fight
+    assert 'opponent' in first_fight
+    assert 'event' in first_fight
+
+def test_fights_search_by_year_and_query(client):
+    res = client.get('/api/ufc/fights?year=2024&limit=10')
+    assert res.status_code == 200
+    data = res.get_json()
+    assert len(data['data']) > 0
+    assert all(f.get('date', '').startswith('2024') for f in data['data'])

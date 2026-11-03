@@ -30,6 +30,7 @@ FIGHTERS_BY_ID = {}
 FIGHTERS_BY_NAME = {}
 EVENTS_BY_ID = {}
 FIGHTS_BY_ID = {}
+FIGHTS_BY_FIGHTER_NAME = {}
 
 WEIGHT_CLASSES = [
     'Heavyweight', 'Light Heavyweight', 'Middleweight', 'Welterweight',
@@ -40,7 +41,7 @@ WEIGHT_CLASSES = [
 
 def load_ufc_data():
     """Load pre-compiled UFC datasets from disk."""
-    global FIGHTERS, EVENTS, FIGHTS, OVERVIEW, FIGHTERS_BY_ID, FIGHTERS_BY_NAME, EVENTS_BY_ID, FIGHTS_BY_ID
+    global FIGHTERS, EVENTS, FIGHTS, OVERVIEW, FIGHTERS_BY_ID, FIGHTERS_BY_NAME, EVENTS_BY_ID, FIGHTS_BY_ID, FIGHTS_BY_FIGHTER_NAME
     
     fighters_path = os.path.join(DATA_DIR, 'fighters.json')
     events_path = os.path.join(DATA_DIR, 'events.json')
@@ -69,6 +70,14 @@ def load_ufc_data():
             with open(fights_path, 'r', encoding='utf-8') as f:
                 FIGHTS = json.load(f)
                 FIGHTS_BY_ID = {str(f['id']): f for f in FIGHTS if f.get('id')}
+                FIGHTS_BY_FIGHTER_NAME = {}
+                for fight in FIGHTS:
+                    n1 = fight.get('fighter1', {}).get('name', '').strip().lower()
+                    n2 = fight.get('fighter2', {}).get('name', '').strip().lower()
+                    if n1:
+                        FIGHTS_BY_FIGHTER_NAME.setdefault(n1, []).append(fight)
+                    if n2:
+                        FIGHTS_BY_FIGHTER_NAME.setdefault(n2, []).append(fight)
         except Exception as e:
             print(f"[UFC] Error loading fights: {e}")
 
@@ -467,7 +476,45 @@ def register_routes(app, cache):
         fighter = FIGHTERS_BY_ID.get(fighter_id) or FIGHTERS_BY_NAME.get(fighter_id.lower())
         if not fighter:
             return jsonify({'error': 'Fighter not found'}), 404
-        return jsonify(fighter)
+
+        fighter_data = dict(fighter)
+        if not fighter_data.get('fights'):
+            name_key = fighter_data.get('name', '').strip().lower()
+            raw_fights = FIGHTS_BY_FIGHTER_NAME.get(name_key, [])
+            history = []
+            for rf in raw_fights:
+                rf1 = rf.get('fighter1', {})
+                rf2 = rf.get('fighter2', {})
+                is_f1 = rf1.get('name', '').strip().lower() == name_key
+                me = rf1 if is_f1 else rf2
+                opp = rf2 if is_f1 else rf1
+                won = bool(me.get('winner'))
+                lost = bool(opp.get('winner'))
+                is_final = rf.get('method') == 'Final' or rf.get('round', 0) > 0
+                if won:
+                    res = 'WIN'
+                elif lost:
+                    res = 'LOSS'
+                elif is_final:
+                    res = 'DRAW'
+                else:
+                    res = 'UPCOMING'
+                history.append({
+                    'id': rf.get('id'),
+                    'result': res,
+                    'opponent': opp.get('name', 'Opponent'),
+                    'opponent_id': opp.get('id'),
+                    'event': rf.get('event_name', 'UFC Event'),
+                    'event_id': rf.get('event_id'),
+                    'date': rf.get('date', ''),
+                    'method': rf.get('method') or 'Decision',
+                    'round': rf.get('round', 0),
+                    'time': rf.get('time', ''),
+                })
+            history.sort(key=lambda x: x.get('date', ''), reverse=True)
+            fighter_data['fights'] = history
+
+        return jsonify(fighter_data)
 
     app.add_url_rule('/api/ufc/fighters/<fighter_id>', 'ufc_get_fighter', handle_get_fighter, methods=['GET'])
     app.add_url_rule('/api/fighters/<fighter_id>', 'get_fighter', handle_get_fighter, methods=['GET'])
@@ -520,11 +567,6 @@ def register_routes(app, cache):
             events_list = cache.get_with_swr('ufc:events', compute_ufc_events, ttl=60, swr_ttl=600)
         except Exception as e:
             print("ERROR ufc events:", e)
-            # A paginated or filtered request can still be fulfilled from the
-            # bundled archive. Keep the unfiltered live-only route's existing
-            # safe empty response when ESPN is unavailable.
-            if not request.args:
-                return jsonify([])
             events_list = []
 
         limit_arg = request.args.get('limit')
@@ -532,28 +574,33 @@ def register_routes(app, cache):
         search = request.args.get('search', '').strip().lower()
         status_filter = request.args.get('status', '').strip().upper()
         year = request.args.get('year', '').strip()
+        return_format = request.args.get('format', '').strip().lower()
 
-        # If search, year, or pagination is requested, merge with archive
-        if search or year or limit_arg is not None or offset_arg is not None:
+        # Always merge live/scoreboard events with historical archive
+        merged = {str(e['id']): e for e in EVENTS}
+        for le in (events_list or []):
+            merged[str(le['id'])] = le
+        results = sorted(merged.values(), key=lambda x: x.get('date', ''), reverse=True)
+
+        if search:
+            results = [e for e in results if search in e.get('name', '').lower() or search in e.get('venue', '').lower()]
+
+        if status_filter and status_filter != 'ALL':
+            results = [e for e in results if e.get('status', '').upper() == status_filter]
+
+        if year:
+            results = [e for e in results if e.get('date', '').startswith(year)]
+
+        total = len(results)
+
+        # If pagination was specifically requested
+        if limit_arg is not None or offset_arg is not None:
             limit = min(int(limit_arg or 50), 200)
             offset = max(int(offset_arg or 0), 0)
-
-            merged = {str(e['id']): e for e in EVENTS}
-            for le in (events_list or []):
-                merged[str(le['id'])] = le
-            results = sorted(merged.values(), key=lambda x: x.get('date', ''), reverse=True)
-
-            if search:
-                results = [e for e in results if search in e.get('name', '').lower() or search in e.get('venue', '').lower()]
-
-            if status_filter and status_filter != 'ALL':
-                results = [e for e in results if e.get('status', '').upper() == status_filter]
-
-            if year:
-                results = [e for e in results if e.get('date', '').startswith(year)]
-
-            total = len(results)
             paginated = results[offset:offset + limit]
+
+            if return_format == 'array':
+                return jsonify(paginated)
 
             return jsonify({
                 'total': total,
@@ -562,8 +609,8 @@ def register_routes(app, cache):
                 'data': paginated
             })
 
-        # Plain list without query params
-        return jsonify(events_list if events_list is not None else [])
+        # By default, return the full list of merged events as an array
+        return jsonify(results)
 
     app.add_url_rule('/api/ufc/events', 'ufc_events_list', handle_list_events, methods=['GET'])
     app.add_url_rule('/api/events', 'events_list', handle_list_events, methods=['GET'])
@@ -589,11 +636,13 @@ def register_routes(app, cache):
     # -----------------------------------------------------------------------
 
     def handle_list_fights():
-        """List all fights with method and search filters."""
+        """List all fights with method, year, and search filters."""
         limit = min(int(request.args.get('limit', 50)), 200)
         offset = max(int(request.args.get('offset', 0)), 0)
         search = request.args.get('search', '').strip().lower()
         method = request.args.get('method', '').strip().lower()
+        year = request.args.get('year', '').strip()
+        return_format = request.args.get('format', '').strip().lower()
 
         results = list(FIGHTS)
         if search:
@@ -605,8 +654,14 @@ def register_routes(app, cache):
         if method:
             results = [f for f in results if method in f.get('method', '').lower()]
 
+        if year:
+            results = [f for f in results if f.get('date', '').startswith(year)]
+
         total = len(results)
         paginated = results[offset:offset + limit]
+
+        if return_format == 'array':
+            return jsonify(paginated)
 
         return jsonify({
             'total': total,

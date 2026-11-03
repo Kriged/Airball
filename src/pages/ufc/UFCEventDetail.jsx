@@ -57,57 +57,82 @@ function UFCEventDetail() {
 
           {event.fightCard && event.fightCard.length > 0 ? (
             <div className="ufc-fight-card">
-              {event.fightCard.map((bout, i) => (
-                <div className={`ufc-bout-card ${i === 0 ? 'main-event' : ''}`} key={i}>
-                  {bout.weightClass && <div className="ufc-bout-weight-class">{bout.weightClass}</div>}
-                  <div className="ufc-bout-fighters" style={{ flex: 1 }}>
-                    {/* Fighter 1 */}
-                    <div className="ufc-bout-fighter-col">
-                      {bout.fighter1.photoUrl ? (
-                        <img
-                          src={bout.fighter1.photoUrl}
-                          alt={bout.fighter1.name}
-                          className="ufc-fighter-headshot"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      ) : (
-                        <div className="ufc-fighter-headshot-placeholder">🥊</div>
-                      )}
-                      <div className={`ufc-fighter-name ${bout.fighter1.winner ? 'winner' : bout.fighter2.winner ? 'loser' : ''}`}>
-                        {bout.fighter1.name}
+              {event.fightCard.map((bout, i) => {
+                const f1Win = Boolean(bout.fighter1?.winner);
+                const f2Win = Boolean(bout.fighter2?.winner);
+                const isDraw = !f1Win && !f2Win && (
+                  bout.result?.toLowerCase().includes('draw') ||
+                  bout.result?.toLowerCase().includes('no contest')
+                );
+                const winnerName = f1Win ? bout.fighter1.name : (f2Win ? bout.fighter2.name : null);
+                const loserName = f1Win ? bout.fighter2.name : (f2Win ? bout.fighter1.name : null);
+
+                return (
+                  <div className={`ufc-bout-card ${i === 0 ? 'main-event' : ''}`} key={i}>
+                    {bout.weightClass && <div className="ufc-bout-weight-class">{bout.weightClass}</div>}
+                    <div className="ufc-bout-fighters" style={{ flex: 1 }}>
+                      {/* Fighter 1 */}
+                      <div className="ufc-bout-fighter-col">
+                        {bout.fighter1.photoUrl ? (
+                          <img
+                            src={bout.fighter1.photoUrl}
+                            alt={bout.fighter1.name}
+                            className={`ufc-fighter-headshot ${f1Win ? 'winner-ring' : ''}`}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className={`ufc-fighter-headshot-placeholder ${f1Win ? 'winner-ring' : ''}`}>🥊</div>
+                        )}
+                        <div className={`ufc-fighter-name ${f1Win ? 'winner' : f2Win ? 'loser' : ''}`}>
+                          {bout.fighter1.name}
+                        </div>
+                        {f1Win && <span className="ufc-winner-badge">✓ WINNER</span>}
+                        {bout.fighter1.record && <div className="ufc-fighter-record">{bout.fighter1.record}</div>}
                       </div>
-                      {bout.fighter1.record && <div className="ufc-fighter-record">{bout.fighter1.record}</div>}
+
+                      <span className="ufc-bout-vs">VS</span>
+
+                      {/* Fighter 2 */}
+                      <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
+                        {bout.fighter2.photoUrl ? (
+                          <img
+                            src={bout.fighter2.photoUrl}
+                            alt={bout.fighter2.name}
+                            className={`ufc-fighter-headshot ${f2Win ? 'winner-ring' : ''}`}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className={`ufc-fighter-headshot-placeholder ${f2Win ? 'winner-ring' : ''}`}>🥊</div>
+                        )}
+                        <div className={`ufc-fighter-name ${f2Win ? 'winner' : f1Win ? 'loser' : ''}`}>
+                          {bout.fighter2.name}
+                        </div>
+                        {f2Win && <span className="ufc-winner-badge">✓ WINNER</span>}
+                        {bout.fighter2.record && <div className="ufc-fighter-record">{bout.fighter2.record}</div>}
+                      </div>
                     </div>
-
-                    <span className="ufc-bout-vs">VS</span>
-
-                    {/* Fighter 2 */}
-                    <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
-                      {bout.fighter2.photoUrl ? (
-                        <img
-                          src={bout.fighter2.photoUrl}
-                          alt={bout.fighter2.name}
-                          className="ufc-fighter-headshot"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
+                    <div className="ufc-bout-result">
+                      {winnerName ? (
+                        <div className="ufc-bout-winner-text">
+                          🏆 {winnerName} DEF. {loserName}
+                        </div>
+                      ) : isDraw ? (
+                        <div className="ufc-bout-draw-text">🤝 Draw / No Contest</div>
                       ) : (
-                        <div className="ufc-fighter-headshot-placeholder">🥊</div>
+                        bout.result && <div className="ufc-bout-method">{formatBout(bout.result)}</div>
                       )}
-                      <div className={`ufc-fighter-name ${bout.fighter2.winner ? 'winner' : bout.fighter1.winner ? 'loser' : ''}`}>
-                        {bout.fighter2.name}
-                      </div>
-                      {bout.fighter2.record && <div className="ufc-fighter-record">{bout.fighter2.record}</div>}
+                      {bout.method && bout.method !== 'Final' && (
+                        <div className="ufc-bout-method" style={{ fontSize: '0.74rem', color: '#a3a3a3' }}>
+                          {bout.method}
+                        </div>
+                      )}
+                      {bout.round > 0 && (
+                        <div className="ufc-bout-detail">Round {bout.round} • {bout.time || ''}</div>
+                      )}
                     </div>
                   </div>
-                  {(bout.method || bout.result) && (
-                    <div className="ufc-bout-result">
-                      {bout.method && <div className="ufc-bout-method">{bout.method}</div>}
-                      {bout.result && <div className="ufc-bout-detail">{formatBout(bout.result)}</div>}
-                      {bout.round > 0 && <div className="ufc-bout-detail">R{bout.round} {bout.time}</div>}
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="empty-state">

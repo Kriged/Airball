@@ -73,10 +73,102 @@
 
 .ufc-fighter-name.winner {
   color: #ffffff;
+  font-weight: 900;
 }
 
 .ufc-fighter-name.loser {
-  color: var(--court-text-muted);
+  color: #737373;
+  opacity: 0.65;
+}
+
+.ufc-winner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  margin-top: 3px;
+  width: fit-content;
+}
+
+.ufc-winner-badge.sm {
+  font-size: 0.62rem;
+  padding: 1px 5px;
+}
+
+.ufc-fighter-headshot.winner-ring {
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+}
+
+.ufc-bout-winner-text {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #22c55e;
+  margin-bottom: 3px;
+  letter-spacing: 0.02em;
+}
+
+.ufc-bout-draw-text {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #eab308;
+  margin-bottom: 3px;
+}
+
+.ufc-card-winner-summary {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #22c55e;
+  padding: 6px 14px;
+  background: rgba(34, 197, 94, 0.08);
+  border-top: 1px solid rgba(34, 197, 94, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ufc-result-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  min-width: 50px;
+  letter-spacing: 0.04em;
+}
+
+.ufc-result-pill.win {
+  background: rgba(34, 197, 94, 0.16);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.ufc-result-pill.loss {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.ufc-result-pill.draw {
+  background: rgba(234, 179, 8, 0.16);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+.ufc-result-pill.upcoming {
+  background: rgba(163, 163, 163, 0.16);
+  color: #a3a3a3;
+  border: 1px solid rgba(163, 163, 163, 0.35);
 }
 
 .ufc-fighter-record {

@@ -54,19 +54,31 @@ function UFCHome() {
                   <span className="ufc-event-name">{nextEvent.name}</span>
                   <span className={`ufc-status-${nextEvent.status.toLowerCase()}`}>{nextEvent.status}</span>
                 </div>
-                {nextEvent.bouts && nextEvent.bouts.length > 0 && (
-                  <div className="ufc-event-main-bout">
-                    <div className="ufc-bout-fighters">
-                      <span className={`ufc-fighter-name ${nextEvent.bouts[0].fighter1.winner ? 'winner' : ''}`}>
-                        {nextEvent.bouts[0].fighter1.name}
-                      </span>
-                      <span className="ufc-bout-vs">VS</span>
-                      <span className={`ufc-fighter-name ${nextEvent.bouts[0].fighter2.winner ? 'winner' : ''}`}>
-                        {nextEvent.bouts[0].fighter2.name}
-                      </span>
+                {nextEvent.bouts && nextEvent.bouts.length > 0 && (() => {
+                  const bout = nextEvent.bouts[0];
+                  const f1Win = Boolean(bout.fighter1?.winner);
+                  const f2Win = Boolean(bout.fighter2?.winner);
+                  const isFinished = nextEvent.status === 'COMPLETED';
+                  return (
+                    <div className="ufc-event-main-bout">
+                      <div className="ufc-bout-fighters">
+                        <div className="ufc-bout-fighter-col">
+                          <span className={`ufc-fighter-name ${f1Win ? 'winner' : (f2Win ? 'loser' : '')}`}>
+                            {bout.fighter1.name}
+                          </span>
+                          {isFinished && f1Win && <span className="ufc-winner-badge sm">✓ WIN</span>}
+                        </div>
+                        <span className="ufc-bout-vs">VS</span>
+                        <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
+                          <span className={`ufc-fighter-name ${f2Win ? 'winner' : (f1Win ? 'loser' : '')}`}>
+                            {bout.fighter2.name}
+                          </span>
+                          {isFinished && f2Win && <span className="ufc-winner-badge sm">✓ WIN</span>}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
                 <div className="ufc-event-footer">
                   <span>{nextEvent.venue}</span>
                   <span>{nextEvent.bouts?.length || 0} bouts</span>
@@ -81,31 +93,50 @@ function UFCHome() {
               <h2 className="section-title">Recent Results</h2>
               <p className="section-subtitle">Latest UFC event outcomes</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '14px' }}>
-                {recentEvents.map(event => (
-                  <Link to={`/ufc/events/${event.id}`} key={event.id} className="ufc-event-card" id={`ufc-event-${event.id}`}>
-                    <div className="ufc-event-header">
-                      <span className="ufc-event-name">{event.name}</span>
-                      <span className="ufc-status-completed">COMPLETED</span>
-                    </div>
-                    {event.bouts && event.bouts.length > 0 && (
-                      <div className="ufc-event-main-bout">
-                        <div className="ufc-bout-fighters">
-                          <span className={`ufc-fighter-name ${event.bouts[0].fighter1.winner ? 'winner' : 'loser'}`}>
-                            {event.bouts[0].fighter1.name}
-                          </span>
-                          <span className="ufc-bout-vs">VS</span>
-                          <span className={`ufc-fighter-name ${event.bouts[0].fighter2.winner ? 'winner' : 'loser'}`}>
-                            {event.bouts[0].fighter2.name}
-                          </span>
-                        </div>
+                {recentEvents.map(event => {
+                  const bout = event.bouts?.[0];
+                  const f1Win = Boolean(bout?.fighter1?.winner);
+                  const f2Win = Boolean(bout?.fighter2?.winner);
+                  const winnerName = f1Win ? bout?.fighter1?.name : (f2Win ? bout?.fighter2?.name : null);
+
+                  return (
+                    <Link to={`/ufc/events/${event.id}`} key={event.id} className="ufc-event-card" id={`ufc-event-${event.id}`}>
+                      <div className="ufc-event-header">
+                        <span className="ufc-event-name">{event.name}</span>
+                        <span className="ufc-status-completed">COMPLETED</span>
                       </div>
-                    )}
-                    <div className="ufc-event-footer">
-                      <span>{formatDateTime(event, { includeWeekday: true, includeYear: true })}</span>
-                      <span>{event.venue}</span>
-                    </div>
-                  </Link>
-                ))}
+                      {bout && (
+                        <div className="ufc-event-main-bout">
+                          <div className="ufc-bout-fighters">
+                            <div className="ufc-bout-fighter-col">
+                              <span className={`ufc-fighter-name ${f1Win ? 'winner' : f2Win ? 'loser' : ''}`}>
+                                {bout.fighter1.name}
+                              </span>
+                              {f1Win && <span className="ufc-winner-badge sm">✓ WIN</span>}
+                            </div>
+                            <span className="ufc-bout-vs">VS</span>
+                            <div className="ufc-bout-fighter-col" style={{ alignItems: 'flex-end' }}>
+                              <span className={`ufc-fighter-name ${f2Win ? 'winner' : f1Win ? 'loser' : ''}`}>
+                                {bout.fighter2.name}
+                              </span>
+                              {f2Win && <span className="ufc-winner-badge sm">✓ WIN</span>}
+                            </div>
+                          </div>
+                          {winnerName && (
+                            <div className="ufc-card-winner-summary" style={{ marginTop: '10px', borderRadius: 'var(--radius-sm)' }}>
+                              <span>🏆 {winnerName} won</span>
+                              {bout.round > 0 && <span style={{ color: 'var(--court-text-muted)', fontSize: '0.7rem' }}>• R{bout.round} {bout.time}</span>}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="ufc-event-footer">
+                        <span>{formatDateTime(event, { includeWeekday: true, includeYear: true })}</span>
+                        <span>{event.venue}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}

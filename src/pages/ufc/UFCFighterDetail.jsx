@@ -218,40 +218,66 @@ function UFCFighterDetail() {
           </div>
 
           {/* Fight History */}
-          {fighter.fights && fighter.fights.length > 0 && (
-            <div style={{ marginTop: '40px' }}>
-              <h2 className="section-title" style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Fight History</h2>
-              <p className="section-subtitle">{fighter.fights.length} career bouts recorded</p>
+          <div style={{ marginTop: '40px' }}>
+            <h2 className="section-title" style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Fight History</h2>
+            <p className="section-subtitle">
+              {fighter.fights && fighter.fights.length > 0
+                ? `${fighter.fights.length} career bouts recorded`
+                : 'No historical bouts recorded in database'}
+            </p>
 
+            {fighter.fights && fighter.fights.length > 0 ? (
               <div className="ufc-fight-card" style={{ marginTop: '16px' }}>
-                {fighter.fights.map((fight, i) => (
-                  <div className="ufc-bout-card" key={i}>
-                    <div style={{ width: '60px', fontWeight: 800, color: fight.result === 'win' || fight.result === 'Win' ? '#52c41a' : '#ff4d4f' }}>
-                      {fight.result ? fight.result.toUpperCase() : '--'}
-                    </div>
+                {fighter.fights.map((fight, i) => {
+                  const isWin = fight.result?.toUpperCase() === 'WIN';
+                  const isLoss = fight.result?.toUpperCase() === 'LOSS';
+                  const isUpcoming = fight.result?.toUpperCase() === 'UPCOMING';
+                  const statusClass = isWin ? 'win' : (isLoss ? 'loss' : (isUpcoming ? 'upcoming' : 'draw'));
 
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff' }}>
-                        vs. {fight.opponent || fight.fighter2 || 'Opponent'}
+                  return (
+                    <div className="ufc-bout-card" key={i}>
+                      <div style={{ minWidth: '60px' }}>
+                        <span className={`ufc-result-pill ${statusClass}`}>
+                          {fight.result ? fight.result.toUpperCase() : '--'}
+                        </span>
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--court-text-muted)' }}>
-                        {fight.event || 'UFC Event'} {fight.date ? `• ${formatDate(fight.date, { includeYear: true })}` : ''}
-                      </div>
-                    </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#e5e5e5' }}>
-                        {fight.method || 'Decision'}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff' }}>
+                          vs. {fight.opponent || 'Opponent'}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--court-text-muted)' }}>
+                          {fight.event_id ? (
+                            <Link to={`/ufc/events/${fight.event_id}`} style={{ color: 'var(--court-accent)', textDecoration: 'none' }}>
+                              {fight.event || 'UFC Event'}
+                            </Link>
+                          ) : (
+                            fight.event || 'UFC Event'
+                          )}{' '}
+                          {fight.date ? `• ${formatDate(fight.date, { includeYear: true })}` : ''}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--court-text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {fight.round ? `Round ${fight.round}` : ''} {fight.time || ''}
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#e5e5e5' }}>
+                          {fight.method || 'Decision'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--court-text-muted)', fontFamily: 'var(--font-mono)' }}>
+                          {fight.round > 0 ? `Round ${fight.round}` : ''} {fight.time || ''}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="empty-state" style={{ padding: '24px', marginTop: '16px' }}>
+                <p className="empty-state-text" style={{ fontSize: '0.85rem' }}>
+                  No past fight recordings available for {fighter.name}. Browse full event archives in <Link to="/ufc/history" style={{ color: 'var(--court-accent)' }}>UFC History</Link>.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </main>
