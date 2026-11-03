@@ -12,8 +12,12 @@ describe('ESPN proxy failure handling', () => {
   it('does not expose the upstream error body when no NBA cache entry exists', () => {
     const response = runBackend('failed-route', 'nba', '500', 'empty');
 
-    expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: 'Failed to fetch games', games: [] });
+    expect(response.status).toBe(503);
+    expect(response.body).toEqual({
+      error: 'NBA scoreboard temporarily unavailable',
+      temporary_unavailable: true,
+      games: [],
+    });
   });
 
   it('returns a safe empty NFL response when no cache entry exists', () => {

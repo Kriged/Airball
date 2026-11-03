@@ -220,7 +220,12 @@ def compute_today_games(cache, date_str=None, tz_name=None):
         if date_str:
             clean_date = date_str.replace('-', '')
             url += f"?dates={clean_date}"
-        d = session.get(url, timeout=10).json()
+        try:
+            d = session.get(url, timeout=10).json()
+        except Exception as e:
+            # Keep this route's contract consistent even if a test double or
+            # a future session implementation raises a raw requests error.
+            raise ProviderUnavailableError("NBA scoreboard is temporarily unavailable") from e
         return [map_espn_event(ev) for ev in d.get('events', [])]
 
     # Timezone-aware date resolution: determine US Eastern scoreboard dates overlapping target calendar day
@@ -261,11 +266,6 @@ def compute_today_games(cache, date_str=None, tz_name=None):
         except Exception as e:
             print(f"Warning: Failed to fetch scoreboard for {ed}: {e}")
 
-    if successful_fetches == 0:
-        raise ProviderUnavailableError(
-            f"NBA scoreboard unavailable for ESPN dates: {', '.join(espn_dates)}"
-        )
-
     today_in_tz = datetime.datetime.now(tz).strftime('%Y-%m-%d')
     is_target_today = (target_iso == today_in_tz)
 
@@ -299,6 +299,12 @@ def compute_today_games(cache, date_str=None, tz_name=None):
     if mapped_games:
         return mapped_games
 
+    # Only a complete upstream response can establish that this is really an
+    # empty calendar day. If one of the timezone-overlap requests failed, do
+    # not cache an empty response that could hide games from the other date.
+    if successful_fetches == len(espn_dates):
+        return []
+
     # Keep the outage fallback timezone-correct rather than returning an empty
     # state for the whole application. These records are intentionally limited
     # to the bundled snapshot and are superseded on the next successful fetch.
@@ -311,7 +317,12 @@ def compute_today_games(cache, date_str=None, tz_name=None):
                 mapped_games.append(dict(game))
         except (KeyError, ValueError):
             continue
-    return mapped_games
+    if mapped_games:
+        return mapped_games
+
+    raise ProviderUnavailableError(
+        f"NBA scoreboard unavailable for ESPN dates: {', '.join(espn_dates)}"
+    )
 
 
 
@@ -525,11 +536,13 @@ def register_routes(app, cache):
             return jsonify(data)
         except ProviderUnavailableError as e:
             print("ERROR nba today games: provider unavailable:", e)
-            return jsonify({
+            response = jsonify({
                 'error': 'NBA scoreboard temporarily unavailable',
                 'temporary_unavailable': True,
                 'games': [],
-            }), 503
+            })
+            response.headers['Retry-After'] = '30'
+            return response, 503
         except Exception as e:
             print("ERROR nba today games:", e)
             return jsonify({'error': 'Failed to fetch games', 'games': []}), 500

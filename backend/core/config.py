@@ -79,14 +79,9 @@ def validate_environment(testing=False):
             "Please configure API_SPORTS_KEY in your .env or environment."
         )
 
-    # In production environments, check for essential keys
-    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("VERCEL") == "1"
-    bdl_key = (os.getenv("BALLDONTLIE_API_KEY") or os.getenv("NBA_API_KEY") or "").strip()
-    if is_prod and not bdl_key:
-        errors.append(
-            "BALLDONTLIE_API_KEY (or NBA_API_KEY) is required in production mode. "
-            "Please configure it in your deployment environment."
-        )
+    # BallDontLie augments optional NBA player data. ESPN scoreboards and the
+    # rest of the application remain functional without it, so its absence
+    # must not prevent a production serverless function from starting.
 
     if errors:
         msg = "\n[STARTUP ERROR] Environment configuration validation failed:\n" + "\n".join(f" - {err}" for err in errors)
